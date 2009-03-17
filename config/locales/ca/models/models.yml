@@ -1,0 +1,14 @@
+ca:
+  activerecord:
+    models:
+      asset: recurs
+      tag: etiqueta
+    attributes:
+      asset:
+        name: "Nom"
+        description: "Descripció"
+        resource: "Recurs"
+        asset_type_id: "Tipus de recurs"
+        tags: "Etiquetes"
+      tag:
+        name: "Nom"

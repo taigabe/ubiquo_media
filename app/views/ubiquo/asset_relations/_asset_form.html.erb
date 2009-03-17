@@ -1,0 +1,46 @@
+<%= ubiquo_image_tag("ajax-loader.gif", :style => "display: none;", :id => "new_#{field}_loader") %>
+<div id="new_<%= field %>_form">
+  <%= error_messages_for 'asset' %>
+  <%= tag(:input, :type => "hidden", :name => request_forgery_protection_token.to_s, :value =>  RAILS_ENV == 'test' ? "" : form_authenticity_token) %>
+  <%= tag(:input, :type => "hidden", :name => "field", :value => field) %>
+  <% types.each do |type| %>
+    <%= tag(:input, :type => "hidden", :name => "types[]", :value => type.key) %>
+  <% end %>
+  <p>
+    <%= label :asset, :name, Asset.human_attribute_name("name") %>
+    <%= text_field :asset, :name %>
+  </p>
+
+  <p>
+    <%= label :asset, :resource, Asset.human_attribute_name("resource") %>
+    <%= file_field :asset, :resource %>
+  </p>
+	
+  <% if types.size == 1 %>
+    <%= hidden_field :asset, :asset_type_id, :value => types.first.id %>
+  <% else %>
+  	<p>
+   	  <%= label :asset, :asset_type_id, Asset.human_attribute_name("asset_type_id") %>
+   	  <%= select :asset, :asset_type_id, types.map{|e|[e.name, e.id]} %>
+  	</p>	
+  <% end %>
+
+  <p>
+    <%= label :asset, :tags_string, Asset.human_attribute_name("tags") %>
+    <%= text_field :asset, :tags_string %>
+  </p>
+
+  <p>
+    <%= label :asset, :is_protected, Asset.human_attribute_name("is_protected") %>
+    <%= check_box :asset, :is_protected %>
+  </p>
+
+  <p>
+	<p class="form_buttons">
+	  <%= button_to_function t('ubiquo.design.save') do |page|
+            page << "$('new_#{field}_loader').toggle();"
+            page << "send_as_form('new_#{field}_form', '#{formatted_ubiquo_assets_url(:js)}', 'POST');"
+          end %>
+	</p>
+
+</div>

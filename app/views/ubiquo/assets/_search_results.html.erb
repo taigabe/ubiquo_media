@@ -1,0 +1,36 @@
+<% if assets.empty? %>
+  <%= t('ubiquo.media.no_assets_found') %>
+<% end %>
+
+<ul class='assets_list'>
+  <% assets.each do |asset| %>
+      <li>
+		<h4><%= asset.name %></h4>
+        <%= link_to(t('ubiquo.media.asset_open'), asset.resource.url, :class => 'view', :popup => true) %>
+        <%= link_to_function(t('ubiquo.media.asset_select'), 
+				  "media_fields.add_element('#{field}', #{asset.id}, #{asset.name.to_json}, #{view_asset_link(asset).to_json});", :class=> 'select') %>
+      </li>
+  <% end %>	
+</ul>
+ 
+<%
+  options = {
+    :text => search_text, 
+    :before => "Element.show(\"search_spinner_#{field}\")", 
+    :success => "Element.hide(\"search_spinner_#{field}\")",
+    :failure => "Element.hide(\"search_spinner_#{field}\")",
+    :with => "'field=#{field}&text=' + $('asset_search_string_#{field}').value",
+    :method => :get,    
+  }
+%>
+
+<div class="assets_paginator">
+  <% unless paginator_url[:previous].nil? %>
+      &lt; <%= link_to_remote t('ubiquo.media.asset_previous'), options.merge(:url => paginator_url[:previous]) %>
+  <% end %>
+  
+  <% unless paginator_url[:next].nil? %>
+      <%= link_to_remote t('ubiquo.media.asset_next'), options.merge(:url => paginator_url[:next]) %> &gt;
+  <% end %>
+</div>
+

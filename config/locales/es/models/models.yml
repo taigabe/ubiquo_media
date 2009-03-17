@@ -1,0 +1,14 @@
+es:
+  activerecord:
+    models:
+      asset: recurso
+      tag: etiqueta
+    attributes:
+      asset:
+        name: "Nombre"
+        description: "Descripción"
+        resource: "Recurso"
+        asset_type_id: "Tipo de recurso"
+        tags: "Etiquetas"
+      tag:
+        name: "Nombre"

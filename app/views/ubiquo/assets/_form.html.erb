@@ -1,0 +1,36 @@
+<%= error_messages_for 'asset' %>
+<div class="form_box">
+	<p>
+      <%= f.label :name, Asset.human_attribute_name("name") %>
+      <%= f.text_field :name %>
+	</p>
+	<p>
+	  <%= f.label :description, Asset.human_attribute_name("description") %> 
+	  <%= f.text_area :description, :cols => 70, :rows => 4, :class => 'not_full' %>
+	</p>
+	<fieldset>
+	  <legend><%= Asset.human_attribute_name("resource") %></legend>
+	  <p>
+		<%= f.file_field :resource %> 
+		<%= link_to t('ubiquo.media.current_file'), f.object.resource.url if f.object.resource %>
+	  </p>
+	  <p>
+	    <%= f.label :asset_type_id, Asset.human_attribute_name("asset_type_id") %> 
+	    <%= f.select :asset_type_id, @asset_types.map { |e| [e.name, e.id] } %>
+	  </p>
+	</fieldset>
+	<p>
+	  <%= f.label(:tags_string, t('ubiquo.media.tags')) + " " + t('ubiquo.media.use_commas')  %> 
+	  <%= f.text_field :tags_string %>
+	</p>
+    <p>
+      <% if f.object.new_record? -%>
+        <%= label_tag :is_protected, t("ubiquo.media.is_protected") %>
+        <%= check_box_tag :is_protected %>
+      <% end %>
+    </p>
+</div>
+
+<% content_for :sidebar do%>
+	<%= help_block_sidebar(t("ubiquo.helpmsg.media.assets.form")) %>
+<% end %>

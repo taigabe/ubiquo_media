@@ -1,0 +1,17 @@
+<h1><%= render :partial => 'title' %></h1>
+<h2>
+  <%= render :partial => "submenu" %>
+</h2>
+<%= render(:partial => "shared/ubiquo/feedback") %>
+
+<% form_for([:ubiquo, @asset], :url => ubiquo_asset_path(@asset), :method => "put", :html => {:multipart => true}) do |f| %>
+	<%= render :partial => 'form', :locals => {:f => f} %>
+	  <p class="form_buttons">
+	    <%= f.submit t('ubiquo.save') %>
+			<%= button_to_function t('ubiquo.back_to_list'), "document.location.href='#{ubiquo_assets_path}'" %>
+	  </p>
+<% end %>
+
+<% # content_for :sidebar do %>
+	
+<% # end %>

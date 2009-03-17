@@ -1,0 +1,49 @@
+--- 
+asset_tags_007: 
+  updated_at: 2008-07-28 15:29:04
+  tag_id: "11"
+  id: "46"
+  asset_id: "5"
+  created_at: 2008-07-28 15:29:04
+asset_tags_008: 
+  updated_at: 2008-07-28 15:30:06
+  tag_id: "17"
+  id: "47"
+  asset_id: "9"
+  created_at: 2008-07-28 15:30:06
+asset_tags_001: 
+  updated_at: 2008-07-28 15:24:07
+  tag_id: "11"
+  id: "36"
+  asset_id: "7"
+  created_at: 2008-07-28 15:24:07
+asset_tags_002: 
+  updated_at: 2008-07-28 15:24:07
+  tag_id: "12"
+  id: "37"
+  asset_id: "7"
+  created_at: 2008-07-28 15:24:07
+asset_tags_003: 
+  updated_at: 2008-07-28 15:24:07
+  tag_id: "13"
+  id: "38"
+  asset_id: "7"
+  created_at: 2008-07-28 15:24:07
+asset_tags_004: 
+  updated_at: 2008-07-28 15:24:16
+  tag_id: "12"
+  id: "39"
+  asset_id: "6"
+  created_at: 2008-07-28 15:24:16
+asset_tags_005: 
+  updated_at: 2008-07-28 15:24:16
+  tag_id: "11"
+  id: "40"
+  asset_id: "6"
+  created_at: 2008-07-28 15:24:16
+asset_tags_006: 
+  updated_at: 2008-07-28 15:29:04
+  tag_id: "14"
+  id: "45"
+  asset_id: "5"
+  created_at: 2008-07-28 15:29:04

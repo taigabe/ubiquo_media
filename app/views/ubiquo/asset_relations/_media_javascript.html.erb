@@ -1,0 +1,110 @@
+<%
+#returns javascript only once per request.
+if @is_media_included != true
+	@is_media_included = true
+%>
+<script type="text/javascript">
+	var Media = Class.create({
+		initialize: function(){
+			this.fields = [];
+
+		},
+		set_name: function(name){
+			this.name = name;
+		},
+		// Limit = 0 -> no limit
+		add_field: function(field, limit){
+			this.fields[field] = {size: 0, max: limit};
+		},
+		//Adds a new element to a media field
+		add_element: function(field, id, name, view_link){
+			var uniq = this.name+"_"+field;
+			var uniq_id = this.name+"_"+field+"_"+id;
+			var templ = new Template(""+
+				"<li id='#{field}_element_#{id}'>"+
+					"<input type='hidden' name='"+this.name+"[#{field}_ids][][id]' value='#{id}' />"+
+						"<a class='handle'>handle</a>"+
+						"<h4>#{name}</h4>" +
+						"#{view_link}" + 
+						"<a onclick='media_fields.delete_element(\"#{field}\", #{id}); return false;' href='#' class='delete'><%= t('ubiquo.media.remove') %></a>" +
+					"#{content}"+
+					"<dl class='assigned_text'>"+
+						"<dt><%= t('ubiquo.media.assigned_text') %>:</dt>"+
+						"<dd id='#{uniq_id}_name'>"+
+							"<span>#{name}</span>"+
+							"<a class='change' href='#' onclick=\"media_fields.change_name('#{uniq_id}');return false;\"><%= t('ubiquo.media.change_text') %></a>"+
+						"</dd>"+
+						"<dd id='#{uniq_id}_field' style='display:none'>"+
+							"<input type='text' class='short' onkeypress=\"if(event.keyCode==13){media_fields.change_name('#{uniq_id}');return false;}\" name='"+this.name+"[#{field}_ids][][name]' value='#{name}'/>"+
+							"<a class='change' href='#' onclick=\"media_fields.change_name('#{uniq_id}');return false;\"><%= t('ubiquo.media.save') %></a>"+
+						"</dd>"+
+					"</dl>"+
+				"</li>")
+			$(field+"_relations_list").insert(templ.evaluate({
+				field: field,
+				id: id,
+				view_link: view_link,
+				name: name,
+				uniq: this.name+"_"+field, 
+				uniq_id: this.name+"_"+field+"_"+id
+			}))
+			Sortable.create(field+"_relations_list", {
+				handle:'handle', 
+				onUpdate:function(){
+					new Ajax.Request('#', {
+						asynchronous:true, 
+						evalScripts:true, 
+						parameters:Sortable.serialize(field+"_relations_list") + '&authenticity_token=' + encodeURIComponent('<%= params[:authenticity_token] %>')
+					})
+				}, 
+				onupdate:function(){}
+			})
+			
+			this.fields[field]['size']++;
+			this.reload(field);
+		},
+
+		change_name: function(uniq_id){
+			$(uniq_id+'_name').select('span').first().innerHTML = $(uniq_id+'_field').select('input').first().value;
+			$(uniq_id+'_name').toggle();
+			$(uniq_id+'_field').toggle();
+			$(uniq_id+'_field').select("input").first().focus();
+		},
+
+		//Deletes a selected element from a media field
+		delete_element: function(field, id){
+			$(field+"_element_"+id).remove();
+			this.fields[field]['size']--;
+			this.reload(field);
+		},
+
+		//Hides or show 'add' and 'search' links (and inner content)
+		reload: function(field){
+			var f = this.fields[field];
+			var action = null;
+			if(f['max'] == 0 || f['size'] < f['max']){
+				action = function(s){s.show();}
+			}else{
+				action = function(s){s.hide();}
+			}
+			$$("#" + field + '_media_selector .handle').each(function(e){
+				if(f['size'] <= 1){
+					e.hide();
+				}else{
+					e.show();
+				}
+			});
+			var e = $$("#"+field+"_media_selector .list_caption").first();
+			if(f['size'] == 0){
+				e.innerHTML="<input type='hidden' name='"+this.name+"["+field+"_ids][]' />";
+			}else if(f['size'] == 1){
+				e.innerHTML="<h4><%= t('ubiquo.media.selected_media_element') %>:</h4><p><%= t('ubiquo.media.footer_text') %></p>";
+			}else{
+				e.innerHTML="<h4><%= t('ubiquo.media.selected_media_elements') %>:</h4><p><%= t('ubiquo.media.footer_text') %></p>";
+			}
+			action($("actions_"+field));
+		}
+	});
+	media_fields = new Media();
+</script>
+<% end %>

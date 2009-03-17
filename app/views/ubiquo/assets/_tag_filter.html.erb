@@ -1,0 +1,16 @@
+<% lateral_filter t('ubiquo.media.tag_filter'), :filter_tag do %>
+	<div id="tag_filter_content">
+	<ul>
+	  <% sizes = @tags.map{|t|t.assets.size};
+	     min, max = [sizes.min, sizes.max] %>
+	  <% @tags.each do |t| %>
+		<li>
+		  <% link = params.merge(:filter_tag => t.name, :page => nil) %>
+		  <% classActive = params[:filter_tag]==t.name ? "on" : "off" %>
+		  <% classSize = ("size%.0f" % ((((t.assets.size.to_f - min)/(max-min))*3)+1).to_s) %>
+		  <%= link_to t.name, link, :class => classActive + " " + classSize %>
+		</li>
+	  <% end %>
+	</ul>
+	</div>
+<% end %>
