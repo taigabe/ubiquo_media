@@ -13,6 +13,7 @@ class Ubiquo::AssetsController < UbiquoAreaController
       :tag => params[:filter_tag], 
       :type => params[:filter_type], 
       :text => params[:filter_text],
+      :visibility => params[:filter_visibility],
       :created_start => parse_date(params[:filter_created_start]),
       :created_end => parse_date(params[:filter_created_end], :time_offset => 1.day),         
     }
