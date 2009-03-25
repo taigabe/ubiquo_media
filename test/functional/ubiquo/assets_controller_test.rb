@@ -86,7 +86,7 @@ class Ubiquo::AssetsControllerTest < ActionController::TestCase
   end
 
   def test_should_filter_by_text_and_ubiquo_user_paginated_view
-    (Ubiquo::Config.get(:assets_elements_per_page) * 2).times do
+    (Ubiquo::Config.context(:ubiquo_media).get(:assets_elements_per_page) * 2).times do
       create_asset(
                    :asset_type_id => asset_types(:asset_types_004).id, 
                    :name => "MyName" 
