@@ -86,7 +86,7 @@ class Ubiquo::AssetsControllerTest < ActionController::TestCase
   end
 
   def test_should_filter_by_text_and_ubiquo_user_paginated_view
-    (Ubiquo::Config.get(:elements_per_page) * 2).times do
+    (Ubiquo::Config.context(:ubiquo_media).get(:assets_elements_per_page) * 2).times do
       create_asset(
                    :asset_type_id => asset_types(:asset_types_004).id, 
                    :name => "MyName" 
@@ -126,6 +126,19 @@ class Ubiquo::AssetsControllerTest < ActionController::TestCase
     assert_equal_set [asset1, asset2], assigns(:assets)
   end
 
+  def test_should_not_divide_by_zero_when_min_and_max_tags_are_equal
+    Tag.delete_all
+    Asset.delete_all
+    Tag.create(:name => 'minmax')
+    2.times do 
+      asset = create_asset
+      asset.tags_string="minmax"
+      asset.save
+    end
+    get :index
+    assert_response :success
+  end
+  
   private
 
   def create_asset(options = {})
