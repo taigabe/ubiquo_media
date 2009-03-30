@@ -124,6 +124,15 @@ class MediaFileTest < ActiveSupport::TestCase
     assert_equal AssetRelation.find(:first).position, 1
     assert_equal AssetRelation.find(:first, :offset => 1).position, 2
   end
+  
+  def test_name_for_asset_should_work_when_multiple_media_attachments_are_in_use
+    a = assets(:audio)
+    t = AssetTag.create :simple_ids => [a.id.to_s]
+    t.name_for_asset(:simple,a)
+    t.update_attributes :some_types_ids => [{"id" => a.id.to_s, "name" => "Test name"}]
+    t = AssetTag.find(t.id)
+    assert_equal [a], t.some_types
+  end
 end
 
 class AssetTag # Using this model because is very simple and has no validations
