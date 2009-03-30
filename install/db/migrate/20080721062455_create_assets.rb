@@ -8,6 +8,7 @@ class CreateAssets < ActiveRecord::Migration
       t.integer :resource_file_size
       t.string :resource_content_type
       t.string :type
+      t.boolean :is_protected
       
       t.timestamps
     end
