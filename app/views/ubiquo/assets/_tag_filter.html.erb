@@ -7,7 +7,7 @@
 		<li>
 		  <% link = params.merge(:filter_tag => t.name, :page => nil) %>
 		  <% classActive = params[:filter_tag]==t.name ? "on" : "off" %>
-		  <% classSize = ("size%.0f" % ((((t.assets.size.to_f - min)/(max-min))*3)+1).to_s) %>
+		  <% classSize = ("size%.0f" % ((((t.assets.size.to_f - min)/(max-min == 0 ? max : max-min))*3)+1).to_s) %>
 		  <%= link_to t.name, link, :class => classActive + " " + classSize %>
 		</li>
 	  <% end %>

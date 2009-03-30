@@ -126,6 +126,19 @@ class Ubiquo::AssetsControllerTest < ActionController::TestCase
     assert_equal_set [asset1, asset2], assigns(:assets)
   end
 
+  def test_should_not_divide_by_zero_when_min_and_max_tags_are_equal
+    Tag.delete_all
+    Asset.delete_all
+    Tag.create(:name => 'minmax')
+    2.times do 
+      asset = create_asset
+      asset.tags_string="minmax"
+      asset.save
+    end
+    get :index
+    assert_response :success
+  end
+  
   private
 
   def create_asset(options = {})
