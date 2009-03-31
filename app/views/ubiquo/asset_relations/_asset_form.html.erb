@@ -26,11 +26,6 @@
   <% end %>
 
   <p>
-    <%= label :asset, :tags_string, Asset.human_attribute_name("tags") %>
-    <%= text_field :asset, :tags_string %>
-  </p>
-
-  <p>
     <%= label :asset, :is_protected, Asset.human_attribute_name("is_protected") %>
     <%= check_box :asset, :is_protected %>
   </p>

@@ -7,13 +7,6 @@ module Ubiquo::AssetsHelper
     else
       nil
     end
-    tags_filter = if Ubiquo::Config.context(:ubiquo_media).get(:assets_tags_filter_enabled)
-      filter_info(:links, params,
-        :field => :filter_tag,
-        :caption => t('ubiquo.media.tag'))     
-    else
-      nil
-    end
     asset_types_filter = if Ubiquo::Config.context(:ubiquo_media).get(:assets_asset_types_filter_enabled)
       filter_info(:links, params,
         :caption => t('ubiquo.media.type'),
@@ -43,7 +36,7 @@ module Ubiquo::AssetsHelper
     else
       nil
     end
-    build_filter_info(string_filter, tags_filter, asset_types_filter, asset_visibility_filter, date_filter)
+    build_filter_info(string_filter, asset_types_filter, asset_visibility_filter, date_filter)
   end
 
   def asset_filters(url_for_options = {})
@@ -51,11 +44,6 @@ module Ubiquo::AssetsHelper
       render_filter(:string, url_for_options,
         :field => :filter_text,
         :caption => t('ubiquo.media.text'))
-    else
-      ''
-    end
-    tags_filter = if Ubiquo::Config.context(:ubiquo_media).get(:assets_tags_filter_enabled)
-      render(:partial => 'tag_filter')   
     else
       ''
     end
@@ -87,7 +75,7 @@ module Ubiquo::AssetsHelper
     else
       ''
     end
-    (string_filter + tags_filter + asset_types_filter + asset_visibility_filter + date_filter)
+    (string_filter + asset_types_filter + asset_visibility_filter + date_filter)
   end
   
 end

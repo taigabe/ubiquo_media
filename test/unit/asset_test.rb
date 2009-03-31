@@ -30,25 +30,6 @@ class AssetTest < ActiveSupport::TestCase
     end
   end
 
-  def test_should_assign_tags_as_string
-    assert_difference "Tag.count", 3 do
-      #set resource because this is obligatory. Don't set it in fixtures because we can't
-      assets(:video).resource = test_file
-      assets(:video).tags_string = "tag1, tag2, tag3"
-      assert assets(:video).save
-      assert_equal assets(:video).tags.size, 3
-    end
-  end
-
-  def test_should_assign_tags_as_array
-    assert_difference "Tag.count", 3 do
-      assets(:video).resource = test_file
-      assets(:video).tags_string = %w{tag1 tag2 tag3}
-      assets(:video).save
-      assert_equal assets(:video).tags.size, 3
-    end
-  end
-
   def test_simple_filter
     assets = Asset.filtered_search
     assert_equal assets.size, Asset.count

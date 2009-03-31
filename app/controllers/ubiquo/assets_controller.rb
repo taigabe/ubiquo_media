@@ -1,7 +1,6 @@
 class Ubiquo::AssetsController < UbiquoAreaController
   ubiquo_config_call :assets_access_control, {:context => :ubiquo_media}
   before_filter :load_asset_visibilities
-  before_filter :load_tags
   before_filter :load_asset_types
 
   # GET /assets
@@ -10,7 +9,6 @@ class Ubiquo::AssetsController < UbiquoAreaController
     params[:order_by] = params[:order_by] || Ubiquo::Config.context(:ubiquo_media).get(:assets_default_order_field)
     params[:sort_order] = params[:sort_order] || Ubiquo::Config.context(:ubiquo_media).get(:assets_default_sort_order)
     filters = {
-      :tag => params[:filter_tag], 
       :type => params[:filter_type], 
       :text => params[:filter_text],
       :visibility => params[:filter_visibility],
@@ -143,10 +141,6 @@ class Ubiquo::AssetsController < UbiquoAreaController
                           ]
   end
 
-  def load_tags
-    @tags = Tag.find_for_assets
-  end
-  
   def load_asset_types
     @asset_types = AssetType.find :all
   end

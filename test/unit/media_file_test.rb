@@ -4,7 +4,7 @@ class MediaFileTest < ActiveSupport::TestCase
   use_ubiquo_fixtures
 
   def test_simple
-    t = AssetTag.find(:first)
+    t = AssetType.find(:first)
     a = Asset.find(:first)
 
     assert !t.simple.is_full?
@@ -18,7 +18,7 @@ class MediaFileTest < ActiveSupport::TestCase
   end
 
   def test_multiple
-    t = AssetTag.find(:first)
+    t = AssetType.find(:first)
     a = Asset.find(:first)
     b = Asset.find(:first, :offset => 1)
     assert a!=b
@@ -34,7 +34,7 @@ class MediaFileTest < ActiveSupport::TestCase
 
   def test_sized
 
-    t = AssetTag.find(:first)
+    t = AssetType.find(:first)
     a = Asset.find(:first)
     b = Asset.find(:first, :offset => 1)
     assert a!=b
@@ -49,14 +49,14 @@ class MediaFileTest < ActiveSupport::TestCase
   end
 
   def test_all_types
-    t = AssetTag.find(:first)
+    t = AssetType.find(:first)
     a = assets(:video)
     assert t.all_types.accepts?(a)
     a = assets(:audio)
     assert t.all_types.accepts?(a)
   end
   def test_some_types
-    t = AssetTag.first
+    t = AssetType.first
     a = assets(:video)
     assert t.some_types.accepts?(a)
     a = assets(:doc)
@@ -66,7 +66,7 @@ class MediaFileTest < ActiveSupport::TestCase
   def test_insertion_of_asset_relations
     AssetRelation.destroy_all
 
-    t = AssetTag.find(:first)
+    t = AssetType.find(:first)
     a = Asset.find(:first)
     assert_difference "::AssetRelation.count" do
       assert_difference "t.simple.size" do
@@ -82,7 +82,7 @@ class MediaFileTest < ActiveSupport::TestCase
     a = Asset.find(:first)
     t=nil
     assert_no_difference "::AssetRelation.count" do
-      t = AssetTag.new :simple_ids => [a.id.to_s]
+      t = AssetType.new :simple_ids => [a.id.to_s]
     end
 
     assert_difference "t.simple.size" do
@@ -96,7 +96,7 @@ class MediaFileTest < ActiveSupport::TestCase
     b = Asset.find(:first, :offset => 1)
     t = nil
     assert_difference "::AssetRelation.count", 2 do
-      t = AssetTag.create :multiple_ids => ["", {"id" => a.id.to_s, "name" => "Test name"}, {"id" => b.id.to_s, "name" => "Test name 2"}]
+      t = AssetType.create :multiple_ids => ["", {"id" => a.id.to_s, "name" => "Test name"}, {"id" => b.id.to_s, "name" => "Test name 2"}]
     end
     t.multiple.reload
     assert_equal t.name_for_asset(:multiple, t.multiple[0]), "Test name"
@@ -107,7 +107,7 @@ class MediaFileTest < ActiveSupport::TestCase
     a = Asset.find(:first)
     t = nil
     assert_difference "::AssetRelation.count" do
-      t = AssetTag.create :simple_ids => ["", a.id.to_s]
+      t = AssetType.create :simple_ids => ["", a.id.to_s]
     end
     simples = t.simple
     assert_equal t.simple.size, 1
@@ -119,7 +119,7 @@ class MediaFileTest < ActiveSupport::TestCase
     a = Asset.find(:first)
     b = Asset.find(:first, :offset => 1)
     assert_difference "::AssetRelation.count", 2 do
-      AssetTag.create :multiple_ids => ["", {"id" => a.id.to_s, "name" => "Test name"}, {"id" => b.id.to_s, "name" => "Test name 2"}]
+      AssetType.create :multiple_ids => ["", {"id" => a.id.to_s, "name" => "Test name"}, {"id" => b.id.to_s, "name" => "Test name 2"}]
     end
     assert_equal AssetRelation.find(:first).position, 1
     assert_equal AssetRelation.find(:first, :offset => 1).position, 2
@@ -127,15 +127,15 @@ class MediaFileTest < ActiveSupport::TestCase
   
   def test_name_for_asset_should_work_when_multiple_media_attachments_are_in_use
     a = assets(:audio)
-    t = AssetTag.create :simple_ids => [a.id.to_s]
+    t = AssetType.create :simple_ids => [a.id.to_s]
     t.name_for_asset(:simple,a)
     t.update_attributes :some_types_ids => [{"id" => a.id.to_s, "name" => "Test name"}]
-    t = AssetTag.find(t.id)
+    t = AssetType.find(t.id)
     assert_equal [a], t.some_types
   end
 end
 
-class AssetTag # Using this model because is very simple and has no validations
+class AssetType # Using this model because is very simple and has no validations
   media_attachment :simple
   media_attachment :multiple, :size => :many
   media_attachment :sized, :size => 2

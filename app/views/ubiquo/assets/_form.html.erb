@@ -19,10 +19,6 @@
 	    <%= f.select :asset_type_id, @asset_types.map { |e| [e.name, e.id] } %>
 	  </p>
 	</fieldset>
-	<p>
-	  <%= f.label(:tags_string, t('ubiquo.media.tags')) + " " + t('ubiquo.media.use_commas')  %> 
-	  <%= f.text_field :tags_string %>
-	</p>
     <p>
       <% if f.object.new_record? -%>
         <%= label_tag :is_protected, t("ubiquo.media.is_protected") %>
