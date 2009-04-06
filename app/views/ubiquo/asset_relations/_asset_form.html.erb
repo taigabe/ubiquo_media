@@ -13,10 +13,6 @@
     <%= file_field :asset, :resource %>
   </p>
 	
-  <p>
-    <%= label :asset, :tags_string, Asset.human_attribute_name("tags") %>
-    <%= text_field :asset, :tags_string %>
-  </p>
 
   <% if visibility.nil? -%>
     <p>

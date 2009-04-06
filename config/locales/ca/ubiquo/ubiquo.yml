@@ -6,7 +6,6 @@ ca:
       media_list: "Llistat multimedia"
       asset_new: "Nou recurs"
       confirm_asset_removal: "Estàs segur de voler eliminar aquest recurs?"
-      tag_filter: "Filtrar per etiquetes"
       current_file: "Fitxer actual"
       use_commas: "(Utilitza comes per a separar les etiquetes)"
       asset_created: "Recurs creat amb èxit"
@@ -15,10 +14,8 @@ ca:
       asset_update_error: "Error modificant el recurs"
       asset_removed: "Recurso eliminat amb èxit"
       asset_remove_error: "Error a l'eliminar el recurs"
-      tags: "Etiquetes"
        # Helpers
       text: "text"
-      tag: "etiqueta"
       type: "tipus"
       all: "-- Tots --"
       visibility: "visibilitat"

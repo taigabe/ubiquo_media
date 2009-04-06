@@ -153,9 +153,9 @@ module UbiquoMedia
                           :order => "asset_relations.position ASC"
                         },&proc)
 
-          define_method("name_for_asset") do |field, asset|
-            return "" if field.to_s.blank? || asset.nil?
-            AssetRelation.name_for_asset(field, asset, self)
+          define_method("name_for_asset") do |asset_field, asset|
+            return "" if asset_field.to_s.blank? || asset.nil?
+            AssetRelation.name_for_asset(asset_field, asset, self)
           end
           
           define_method("#{field}_ids=") do |values|
