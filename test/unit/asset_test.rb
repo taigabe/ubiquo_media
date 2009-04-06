@@ -25,7 +25,8 @@ class AssetTest < ActiveSupport::TestCase
 
   def test_should_require_asset_type_id
     assert_no_difference "Asset.count" do
-      asset = create_asset :asset_type_id => nil
+      #if asset hasn't resource, it can't set asset type
+      asset = create_asset :resource => nil
       assert asset.errors.on(:asset_type_id)
     end
   end
@@ -92,7 +93,6 @@ class AssetTest < ActiveSupport::TestCase
       :name => "Created asset", 
       :description => "Description", 
       :resource => test_file,       
-      :asset_type_id => AssetType.find(:first).id,
     }
     a = AssetPublic.create(default_options.merge(options))
   end

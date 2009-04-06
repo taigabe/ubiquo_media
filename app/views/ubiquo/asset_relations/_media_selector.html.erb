@@ -14,7 +14,9 @@
 
 	  <div id="add_<%= field %>">
 	    <%= render :partial => 'ubiquo/asset_relations/asset_form.html.erb', 
-	               :locals => {:field => field, :types => assets.options[:asset_types]} %>
+	               :locals => { :field => field, 
+                                :types => assets.options[:asset_types],
+                                :visibility => visibility } %>
 	  </div>
 
   	</fieldset>
@@ -24,7 +26,9 @@
 
 	  <div id="search_<%= field %>">
 	    <%= render :partial => 'ubiquo/asset_relations/asset_search.html.erb', 
-	               :locals => {:field => field, :types => assets.options[:asset_types]} %>
+	               :locals => { :field => field, 
+                                :types => assets.options[:asset_types],
+                                :visibility => visibility } %>
 	  </div>
 	</fieldset>
 	</div>
@@ -40,7 +44,8 @@
 		media_fields.add_element(
 			'<%= field %>', 
 			<%= asset.id %>, 
-			<%= object.name_for_asset(field, asset).to_json %>, 
+			<%= object.name_for_asset(field, asset).to_json %>,
+            <%= thumbnail_url(asset).to_json %>,
 			<%= view_asset_link(asset).to_json %>
 		);
 	<% end %>

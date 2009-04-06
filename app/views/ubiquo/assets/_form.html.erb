@@ -10,13 +10,14 @@
 	</p>
 	<fieldset>
 	  <legend><%= Asset.human_attribute_name("resource") %></legend>
+      <% if f.object.resource.original_filename -%>
+        <%= image_tag(thumbnail_url(f.object)) %>
+      <% end %>
 	  <p>
 		<%= f.file_field :resource %> 
-		<%= link_to t('ubiquo.media.current_file'), f.object.resource.url if f.object.resource %>
-	  </p>
-	  <p>
-	    <%= f.label :asset_type_id, Asset.human_attribute_name("asset_type_id") %> 
-	    <%= f.select :asset_type_id, @asset_types.map { |e| [e.name, e.id] } %>
+        <% if f.object.resource.original_filename -%>
+		  <%= link_to t('ubiquo.media.current_file'), f.object.resource.url %>
+        <% end %>
 	  </p>
 	</fieldset>
 	<p>

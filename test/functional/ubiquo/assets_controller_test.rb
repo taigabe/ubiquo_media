@@ -28,7 +28,10 @@ class Ubiquo::AssetsControllerTest < ActionController::TestCase
 
   def test_should_create_asset
     assert_difference('Asset.count') do
-      post :create, :asset_public => { :name => "new asset", :resource => test_file, :asset_type_id => AssetType.find(:first).id}, :is_protected => false
+      post :create, :asset => { :name => "new asset", 
+                                :resource => test_file, 
+                                :asset_type_id => AssetType.find(:first).id}, 
+                                :is_protected => false
     end
     assert_redirected_to ubiquo_assets_path
   end
@@ -39,7 +42,10 @@ class Ubiquo::AssetsControllerTest < ActionController::TestCase
   end
 
   def test_should_update_asset
-    put :update, :id => assets(:video).id, :asset_public => { :name => "new asset", :resource => test_file, :asset_type_id => AssetType.find(:first).id}, :is_protected => false
+    put :update, :id => assets(:video).id, 
+        :asset => { :name => "new asset", 
+                    :resource => test_file,
+                    :is_protected => false }
     assert_redirected_to ubiquo_assets_path
   end
 
@@ -147,6 +153,7 @@ class Ubiquo::AssetsControllerTest < ActionController::TestCase
       :description => "Description", 
       :asset_type_id => AssetType.find(:first).id,
       :resource => test_file,
+      :is_protected => false,
     }
     
     AssetPublic.create(default_options.merge(options))

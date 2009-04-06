@@ -8,7 +8,7 @@ class Asset < ActiveRecord::Base
   validates_presence_of :name, :asset_type_id, :type
   validate :check_tags
   after_save :set_asset_tags
-
+  before_validation_on_create :set_asset_type
   attr_accessor :tags_string
 
   # Generic find (ID, key or record)
@@ -85,7 +85,11 @@ class Asset < ActiveRecord::Base
       end
     end
   end
-
+  
+  def self.visibilize(visibility)
+    "asset_#{visibility}".classify.constantize
+  end
+  
   private
 
   # Read current tags_string value and get Tag instances in accordance.
@@ -104,5 +108,21 @@ class Asset < ActiveRecord::Base
     self.tags << @create_tags
     self.tags.reload
     @create_tags = nil
+  end
+  
+  def set_asset_type
+    if self.resource.errors.blank?
+      # mime_types hash is here momentarily but maybe its must be in ubiquo config
+      mime_types = Ubiquo::Config.context(:ubiquo_media).get(:mime_types)
+      content_type = self.resource_content_type.split('/')
+      mime_types.each do |type_relations|
+        type_relations.last.each do |mime|
+          if content_type.include?(mime)
+            self.asset_type = AssetType.find_by_key(type_relations.first.to_s)
+          end
+        end
+      end
+      self.asset_type = AssetType.find_by_key("other") unless self.asset_type
+    end
   end
 end

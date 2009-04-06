@@ -17,5 +17,14 @@ Ubiquo::Plugin.register(:ubiquo_media, directory, config) do |config|
   config.add :assets_date_filter_enabled, true
   config.add :assets_default_order_field, 'assets.id'
   config.add :assets_default_sort_order, 'desc'
-
+  config.add :asset_types_icons, { :doc => "icon_doc.png", 
+                                   :video => "icon_video.png",
+                                   :audio => "icon_audio.png",
+                                   :flash => "icon_flash.png",
+                                   :other => "icon_other.png" }
+  config.add :mime_types, { :image => ["image"],
+                            :video => ["video"],
+                            :doc => ["text"],
+                            :audio => ["audio"],
+                            :flash => ["x-flv", "x-flash-video"] }
 end

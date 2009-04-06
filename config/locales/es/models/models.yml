@@ -10,5 +10,6 @@ es:
         resource: "Recurso"
         asset_type_id: "Tipo de recurso"
         tags: "Etiquetas"
+        is_protected: "Es un fichero protegido?"
       tag:
         name: "Nombre"

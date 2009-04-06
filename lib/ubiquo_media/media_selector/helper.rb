@@ -7,6 +7,7 @@ module UbiquoMedia
           :field => field,
           :object => form.object,
           :object_name => form.object_name.to_s,
+          :visibility => options[:visibility],
         }
         render :partial => 'ubiquo/asset_relations/media_selector.html.erb', :locals => locals
       end

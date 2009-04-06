@@ -17,7 +17,7 @@ if @is_media_included != true
 			this.fields[field] = {size: 0, max: limit};
 		},
 		//Adds a new element to a media field
-		add_element: function(field, id, name, view_link){
+		add_element: function(field, id, name, thumbnail_url, view_link){
 			var uniq = this.name+"_"+field;
 			var uniq_id = this.name+"_"+field+"_"+id;
 			var templ = new Template(""+
@@ -25,6 +25,7 @@ if @is_media_included != true
 					"<input type='hidden' name='"+this.name+"[#{field}_ids][][id]' value='#{id}' />"+
 						"<a class='handle'>handle</a>"+
 						"<h4>#{name}</h4>" +
+                        "<img src='#{thumb}' alt='#{name}'/>" +
 						"#{view_link}" + 
 						"<a onclick='media_fields.delete_element(\"#{field}\", #{id}); return false;' href='#' class='delete'><%= t('ubiquo.media.remove') %></a>" +
 					"#{content}"+
@@ -44,6 +45,7 @@ if @is_media_included != true
 				field: field,
 				id: id,
 				view_link: view_link,
+                thumb: thumbnail_url,
 				name: name,
 				uniq: this.name+"_"+field, 
 				uniq_id: this.name+"_"+field+"_"+id

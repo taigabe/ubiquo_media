@@ -50,11 +50,9 @@ class Ubiquo::AssetsController < UbiquoAreaController
   # POST /assets.xml
   def create
     field = params.delete(:field)
-    types = params.delete(:types)
-    types = types.map{|t|AssetType.gfind(t)} unless types.nil?
-    visibility = params.delete(:is_protected) ? "private" : "public"
+    visibility = get_visibility(params)
     asset_visibility = "asset_#{visibility}".classify.constantize
-    @asset = asset_visibility.new(params[:asset_public])
+    @asset = asset_visibility.new(params[:asset])
     respond_to do |format|
       if @asset.save
         flash[:notice] = t('ubiquo.media.asset_created')
@@ -64,10 +62,12 @@ class Ubiquo::AssetsController < UbiquoAreaController
           responds_to_parent do 
             render :update do |page|
               created = @asset
-              @asset = AssetPublic.new
-              page.replace_html "add_#{field}", :partial => "ubiquo/asset_relations/asset_form", :locals => {:field => field, :types => types}
+              @asset = asset_visibility.new(params[:asset])
+              page.replace_html "add_#{field}", :partial => "ubiquo/asset_relations/asset_form",
+                                                            :locals => { :field => field, 
+                                                                         :visibility => visibility }
               page.hide "add_#{field}"
-              page << "media_fields.add_element('#{field}', #{created.id}, #{created.name.to_json}, #{view_asset_link(created).to_json});"
+              page << "media_fields.add_element('#{field}', #{created.id}, #{created.name.to_json}, #{thumbnail_url(created).to_json}, #{view_asset_link(created).to_json});"
             end
           end
         }
@@ -80,7 +80,7 @@ class Ubiquo::AssetsController < UbiquoAreaController
         format.js {
           responds_to_parent do 
             render :update do |page|
-              page.replace_html "add_#{field}", :partial => "ubiquo/asset_relations/asset_form", :locals => {:field => field, :types => types}
+              page.replace_html "add_#{field}", :partial => "ubiquo/asset_relations/asset_form", :locals => {:field => field, :visibility => visibility }
             end
           end
         }
@@ -92,9 +92,10 @@ class Ubiquo::AssetsController < UbiquoAreaController
   # PUT /assets/1.xml
   def update
     @asset = Asset.find(params[:id])
-    visibility = @asset.type.to_s.underscore.gsub!("asset_", "")
+    require 'ruby-debug';debugger
+    visibility = get_visibility(params)
     respond_to do |format|
-      if @asset.update_attributes(params["asset_#{visibility}".to_sym])
+      if @asset.update_attributes(params[:asset])
         flash[:notice] = t('ubiquo.media.asset_updated')
         format.html { redirect_to(ubiquo_assets_path) }
         format.xml  { head :ok }
@@ -130,7 +131,7 @@ class Ubiquo::AssetsController < UbiquoAreaController
     @search_text = params[:text]
     @page = params[:page] || 1
     @assets_pages, @assets = Asset.paginate(:page => @page, :per_page => Ubiquo::Config.context(:ubiquo_media).get(:media_selector_list_size)) do
-      Asset.filtered_search({:text => @search_text, :type => params[:asset_type_id]})
+      Asset.filtered_search({:text => @search_text, :type => params[:asset_type_id], :visibility => params[:visibility]})
     end
   end
   
@@ -149,6 +150,14 @@ class Ubiquo::AssetsController < UbiquoAreaController
   
   def load_asset_types
     @asset_types = AssetType.find :all
+  end
+  
+  def get_visibility(params)
+    if params[:asset][:is_protected] == "private" || params[:asset][:is_protected] == "1"
+      "private"
+    else
+      "public"
+    end
   end
 
 end
