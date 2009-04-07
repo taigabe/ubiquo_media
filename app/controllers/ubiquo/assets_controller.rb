@@ -90,7 +90,6 @@ class Ubiquo::AssetsController < UbiquoAreaController
   # PUT /assets/1.xml
   def update
     @asset = Asset.find(params[:id])
-    require 'ruby-debug';debugger
     visibility = get_visibility(params)
     respond_to do |format|
       if @asset.update_attributes(params[:asset])
