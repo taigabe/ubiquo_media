@@ -2,12 +2,15 @@ module UbiquoMedia
   module MediaSelector
     module Helper
       def media_selector(form, field, options = {})
+        @counter ||= 0
+        @counter += 1
         locals = {
           :assets => form.object.send(field),
           :field => field,
           :object => form.object,
-          :object_name => form.object_name.to_s,
+          :object_name =>  options[:object_name] || form.object_name.to_s,
           :visibility => options[:visibility],
+          :counter => @counter
         }
         render :partial => 'ubiquo/asset_relations/media_selector.html.erb', :locals => locals
       end
@@ -33,10 +36,10 @@ module UbiquoMedia
       #   <option value="1">Image</option>
       #    <option value="2">Document</option>
       #  </select>"      
-      def type_selector(field, types)
+      def type_selector(counter, types)
         all_opt = [t('ubiquo.media.all'), types.collect(&:id).join(",")]  
         type_opts = [all_opt] + types.collect { |t| [t.name, t.id] } 
-        select_tag "asset_type_id_#{field}".to_sym, options_for_select(type_opts)
+        select_tag "asset_type_id_#{counter}".to_sym, options_for_select(type_opts)
       end      
       
     end

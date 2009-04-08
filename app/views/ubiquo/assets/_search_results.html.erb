@@ -9,7 +9,7 @@
         <%= image_tag(thumbnail_url(asset)) %>
         <%= link_to(t('ubiquo.media.asset_open'), asset.resource.url, :class => 'view', :popup => true) %>
         <%= link_to_function(t('ubiquo.media.asset_select'), 
-				  "media_fields.add_element('#{field}', #{asset.id}, #{asset.name.to_json}, #{thumbnail_url(asset).to_json}, #{view_asset_link(asset).to_json});", :class=> 'select') %>
+				  "media_fields.add_element('#{field}', #{asset.id}, #{asset.name.to_json}, #{counter}, #{thumbnail_url(asset).to_json}, #{view_asset_link(asset).to_json});", :class=> 'select') %>
       </li>
   <% end %>	
 </ul>
@@ -17,10 +17,10 @@
 <%
   options = {
     :text => search_text, 
-    :before => "Element.show(\"search_spinner_#{field}\")", 
-    :success => "Element.hide(\"search_spinner_#{field}\")",
-    :failure => "Element.hide(\"search_spinner_#{field}\")",
-    :with => "'field=#{field}&text=' + $('asset_search_string_#{field}').value",
+    :before => "Element.show(\"search_spinner_#{counter}\")", 
+    :success => "Element.hide(\"search_spinner_#{counter}\")",
+    :failure => "Element.hide(\"search_spinner_#{counter}\")",
+    :with => "'field=#{field}&counter=#{counter}&text=' + $('asset_search_string_#{counter}').value",
     :method => :get,    
   }
 %>

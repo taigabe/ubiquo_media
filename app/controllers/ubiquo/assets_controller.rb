@@ -47,6 +47,7 @@ class Ubiquo::AssetsController < UbiquoAreaController
   # POST /assets
   # POST /assets.xml
   def create
+    counter = params.delete(:counter)
     field = params.delete(:field)
     visibility = get_visibility(params)
     asset_visibility = "asset_#{visibility}".classify.constantize
@@ -61,11 +62,16 @@ class Ubiquo::AssetsController < UbiquoAreaController
             render :update do |page|
               created = @asset
               @asset = asset_visibility.new(params[:asset])
-              page.replace_html "add_#{field}", :partial => "ubiquo/asset_relations/asset_form",
-                                                            :locals => { :field => field, 
-                                                                         :visibility => visibility }
-              page.hide "add_#{field}"
-              page << "media_fields.add_element('#{field}', #{created.id}, #{created.name.to_json}, #{thumbnail_url(created).to_json}, #{view_asset_link(created).to_json});"
+              page.replace_html(
+                "add_#{counter}", 
+                :partial => "ubiquo/asset_relations/asset_form",
+                :locals => { 
+                  :counter => counter, 
+                  :field => field,
+                  :visibility => visibility 
+                })
+              page.hide "add_#{counter}"
+              page << "media_fields.add_element('#{field}', #{created.id}, #{created.name.to_json}, #{counter}, #{thumbnail_url(created).to_json}, #{view_asset_link(created).to_json});"
             end
           end
         }
@@ -78,7 +84,14 @@ class Ubiquo::AssetsController < UbiquoAreaController
         format.js {
           responds_to_parent do 
             render :update do |page|
-              page.replace_html "add_#{field}", :partial => "ubiquo/asset_relations/asset_form", :locals => {:field => field, :visibility => visibility }
+              page.replace_html(
+                "add_#{counter}", 
+                :partial => "ubiquo/asset_relations/asset_form", 
+                :locals => {
+                  :field => field,
+                  :counter => counter, 
+                  :visibility => visibility 
+                })
             end
           end
         }
@@ -126,6 +139,7 @@ class Ubiquo::AssetsController < UbiquoAreaController
   # GET /assets  
   def search
     @field = params[:field] 
+    @counter = params[:counter] 
     @search_text = params[:text]
     @page = params[:page] || 1
     @assets_pages, @assets = Asset.paginate(:page => @page, :per_page => Ubiquo::Config.context(:ubiquo_media).get(:media_selector_list_size)) do

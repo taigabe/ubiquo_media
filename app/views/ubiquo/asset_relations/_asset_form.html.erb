@@ -1,7 +1,8 @@
-<%= ubiquo_image_tag("ajax-loader.gif", :style => "display: none;", :id => "new_#{field}_loader") %>
-<div id="new_<%= field %>_form">
+<%= ubiquo_image_tag("ajax-loader.gif", :style => "display: none;", :id => "new_#{counter}_loader") %>
+<div id="new_<%= counter %>_form">
   <%= error_messages_for 'asset' %>
   <%= tag(:input, :type => "hidden", :name => request_forgery_protection_token.to_s, :value =>  RAILS_ENV == 'test' ? "" : form_authenticity_token) %>
+  <%= tag(:input, :type => "hidden", :name => "counter", :value => counter) %>
   <%= tag(:input, :type => "hidden", :name => "field", :value => field) %>
   <p>
     <%= label :asset, :name, Asset.human_attribute_name("name") %>
@@ -25,8 +26,8 @@
 
   <p class="form_buttons">
 	<%= button_to_function t('ubiquo.design.save') do |page|
-          page << "$('new_#{field}_loader').toggle();"
-          page << "send_as_form('new_#{field}_form', '#{ubiquo_assets_url(:format => :js)}', 'POST');"
+          page << "$('new_#{counter}_loader').toggle();"
+          page << "send_as_form('new_#{counter}_form', '#{ubiquo_assets_url(:format => :js)}', 'POST');"
         end %>
   </p>
 </div>
