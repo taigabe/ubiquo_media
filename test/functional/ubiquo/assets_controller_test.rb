@@ -98,9 +98,9 @@ class Ubiquo::AssetsControllerTest < ActionController::TestCase
                    :name => "MyName" 
                    ) 
     end
-    get :search, :field => 'image', :text => 'MyName', :page => 2
+    get :search, :field => 'image', :text => 'MyName', :page => 2, :counter => 1
     assert_response :success
-    assert_select_rjs "asset_search_results_image" do
+    assert_select_rjs "asset_search_results_1" do
       assert_select "ul" do 
         assert_select "li", 3
       end
