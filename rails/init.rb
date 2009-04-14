@@ -26,5 +26,6 @@ Ubiquo::Plugin.register(:ubiquo_media, directory, config) do |config|
                             :video => ["video"],
                             :doc => ["text"],
                             :audio => ["audio"],
-                            :flash => ["x-flv", "x-flash-video"] }
+                            :flash => ["x-flv"] }
+  config.add :media_styles_list, { :thumb => "100x100>" }
 end
