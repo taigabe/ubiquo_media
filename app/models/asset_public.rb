@@ -1,4 +1,5 @@
 class AssetPublic < Asset
-  file_attachment :resource, :visibility => "public", :styles => { :thumb => "100x100>" }
+  file_attachment :resource, :visibility => "public", 
+                  :styles => Ubiquo::Config.context(:ubiquo_media).get(:media_styles_list)
   validates_attachment_presence :resource
 end
