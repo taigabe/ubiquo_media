@@ -19,8 +19,8 @@ module UbiquoMedia
         link_to(t('ubiquo.media.asset_view'), url_for_media_attachment(asset), :class => 'view', :popup => true)
       end
 
-      def url_for_media_attachment(asset)
-        url_for_file_attachment(asset, :resource)
+      def url_for_media_attachment(asset, style = nil)
+        url_for_file_attachment(asset, :resource, style)
       end
       # Return a selector containing all allowed types for a media_attachment field
       #
