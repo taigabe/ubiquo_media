@@ -34,7 +34,7 @@ class Asset < ActiveRecord::Base
     end
     filter_text = unless filters[:text].blank?
       args = ["%#{filters[:text]}%"] * 2
-      condition = "assets.name ILIKE ? OR assets.description ILIKE ?"
+      condition = "upper(assets.name) LIKE upper(?) OR upper(assets.description) LIKE upper(?)"
       {:find => {:conditions => [condition] + args}}
     else {}
     end
