@@ -5,7 +5,7 @@
 <%= link_to t('ubiquo.media.asset_new'), new_ubiquo_asset_path, :class => "new" %>
 
 <%= asset_filters_info(params) %>
-<%= render(:partial => "shared/ubiquo/list", :locals => {
+<%= render(:partial => "shared/ubiquo/lists/standard", :locals => {
   :name => 'asset',
   :headers => [:name, :asset_type_id, "Visibilitat"],
   :rows => @assets.collect do |asset|
