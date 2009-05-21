@@ -1,6 +1,6 @@
 module UbiquoMedia
   module Extensions
-    autoload :Helper, 'ubiquo_authentication/extensions/helper'
+    autoload :Helper, 'ubiquo_media/extensions/helper'
   end
 end
 
