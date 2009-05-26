@@ -4,6 +4,6 @@ module UbiquoMedia
   end
 end
 
-ActionController::Base.helper(UbiquoMedia::Extensions::Helper)
+Ubiquo::Extensions::UbiquoAreaController.append_helper(UbiquoMedia::Extensions::Helper)
 
 
