@@ -42,16 +42,9 @@
 #Generate url for your media columns with _url_for_media_attachment_ and the magick _version_ parameter:
 #
 #  <%= link_to("a link to first thumbnail image", url_for_media_attachment(object.thumbnail.first, :thumb)) %>
+#  
+# You can also specify paperclip styles to store different versions of the asset
 #
-#Versions are specified on the Asset model. Change the file_column_attribute call to add more versions:
-#
-#  file_column_attribute :resource, :magick => {
-#    :image_required => false,
-#    :versions => {
-#      :thumb => {:size => "50x50"},
-#      :normal => {:size => "500x500>"},
-#    }
-#  }
 
 module UbiquoMedia
   module MediaSelector
@@ -74,6 +67,7 @@ module UbiquoMedia
         # custom options:
         #   :size   => the max size of assets assigned. Can be an integer or :many if no limit. Default: 1
         #   :types  => array with allowed asset types keys. Can be a single key or an Array. if includes :ALL will accept all types. Default: ALL
+        #   :styles => paperclip styles
         #
         # EXAMPLES:
         #

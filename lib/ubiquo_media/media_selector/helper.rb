@@ -1,6 +1,13 @@
 module UbiquoMedia
   module MediaSelector
     module Helper
+      # Helper to build media selectors.
+      #   form => the form object
+      #   field => field name, which has been defined as a media_attachment
+      #   options => can include the following:
+      #     :object_name => to override the form object name
+      #     :visibility => visibility for the selector
+      #
       def media_selector(form, field, options = {})
         @counter ||= 0
         @counter += 1
@@ -15,13 +22,16 @@ module UbiquoMedia
         render :partial => 'ubiquo/asset_relations/media_selector.html.erb', :locals => locals
       end
       
+      # Returns an <a> element linking to the given asset in a popup
       def view_asset_link(asset)
         link_to(t('ubiquo.media.asset_view'), url_for_media_attachment(asset), :class => 'view', :popup => true)
       end
 
+      # Returns a url where the given asset is accessible
       def url_for_media_attachment(asset, style = nil)
         url_for_file_attachment(asset, :resource, style)
       end
+      
       # Return a selector containing all allowed types for a media_attachment field
       #
       # Example:
