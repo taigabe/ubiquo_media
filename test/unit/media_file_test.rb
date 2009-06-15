@@ -133,6 +133,21 @@ class MediaFileTest < ActiveSupport::TestCase
     t = AssetType.find(t.id)
     assert_equal [a], t.some_types
   end
+  
+  def test_should_destroy_old_relations
+    AssetRelation.destroy_all
+    a = Asset.find(:first)
+    b = Asset.find(:first, :offset => 1)
+    t = nil
+    assert_difference "AssetRelation.count" do
+      t = AssetType.create :simple_ids => [a.id.to_s]
+    end
+    
+    assert_no_difference "AssetRelation.count" do
+      t.simple_ids = [b.id.to_s]
+      t.save
+    end
+  end
 end
 
 class AssetType # Using this model because is very simple and has no validations
