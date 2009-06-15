@@ -66,6 +66,20 @@ class AssetTest < ActiveSupport::TestCase
                                 :asset_type_id => AssetType.find(:first).id)
     assert asset.resource.path =~ /#{File.join(RAILS_ROOT, Ubiquo::Config.get(:attachments)[:private_path])}/    
   end
+  
+  def test_should_destroy_relations_on_destroy
+    Asset.destroy_all
+    AssetRelation.destroy_all
+    
+    asset = create_asset
+    
+    assert_difference("AssetRelation.count") do 
+      AssetRelation.create(:asset => asset, :related_object => UbiquoUser.first)
+    end
+    assert_difference("AssetRelation.count", -1) do 
+      asset.destroy
+    end    
+  end
 
   private
     
