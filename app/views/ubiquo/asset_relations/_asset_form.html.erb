@@ -25,7 +25,7 @@
   <% end -%>
 
   <p class="form_buttons">
-	<%= button_to_function t('ubiquo.design.save') do |page|
+	<%= button_to_function t('ubiquo.save') do |page|
           page << "$('new_#{counter}_loader').toggle();"
           page << "send_as_form('new_#{counter}_form', '#{ubiquo_assets_url(:format => :js)}', 'POST');"
         end %>
