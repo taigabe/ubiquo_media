@@ -15,7 +15,7 @@ class Ubiquo::AssetsController < UbiquoAreaController
       :visibility => params[:filter_visibility],
       :created_start => parse_date(params[:filter_created_start]),
       :created_end => parse_date(params[:filter_created_end], :time_offset => 1.day),         
-    }.merge(uhook_index_filters(params))
+    }.merge(uhook_index_filters)
     
     per_page = Ubiquo::Config.context(:ubiquo_media).get(:assets_elements_per_page)
     @assets_pages, @assets = Asset.paginate(:page => params[:page], :per_page => per_page) do
@@ -33,7 +33,7 @@ class Ubiquo::AssetsController < UbiquoAreaController
   # GET /assets/new
   # GET /assets/new.xml
   def new
-    @asset = AssetPublic.new
+    @asset = uhook_new_asset
 
     respond_to do |format|
       format.html{ } # new.html.erb
@@ -53,7 +53,7 @@ class Ubiquo::AssetsController < UbiquoAreaController
     field = params.delete(:field)
     visibility = get_visibility(params)
     asset_visibility = "asset_#{visibility}".classify.constantize
-    @asset = asset_visibility.new(params[:asset])
+    @asset = uhook_create_asset asset_visibility
     respond_to do |format|
       if @asset.save
         flash[:notice] = t('ubiquo.media.asset_created')
@@ -105,7 +105,6 @@ class Ubiquo::AssetsController < UbiquoAreaController
   # PUT /assets/1.xml
   def update
     @asset = Asset.find(params[:id])
-    visibility = get_visibility(params)
     respond_to do |format|
       if @asset.update_attributes(params[:asset])
         flash[:notice] = t('ubiquo.media.asset_updated')
@@ -125,7 +124,7 @@ class Ubiquo::AssetsController < UbiquoAreaController
   # DELETE /assets/1.xml
   def destroy
     @asset = Asset.find(params[:id])
-    if @asset.destroy
+    if uhook_destroy_asset(@asset)#@asset.destroy
       flash[:notice] = t('ubiquo.media.asset_removed')
     else
       flash[:error] = t('ubiquo.media.asset_remove_error')

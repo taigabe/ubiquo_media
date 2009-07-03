@@ -7,3 +7,7 @@ end
 def reload_old_connector
   @old_connector.load!    
 end
+
+def mock_params
+  Ubiquo::AssetsController.any_instance.expects(:params).at_least_once.returns({:asset => {}})
+end

@@ -7,9 +7,6 @@ module UbiquoMedia
         ::Asset.send(:include, self::Asset)
 #        ::AssetRelation.send(:include, self::AssetRelation)
         ::Ubiquo::AssetsController.send(:include, self::UbiquoAssetsController)
-#        ::Ubiquo::ComponentsController.send(:include, self::UbiquoComponentsController)
-#        ::Ubiquo::MenuItemsController.send(:include, self::UbiquoMenuItemsController)
-#        ::Ubiquo::PagesController.send(:include, self::UbiquoPagesController)
         ::ActiveRecord::Migration.send(:include, self::Migration)
         UbiquoMedia::Connectors::Base.set_current_connector self
       end

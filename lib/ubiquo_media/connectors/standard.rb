@@ -119,55 +119,44 @@ module UbiquoMedia
         end
         
         module Helper
-#          def uhook_page_actions(page)
-#            [
-#              link_to(t('ubiquo.edit'), edit_ubiquo_page_path(page)),
-#              link_to(t('ubiquo.design.design'), ubiquo_page_design_path(page)),
-#              link_to(t('ubiquo.remove'), [:ubiquo, page], :confirm => t('ubiquo.design.confirm_page_removal'), :method => :delete)
-#            ]
-#          end
-#          
-#          def uhook_edit_sidebar
-#            ""
-#          end
-#          def uhook_new_sidebar
-#            ""
-#          end
-#          def uhook_form_top(form)
-#            ""
-#          end
+          # Returns a string with extra filters for assets
+          
+          def uhook_asset_filters
+            ''
+          end
+
+          # Returns an array with any display information for extra assets filters
+          def uhook_asset_filters_info
+            []
+          end
         end
+        
         module InstanceMethods
           
           # Returns a hash with extra filters to apply
-          # 
-          #   params: params hash from the controller
-          #
-          def uhook_index_filters(params)
+          def uhook_index_filters
             {}
           end
           
-          # initializes a new instance of asset.
+          # Initializes a new instance of asset.
           def uhook_new_asset
-            ::Asset.new
+            ::AssetPublic.new
           end
-#          
-#          # create a new instance of page.
-#          def uhook_create_page
-#            p = ::Page.new(params[:page])
-#            p.save
-#            p
-#          end
-#         
-#          #updates a page instance. returns a boolean that means if update was done.
-#          def uhook_update_page(page)
-#            page.update_attributes(params[:page])
+          
+          # Creates a new instance of asset.
+          def uhook_create_asset visibility
+            visibility.new(params[:asset])
+          end
+         
+#          #updates an asset instance. returns a boolean that means if update was done.
+#          def uhook_update_asset(asset)
+#            asset.update_attributes(params[:asset])
 #          end
 #
-#          #destroys a page isntance. returns a boolean that means if the destroy was done.
-#          def uhook_destroy_page(page)
-#            page.destroy
-#          end
+          #destroys an asset instance. returns a boolean that means if the destroy was done.
+          def uhook_destroy_asset(asset)
+            asset.destroy
+          end
         end
       end
       
