@@ -8,13 +8,15 @@ class Ubiquo::AssetsController < UbiquoAreaController
   def index
     params[:order_by] = params[:order_by] || Ubiquo::Config.context(:ubiquo_media).get(:assets_default_order_field)
     params[:sort_order] = params[:sort_order] || Ubiquo::Config.context(:ubiquo_media).get(:assets_default_sort_order)
+    
     filters = {
       :type => params[:filter_type], 
       :text => params[:filter_text],
       :visibility => params[:filter_visibility],
       :created_start => parse_date(params[:filter_created_start]),
       :created_end => parse_date(params[:filter_created_end], :time_offset => 1.day),         
-    }
+    }.merge(uhook_index_filters(params))
+    
     per_page = Ubiquo::Config.context(:ubiquo_media).get(:assets_elements_per_page)
     @assets_pages, @assets = Asset.paginate(:page => params[:page], :per_page => per_page) do
       Asset.filtered_search(filters, :order => params[:order_by] + " " + params[:sort_order])

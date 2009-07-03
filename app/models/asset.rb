@@ -49,15 +49,17 @@ class Asset < ActiveRecord::Base
     filter_create_end = if filters[:created_end]
       {:find => {:conditions => ["assets.created_at <= ?", filters[:created_end]]}}
     else {}
-    end      
+    end   
     
-    with_scope(filter_text) do
-      with_scope(filter_type) do
-        with_scope(filter_visibility) do
-          with_scope(filter_create_start) do
-            with_scope(filter_create_end) do  
-              with_scope(:find => options) do
-                Asset.find(:all)
+    uhook_filtered_search do
+      with_scope(filter_text) do
+        with_scope(filter_type) do
+          with_scope(filter_visibility) do
+            with_scope(filter_create_start) do
+              with_scope(filter_create_end) do  
+                with_scope(:find => options) do
+                  Asset.find(:all)
+                end
               end
             end
           end
