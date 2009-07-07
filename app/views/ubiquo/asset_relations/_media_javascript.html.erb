@@ -29,11 +29,11 @@ var Media = Class.create({
 		    "<dt><%= t('ubiquo.media.assigned_text') %>:</dt>"+
          	    "<dd class='name'>"+
 		      "<span>#{name}</span>"+
-  	              "<a class='change' href='#' onclick=\"media_fields.change_name('#{counter}', '#{id}');return false;\"><%= t('ubiquo.media.change_text') %></a>"+
+  	              "<a class='change' href='#' onclick='media_fields.change_name(\"#{counter}\", \"#{id}\");return false;'><%= t('ubiquo.media.change_text') %></a>"+
  		    "</dd>"+
 		    "<dd class='field' style='display:none'>"+
-		      "<input type='text' class='short' onkeypress=\"if(event.keyCode==13){media_fields.change_name('#{counter}', '#{id}');return false;}\" name='#{field_name}[#{field}_ids][][name]' value='#{name}'/>"+
-		      "<a class='change' href='#' onclick=\"media_fields.change_name('#{counter}', '#{id}');return false;\"><%= t('ubiquo.media.save') %></a>"+
+		      "<input type='text' class='short' onkeypress='if(event.keyCode==13){media_fields.change_name(\"#{counter}\", \"#{id}\");return false;}' name='#{field_name}[#{field}_ids][][name]' value='#{name}'/>"+
+		      "<a class='change' href='#' onclick='media_fields.change_name(\"#{counter}\", \"#{id}\");return false;'><%= t('ubiquo.media.save') %></a>"+
  		    "</dd>"+
 		  "</dl>"+
 		"</li>")
