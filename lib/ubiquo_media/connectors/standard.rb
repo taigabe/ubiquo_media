@@ -7,6 +7,7 @@ module UbiquoMedia
         
         def self.included(klass)
           klass.send(:extend, ClassMethods)
+          Standard.register_uhooks klass, ClassMethods
         end
         
         module ClassMethods
@@ -38,6 +39,7 @@ module UbiquoMedia
         def self.included(klass)
           klass.send(:include, InstanceMethods)
           klass.send(:helper, Helper)
+          Standard.register_uhooks klass, InstanceMethods
         end
         
         module Helper
@@ -85,6 +87,7 @@ module UbiquoMedia
         
         def self.included(klass)
           klass.send(:extend, ClassMethods)
+          Standard.register_uhooks klass, ClassMethods
         end
         
         module ClassMethods
