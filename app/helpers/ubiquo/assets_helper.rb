@@ -77,7 +77,7 @@ module Ubiquo::AssetsHelper
     else
       ''
     end
-    extra_filters = uhook_asset_filters
+    extra_filters = uhook_asset_filters(url_for_options)
     
     (string_filter + asset_types_filter + asset_visibility_filter + date_filter + extra_filters)
   end

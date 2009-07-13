@@ -22,7 +22,7 @@ class UbiquoMedia::Connectors::BaseTest < ActiveSupport::TestCase
   
   
   test 'uhook_create_assets_table_should_create_table' do
-    ActiveRecord::Migration.expects(:create_table).with(:assets)
+    ActiveRecord::Migration.expects(:create_table).with(:assets, anything)
     ActiveRecord::Migration.uhook_create_assets_table {}
   end
   
@@ -32,17 +32,19 @@ class UbiquoMedia::Connectors::BaseTest < ActiveSupport::TestCase
   end
   
   test 'uhook_index_filters_should_return_hash' do
+    mock_controller
     assert Ubiquo::AssetsController.new.uhook_index_filters.is_a?(Hash)
   end
   
   test 'uhook_new_asset_should_return_new_asset' do
+    mock_controller
     asset = Ubiquo::AssetsController.new.uhook_new_asset 
     assert asset.is_a?(Asset)
     assert asset.new_record?
   end
   
   test 'uhook_create_asset_should_return_new_asset' do
-    mock_params
+    mock_controller
     %w{AssetPublic AssetPrivate}.each do |visibility|
       asset = Ubiquo::AssetsController.new.uhook_create_asset visibility.constantize
       assert_equal visibility, asset.class.to_s
@@ -51,18 +53,21 @@ class UbiquoMedia::Connectors::BaseTest < ActiveSupport::TestCase
   end
 
   test 'uhook_destroy_asset_should_destroy_asset' do
+    mock_controller
     Asset.any_instance.expects(:destroy).returns(:value)
     assert_equal :value, Ubiquo::AssetsController.new.uhook_destroy_asset(Asset.new)
   end
   
   test 'uhook_asset_filters_should_return_string' do
+    mock_helper
     Base.current_connector::UbiquoAssetsController::Helper.module_eval do
       module_function :uhook_asset_filters
     end
-    assert Base.current_connector::UbiquoAssetsController::Helper.uhook_asset_filters.is_a?(String)
+    assert Base.current_connector::UbiquoAssetsController::Helper.uhook_asset_filters('').is_a?(String)
   end
 
   test 'uhook_asset_filters_info_should_return_array' do
+    mock_helper
     Base.current_connector::UbiquoAssetsController::Helper.module_eval do
       module_function :uhook_asset_filters_info
     end

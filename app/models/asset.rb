@@ -51,7 +51,7 @@ class Asset < ActiveRecord::Base
     else {}
     end   
     
-    uhook_filtered_search do
+    uhook_filtered_search(filters) do
       with_scope(filter_text) do
         with_scope(filter_type) do
           with_scope(filter_visibility) do

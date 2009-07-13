@@ -124,7 +124,7 @@ class Ubiquo::AssetsController < UbiquoAreaController
   # DELETE /assets/1.xml
   def destroy
     @asset = Asset.find(params[:id])
-    if uhook_destroy_asset(@asset)#@asset.destroy
+    if uhook_destroy_asset(@asset)
       flash[:notice] = t('ubiquo.media.asset_removed')
     else
       flash[:error] = t('ubiquo.media.asset_remove_error')

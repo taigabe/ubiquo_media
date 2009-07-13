@@ -52,7 +52,7 @@ class UbiquoMedia::Connectors::StandardTest < ActiveSupport::TestCase
     Standard::UbiquoAssetsController::Helper.module_eval do
       module_function :uhook_asset_filters
     end
-    assert_equal '', Standard::UbiquoAssetsController::Helper.uhook_asset_filters
+    assert_equal '', Standard::UbiquoAssetsController::Helper.uhook_asset_filters('')
   end
   
   test 'uhook_asset_filters_info_should_return_empty_array' do
