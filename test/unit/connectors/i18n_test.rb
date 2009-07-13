@@ -91,4 +91,12 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
     assert_equal 1, I18n::UbiquoAssetsController::Helper.uhook_asset_filters_info.size
   end
 
+  test 'uhook_edit_asset_sidebar_should_return_show_translations_links' do
+    mock_helper
+    I18n::UbiquoAssetsController::Helper.expects(:show_translations).at_least_once.returns('links')
+    I18n::UbiquoAssetsController::Helper.module_eval do
+      module_function :uhook_edit_asset_sidebar
+    end
+    assert_equal 'links', I18n::UbiquoAssetsController::Helper.uhook_edit_asset_sidebar
+  end
 end

@@ -52,6 +52,11 @@ module UbiquoMedia
           def uhook_asset_filters_info
             []
           end
+          
+          # Returns content to show in the sidebar when editing an asset
+          def uhook_edit_asset_sidebar
+            ''
+          end
         end
         
         module InstanceMethods

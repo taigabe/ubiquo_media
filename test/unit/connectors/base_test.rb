@@ -73,6 +73,14 @@ class UbiquoMedia::Connectors::BaseTest < ActiveSupport::TestCase
     end
     assert Base.current_connector::UbiquoAssetsController::Helper.uhook_asset_filters_info.is_a?(Array)
   end
+  
+  test 'uhook_edit_asset_sidebar_should_return_string' do
+    mock_helper
+    Base.current_connector::UbiquoAssetsController::Helper.module_eval do
+      module_function :uhook_edit_asset_sidebar
+    end
+    assert Base.current_connector::UbiquoAssetsController::Helper.uhook_edit_asset_sidebar.is_a?(String)
+  end
 
   # Define module mocks for testing
   module Base::Asset; end

@@ -29,4 +29,5 @@ def mock_helper
   UbiquoMedia::Connectors::Base.current_connector::UbiquoAssetsController::Helper.expects(:params).at_least(0).returns({})
   UbiquoMedia::Connectors::Base.current_connector::UbiquoAssetsController::Helper.expects(:filter_info).at_least(0).returns('')
   UbiquoMedia::Connectors::Base.current_connector::UbiquoAssetsController::Helper.expects(:render_filter).at_least(0).returns('')
+  UbiquoMedia::Connectors::Base.current_connector::UbiquoAssetsController::Helper.expects(:show_translations).at_least(0).returns('')
 end

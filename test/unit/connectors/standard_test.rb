@@ -62,4 +62,11 @@ class UbiquoMedia::Connectors::StandardTest < ActiveSupport::TestCase
     assert_equal [], Standard::UbiquoAssetsController::Helper.uhook_asset_filters_info
   end
 
+  test 'uhook_edit_asset_sidebar_should_return_empty_string' do
+    mock_helper
+    Standard::UbiquoAssetsController::Helper.module_eval do
+      module_function :uhook_edit_asset_sidebar
+    end
+    assert_equal '', Standard::UbiquoAssetsController::Helper.uhook_edit_asset_sidebar
+  end
 end

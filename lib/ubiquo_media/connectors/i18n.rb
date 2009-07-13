@@ -69,6 +69,11 @@ module UbiquoMedia
               :caption => ::Asset.human_attribute_name("locale"))
             ]
           end
+          
+          # Returns content to show in the sidebar when editing an asset
+          def uhook_edit_asset_sidebar
+            show_translations(@asset)
+          end
         end
         
         module InstanceMethods
