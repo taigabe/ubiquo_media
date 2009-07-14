@@ -161,6 +161,9 @@ class Ubiquo::AssetsController < UbiquoAreaController
   end
   
   def get_visibility(params)
+    if (forced_vis = Ubiquo::Config.context(:ubiquo_media).get(:force_visibility))
+      return forced_vis
+    end
     if params[:asset][:is_protected] == "private" || params[:asset][:is_protected] == "1"
       "private"
     else

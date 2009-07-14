@@ -60,7 +60,9 @@ module Ubiquo::AssetsHelper
     else 
       ''
     end
-    asset_visibility_filter = if Ubiquo::Config.context(:ubiquo_media).get(:assets_asset_visibility_filter_enabled)
+    asset_visibility_filter = if (
+        Ubiquo::Config.context(:ubiquo_media).get(:assets_asset_visibility_filter_enabled) &&
+        !Ubiquo::Config.context(:ubiquo_media).get(:force_visibility) )
       render_filter(:links, url_for_options,
         :caption => t('ubiquo.media.visibility'),
         :field => :filter_visibility,

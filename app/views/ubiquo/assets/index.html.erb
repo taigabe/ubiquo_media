@@ -7,15 +7,16 @@
 <%= asset_filters_info(params) %>
 <%= render(:partial => "shared/ubiquo/lists/standard", :locals => {
   :name => 'asset',
-  :headers => [:name, :asset_type_id, "Visibilitat"],
+  :headers => [:name, :asset_type_id, Ubiquo::Config.context(:ubiquo_media).get(:force_visibility) ? nil : "Visibilitat"].compact,
   :rows => @assets.collect do |asset|
     {
       :id => asset.id,
       :columns => [
         link_to(asset.name, url_for_media_attachment(asset)),
         asset.asset_type.name,
-        asset.resource_is_public? ? t("ubiquo.media.public") : t("ubiquo.media.private"),
-      ],
+        Ubiquo::Config.context(:ubiquo_media).get(:force_visibility) ?
+              nil : (asset.resource_is_public? ? t("ubiquo.media.public") : t("ubiquo.media.private")),
+      ].compact,
       :actions => [
         link_to(t('ubiquo.edit'), edit_ubiquo_asset_path(asset)),
         link_to(t('ubiquo.remove'), ubiquo_asset_path(asset), :confirm => t('ubiquo.media.confirm_asset_removal'), :method => :delete)
