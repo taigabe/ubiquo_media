@@ -25,9 +25,19 @@ end
 
 # Prepares the proper mocks for a hook that will be using helper features
 def mock_helper
-  # mock for params, filter_info, render_filter and other helper methods
-  UbiquoMedia::Connectors::Base.current_connector::UbiquoAssetsController::Helper.expects(:params).at_least(0).returns({})
-  UbiquoMedia::Connectors::Base.current_connector::UbiquoAssetsController::Helper.expects(:filter_info).at_least(0).returns('')
-  UbiquoMedia::Connectors::Base.current_connector::UbiquoAssetsController::Helper.expects(:render_filter).at_least(0).returns('')
-  UbiquoMedia::Connectors::Base.current_connector::UbiquoAssetsController::Helper.expects(:show_translations).at_least(0).returns('')
+  # we stub well-known usable helper methods along with particular connector added methods
+  stubs = {
+    :params => {}, :t => '', :filter_info => '',
+    :render_filter => '', :link_to => ''
+  }.merge(UbiquoMedia::Connectors::Base.instance_variable_get('@methods_with_returns') || {})
+  
+  stubs.each_pair do |method, retvalue|
+    UbiquoMedia::Connectors::Base.current_connector::UbiquoAssetsController::Helper.stubs(method).returns(retvalue)
+  end  
+end
+
+# Used to add particular helper expectations from the connectors
+def add_mock_helper_stubs(methods_with_returns)
+  future_stubs = (UbiquoMedia::Connectors::Base.instance_variable_get('@methods_with_returns') || {}).merge(methods_with_returns)
+  UbiquoMedia::Connectors::Base.instance_variable_set('@methods_with_returns', future_stubs)
 end
