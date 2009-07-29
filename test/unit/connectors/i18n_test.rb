@@ -99,4 +99,39 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
     end
     assert_equal 'links', I18n::UbiquoAssetsController::Helper.uhook_edit_asset_sidebar
   end
+
+  test 'uhook_asset_index_actions should return translate and remove link if not current locale' do
+    mock_helper
+    asset = Asset.new(:locale => 'ca')
+    I18n::UbiquoAssetsController::Helper.expects(:current_locale).returns('en')
+    I18n::UbiquoAssetsController::Helper.expects(:ubiquo_asset_path).with(asset, :destroy_content => true)
+    I18n::UbiquoAssetsController::Helper.expects(:new_ubiquo_asset_path).with(:from => asset.content_id)
+    I18n::UbiquoAssetsController::Helper.module_eval do
+      module_function :uhook_asset_index_actions
+    end
+    actions = I18n::UbiquoAssetsController::Helper.uhook_asset_index_actions asset
+    assert actions.is_a?(Array)
+    assert_equal 2, actions.size
+  end
+  
+  test 'uhook_asset_index_actions should return removes and edit links if current locale' do
+    mock_helper
+    asset = Asset.new(:locale => 'ca')
+    I18n::UbiquoAssetsController::Helper.stubs(:current_locale).returns('ca')
+    I18n::UbiquoAssetsController::Helper.expects(:ubiquo_asset_path).with(asset, :destroy_content => true)
+    I18n::UbiquoAssetsController::Helper.expects(:ubiquo_asset_path).with(asset)
+    I18n::UbiquoAssetsController::Helper.expects(:edit_ubiquo_asset_path).with(asset)
+    
+    I18n::UbiquoAssetsController::Helper.module_eval do
+      module_function :uhook_asset_index_actions
+    end
+    actions = I18n::UbiquoAssetsController::Helper.uhook_asset_index_actions asset
+    assert actions.is_a?(Array)
+    assert_equal 3, actions.size
+  end
 end
+
+add_mock_helper_stubs({
+  :show_translations => '', :edit_ubiquo_asset_path => '', 
+  :new_ubiquo_asset_path => '', :ubiquo_asset_path => '', :current_locale => ''
+})

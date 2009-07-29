@@ -17,10 +17,7 @@
         Ubiquo::Config.context(:ubiquo_media).get(:force_visibility) ?
               nil : (asset.resource_is_public? ? t("ubiquo.media.public") : t("ubiquo.media.private")),
       ].compact,
-      :actions => [
-        link_to(t('ubiquo.edit'), edit_ubiquo_asset_path(asset)),
-        link_to(t('ubiquo.remove'), ubiquo_asset_path(asset), :confirm => t('ubiquo.media.confirm_asset_removal'), :method => :delete)
-      ]
+      :actions => uhook_asset_index_actions(asset)
     }
   end,
   :pages => @assets_pages,

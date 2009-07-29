@@ -74,6 +74,34 @@ module UbiquoMedia
           def uhook_edit_asset_sidebar
             show_translations(@asset)
           end
+          
+          # Returns the available actions links for a given asset
+          def uhook_asset_index_actions asset
+            actions = []
+            if asset.locale?(current_locale)
+              actions << link_to(t("ubiquo.edit"), edit_ubiquo_asset_path(asset))
+            end
+            
+            unless asset.locale?(current_locale)
+              actions << link_to(
+                t("ubiquo.translate"), 
+                new_ubiquo_asset_path(:from => asset.content_id)
+              )
+            end
+            
+            actions << link_to(t("ubiquo.remove"), 
+              ubiquo_asset_path(asset, :destroy_content => true), 
+              :confirm => t("ubiquo.asset.index.confirm_removal"), :method => :delete
+            )
+            
+            if asset.locale?(current_locale, :skip_any => true)
+              actions << link_to(t("ubiquo.remove_translation"), ubiquo_asset_path(asset), 
+                :confirm => t("ubiquo.asset.index.confirm_removal"), :method => :delete
+              )
+            end
+            
+            actions
+          end
         end
         
         module InstanceMethods

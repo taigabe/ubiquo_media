@@ -69,4 +69,22 @@ class UbiquoMedia::Connectors::StandardTest < ActiveSupport::TestCase
     end
     assert_equal '', Standard::UbiquoAssetsController::Helper.uhook_edit_asset_sidebar
   end
+  
+  test 'uhook_asset_index_actions should return array with edit and remove' do
+    mock_helper
+    Standard::UbiquoAssetsController::Helper.module_eval do
+      module_function :uhook_asset_index_actions
+    end
+    
+    # expectations to mock
+    Standard::UbiquoAssetsController::Helper.expects(:t).at_least_once
+    Standard::UbiquoAssetsController::Helper.expects(:edit_ubiquo_asset_path)
+    Standard::UbiquoAssetsController::Helper.expects(:ubiquo_asset_path)
+    Standard::UbiquoAssetsController::Helper.expects(:link_to).twice
+    
+    actions = Standard::UbiquoAssetsController::Helper.uhook_asset_index_actions Asset.new
+    assert actions.is_a?(Array)
+    assert_equal 2, actions.size
+  end
+
 end

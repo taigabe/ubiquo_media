@@ -57,6 +57,14 @@ module UbiquoMedia
           def uhook_edit_asset_sidebar
             ''
           end
+          
+          # Returns the available actions links for a given asset
+          def uhook_asset_index_actions asset
+            [
+              link_to(t('ubiquo.edit'), edit_ubiquo_asset_path(asset)),
+              link_to(t('ubiquo.remove'), ubiquo_asset_path(asset), :confirm => t('ubiquo.media.confirm_asset_removal'), :method => :delete)
+            ]
+          end
         end
         
         module InstanceMethods
