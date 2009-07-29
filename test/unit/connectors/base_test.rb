@@ -79,7 +79,15 @@ class UbiquoMedia::Connectors::BaseTest < ActiveSupport::TestCase
     Base.current_connector::UbiquoAssetsController::Helper.module_eval do
       module_function :uhook_edit_asset_sidebar
     end
-    assert Base.current_connector::UbiquoAssetsController::Helper.uhook_edit_asset_sidebar.is_a?(String)
+    assert Base.current_connector::UbiquoAssetsController::Helper.uhook_edit_asset_sidebar(Asset.new).is_a?(String)
+  end
+  
+  test 'uhook_new_asset_sidebar should return string' do
+    mock_helper
+    Base.current_connector::UbiquoAssetsController::Helper.module_eval do
+      module_function :uhook_new_asset_sidebar
+    end
+    assert Base.current_connector::UbiquoAssetsController::Helper.uhook_new_asset_sidebar(Asset.new).is_a?(String)
   end
   
   test 'uhook_asset_index_actions should return array' do
@@ -88,6 +96,16 @@ class UbiquoMedia::Connectors::BaseTest < ActiveSupport::TestCase
       module_function :uhook_asset_index_actions
     end
     assert Base.current_connector::UbiquoAssetsController::Helper.uhook_asset_index_actions(Asset.new).is_a?(Array)
+  end
+  
+  test 'uhook_asset_form should return string' do
+    mock_helper
+    f = stub_everything
+    f.stub_default_value = ''
+    Base.current_connector::UbiquoAssetsController::Helper.module_eval do
+      module_function :uhook_asset_form
+    end
+    assert Base.current_connector::UbiquoAssetsController::Helper.uhook_asset_form(f).is_a?(String)
   end
 
   # Define module mocks for testing

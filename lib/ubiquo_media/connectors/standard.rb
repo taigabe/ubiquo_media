@@ -54,7 +54,12 @@ module UbiquoMedia
           end
           
           # Returns content to show in the sidebar when editing an asset
-          def uhook_edit_asset_sidebar
+          def uhook_edit_asset_sidebar asset
+            ''
+          end
+          
+          # Returns content to show in the sidebar when creating an asset
+          def uhook_new_asset_sidebar asset
             ''
           end
           
@@ -65,6 +70,11 @@ module UbiquoMedia
               link_to(t('ubiquo.remove'), ubiquo_asset_path(asset), :confirm => t('ubiquo.media.confirm_asset_removal'), :method => :delete)
             ]
           end
+          
+          # Returns any necessary extra code to be inserted in the asset form
+          def uhook_asset_form form
+            ''
+          end          
         end
         
         module InstanceMethods

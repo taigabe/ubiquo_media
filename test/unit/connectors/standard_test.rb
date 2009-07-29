@@ -67,7 +67,15 @@ class UbiquoMedia::Connectors::StandardTest < ActiveSupport::TestCase
     Standard::UbiquoAssetsController::Helper.module_eval do
       module_function :uhook_edit_asset_sidebar
     end
-    assert_equal '', Standard::UbiquoAssetsController::Helper.uhook_edit_asset_sidebar
+    assert_equal '', Standard::UbiquoAssetsController::Helper.uhook_edit_asset_sidebar(Asset.new)
+  end
+  
+  test 'uhook_new_asset_sidebar should return empty string' do
+    mock_helper
+    Standard::UbiquoAssetsController::Helper.module_eval do
+      module_function :uhook_new_asset_sidebar
+    end
+    assert_equal '', Standard::UbiquoAssetsController::Helper.uhook_new_asset_sidebar(Asset.new)
   end
   
   test 'uhook_asset_index_actions should return array with edit and remove' do
@@ -85,6 +93,15 @@ class UbiquoMedia::Connectors::StandardTest < ActiveSupport::TestCase
     actions = Standard::UbiquoAssetsController::Helper.uhook_asset_index_actions Asset.new
     assert actions.is_a?(Array)
     assert_equal 2, actions.size
+  end
+  
+  test 'uhook_asset_form should return empty string' do
+    mock_helper
+    f = stub_everything
+    Standard::UbiquoAssetsController::Helper.module_eval do
+      module_function :uhook_asset_form
+    end
+    assert_equal '', Standard::UbiquoAssetsController::Helper.uhook_asset_form(f)
   end
 
 end

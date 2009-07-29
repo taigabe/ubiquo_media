@@ -1,5 +1,6 @@
 <%= error_messages_for 'asset' %>
 <div class="form_box">
+  <%= uhook_asset_form f %>
 	<p>
       <%= f.label :name, Asset.human_attribute_name("name") %>
       <%= f.text_field :name %>

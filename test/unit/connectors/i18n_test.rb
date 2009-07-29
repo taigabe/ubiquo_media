@@ -97,7 +97,16 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
     I18n::UbiquoAssetsController::Helper.module_eval do
       module_function :uhook_edit_asset_sidebar
     end
-    assert_equal 'links', I18n::UbiquoAssetsController::Helper.uhook_edit_asset_sidebar
+    assert_equal 'links', I18n::UbiquoAssetsController::Helper.uhook_edit_asset_sidebar(Asset.new)
+  end
+
+  test 'uhook_new_asset_sidebar should return show translations links' do
+    mock_helper
+    I18n::UbiquoAssetsController::Helper.expects(:show_translations).at_least_once.returns('links')
+    I18n::UbiquoAssetsController::Helper.module_eval do
+      module_function :uhook_new_asset_sidebar
+    end
+    assert_equal 'links', I18n::UbiquoAssetsController::Helper.uhook_new_asset_sidebar(Asset.new)
   end
 
   test 'uhook_asset_index_actions should return translate and remove link if not current locale' do
@@ -129,6 +138,17 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
     assert actions.is_a?(Array)
     assert_equal 3, actions.size
   end
+  
+  test 'uhook_asset_form should return content_id field' do
+    mock_helper
+    f = stub_everything
+    f.expects(:hidden_field).with(:content_id)
+    I18n::UbiquoAssetsController::Helper.module_eval do
+      module_function :uhook_asset_form
+    end
+    I18n::UbiquoAssetsController::Helper.uhook_asset_form(f)
+  end
+  
 end
 
 add_mock_helper_stubs({

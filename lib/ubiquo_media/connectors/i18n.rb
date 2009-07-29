@@ -71,8 +71,13 @@ module UbiquoMedia
           end
           
           # Returns content to show in the sidebar when editing an asset
-          def uhook_edit_asset_sidebar
-            show_translations(@asset)
+          def uhook_edit_asset_sidebar asset
+            show_translations(asset)
+          end
+          
+          # Returns content to show in the sidebar when creating an asset
+          def uhook_new_asset_sidebar asset
+            show_translations(asset)
           end
           
           # Returns the available actions links for a given asset
@@ -102,6 +107,11 @@ module UbiquoMedia
             
             actions
           end
+          
+          # Returns any necessary extra code to be inserted in the asset form
+          def uhook_asset_form form
+            form.hidden_field :content_id
+          end          
         end
         
         module InstanceMethods
