@@ -30,6 +30,14 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
     assert_equal({:locale => 'ca'}, Ubiquo::AssetsController.new.uhook_index_filters)
   end
   
+  test 'uhook_index_search_subject should return locale filtered assets' do
+    Ubiquo::AssetsController.any_instance.expects(:current_locale).at_least_once.returns('ca')
+    Asset.expects(:locale).with('ca', :ALL).returns(Asset)
+    assert_nothing_raised do
+      Ubiquo::AssetsController.new.uhook_index_search_subject.filtered_search
+    end
+  end
+  
   test 'uhook_new_asset_should_return_translated_asset' do
     mock_params :from => 1
     Ubiquo::AssetsController.any_instance.expects(:current_locale).returns('ca')
@@ -160,11 +168,11 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
     end
     I18n::UbiquoAssetsController::Helper.uhook_asset_form(f)
   end
-  
+    
 end
 
 add_mock_helper_stubs({
   :show_translations => '', :edit_ubiquo_asset_path => '', 
   :new_ubiquo_asset_path => '', :ubiquo_asset_path => '', :current_locale => '',
-  :hidden_field_tag => ''
+  :hidden_field_tag => '', :locale => Asset
 })

@@ -28,6 +28,10 @@ class UbiquoMedia::Connectors::StandardTest < ActiveSupport::TestCase
     assert_equal({}, Ubiquo::AssetsController.new.uhook_index_filters)
   end
   
+  test 'uhook_index_search_subject should return asset class' do
+    assert_equal Asset, Ubiquo::AssetsController.new.uhook_index_search_subject
+  end
+  
   test 'uhook_new_asset_should_return_new_asset' do
     asset = Ubiquo::AssetsController.new.uhook_new_asset 
     assert asset.is_a?(AssetPublic)

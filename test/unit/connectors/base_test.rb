@@ -36,6 +36,13 @@ class UbiquoMedia::Connectors::BaseTest < ActiveSupport::TestCase
     assert Ubiquo::AssetsController.new.uhook_index_filters.is_a?(Hash)
   end
   
+  test 'uhook_index_search_subject should return searchable' do
+    mock_controller
+    assert_nothing_raised do 
+      Ubiquo::AssetsController.new.uhook_index_search_subject.filtered_search
+    end
+  end
+  
   test 'uhook_new_asset_should_return_new_asset' do
     mock_controller
     asset = Ubiquo::AssetsController.new.uhook_new_asset 

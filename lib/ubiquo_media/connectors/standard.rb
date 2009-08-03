@@ -84,6 +84,12 @@ module UbiquoMedia
             {}
           end
           
+          # Returns a subject that will have applied the index filters 
+          # (e.g. a class, with maybe some scopes applied)
+          def uhook_index_search_subject
+            ::Asset
+          end
+          
           # Initializes a new instance of asset.
           def uhook_new_asset
             ::AssetPublic.new

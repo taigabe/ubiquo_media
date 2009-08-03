@@ -19,7 +19,7 @@ class Ubiquo::AssetsController < UbiquoAreaController
     
     per_page = Ubiquo::Config.context(:ubiquo_media).get(:assets_elements_per_page)
     @assets_pages, @assets = Asset.paginate(:page => params[:page], :per_page => per_page) do
-      Asset.filtered_search(filters, :order => params[:order_by] + " " + params[:sort_order])
+      uhook_index_search_subject.filtered_search(filters, :order => params[:order_by] + " " + params[:sort_order])
     end
     
     respond_to do |format|
@@ -63,7 +63,7 @@ class Ubiquo::AssetsController < UbiquoAreaController
           responds_to_parent do 
             render :update do |page|
               created = @asset
-              @asset = asset_visibility.new(params[:asset])
+              @asset = uhook_create_asset asset_visibility
               page.replace_html(
                 "add_#{counter}", 
                 :partial => "ubiquo/asset_relations/asset_form",

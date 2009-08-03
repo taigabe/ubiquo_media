@@ -121,6 +121,12 @@ module UbiquoMedia
             {:locale => params[:filter_locale]}
           end
           
+          # Returns a subject that will have applied the index filters 
+          # (e.g. a class, with maybe some scopes applied)
+          def uhook_index_search_subject
+            ::Asset.locale(current_locale, :ALL)
+          end
+          
           # Initializes a new instance of asset.
           def uhook_new_asset
             ::AssetPublic.translate(params[:from], current_locale, :copy_all => true)
