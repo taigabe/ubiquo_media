@@ -48,6 +48,16 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
     end
   end
   
+  test 'uhook_create_asset with from parameter should reassign resource' do
+    from_asset = AssetPublic.create(:resource => 'resource', :name => 'asset')
+    mock_params :from => from_asset.id
+    Ubiquo::AssetsController.any_instance.expects(:current_locale).at_least_once.returns('ca')
+    %w{AssetPublic AssetPrivate}.each do |visibility|
+      asset = Ubiquo::AssetsController.new.uhook_create_asset visibility.constantize
+      assert_equal from_asset.resource_file_name, asset.resource_file_name
+    end
+  end
+  
   test 'uhook_destroy_asset_should_destroy_asset' do
     Asset.any_instance.expects(:destroy).returns(:value)
     mock_params :destroy_content => false
@@ -142,7 +152,9 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
   test 'uhook_asset_form should return content_id field' do
     mock_helper
     f = stub_everything
-    f.expects(:hidden_field).with(:content_id)
+    f.expects(:hidden_field).with(:content_id).returns('')
+    I18n::UbiquoAssetsController::Helper.expects(:params).returns({:from => 100})
+    I18n::UbiquoAssetsController::Helper.expects(:hidden_field_tag).with(:from, 100).returns('')
     I18n::UbiquoAssetsController::Helper.module_eval do
       module_function :uhook_asset_form
     end
@@ -153,5 +165,6 @@ end
 
 add_mock_helper_stubs({
   :show_translations => '', :edit_ubiquo_asset_path => '', 
-  :new_ubiquo_asset_path => '', :ubiquo_asset_path => '', :current_locale => ''
+  :new_ubiquo_asset_path => '', :ubiquo_asset_path => '', :current_locale => '',
+  :hidden_field_tag => ''
 })

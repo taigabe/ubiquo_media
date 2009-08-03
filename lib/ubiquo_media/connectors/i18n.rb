@@ -7,7 +7,7 @@ module UbiquoMedia
         
         def self.included(klass)
           klass.send(:extend, ClassMethods)
-          klass.send(:translatable, :name)
+          klass.send(:translatable, :name, :description)
           I18n.register_uhooks klass, ClassMethods
         end
         
@@ -110,7 +110,7 @@ module UbiquoMedia
           
           # Returns any necessary extra code to be inserted in the asset form
           def uhook_asset_form form
-            form.hidden_field :content_id
+            (form.hidden_field :content_id) + (hidden_field_tag(:from, params[:from]))
           end          
         end
         
@@ -130,6 +130,9 @@ module UbiquoMedia
           def uhook_create_asset visibility
             asset = visibility.new(params[:asset])
             asset.locale = current_locale
+            if params[:from] && asset.resource_file_name.blank?
+              asset.resource = visibility.find(params[:from]).resource
+            end
             asset
           end
          
