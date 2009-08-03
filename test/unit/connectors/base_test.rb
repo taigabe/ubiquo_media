@@ -32,7 +32,7 @@ class UbiquoMedia::Connectors::BaseTest < ActiveSupport::TestCase
   end
   
   test 'uhook_after_update in asset should continue' do
-    assert_not_equal false, Asset.new.uhook_after_update
+    assert_not_equal false, AssetPublic.new.uhook_after_update
   end
   
   test 'uhook_index_filters_should_return_hash' do
