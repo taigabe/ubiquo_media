@@ -24,6 +24,10 @@ class UbiquoMedia::Connectors::StandardTest < ActiveSupport::TestCase
     Asset.uhook_filtered_search { Asset.all }
   end
   
+  test 'uhook_after_update in asset should continue' do
+    assert_not_equal false, Asset.new.uhook_after_update
+  end
+  
   test 'uhook_index_filters_should_return_empty_hash' do
     assert_equal({}, Ubiquo::AssetsController.new.uhook_index_filters)
   end
@@ -39,7 +43,7 @@ class UbiquoMedia::Connectors::StandardTest < ActiveSupport::TestCase
   end
   
   test 'uhook_edit_asset should return true' do
-    assert Ubiquo::AssetsController.new.uhook_edit_asset Asset.new
+    assert Ubiquo::AssetsController.new.uhook_edit_asset(Asset.new)
   end
   
   test 'uhook_create_asset_should_return_new_asset' do

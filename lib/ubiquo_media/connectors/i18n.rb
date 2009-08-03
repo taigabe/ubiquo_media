@@ -8,7 +8,8 @@ module UbiquoMedia
         def self.included(klass)
           klass.send(:extend, ClassMethods)
           klass.send(:translatable, :name, :description)
-          I18n.register_uhooks klass, ClassMethods
+          klass.send(:include, InstanceMethods)
+          I18n.register_uhooks klass, ClassMethods, InstanceMethods
         end
         
         module ClassMethods
@@ -20,6 +21,29 @@ module UbiquoMedia
               
             with_scope(filter_locale) do
               yield
+            end
+          end
+        end
+        
+        module InstanceMethods
+          # Performs any necessary step after an update
+          # This can be useful to handle the asset special attribute :resource
+          def uhook_after_update
+            # Updates :resource in translations, if this field has been updated
+            if self.class.instance_variable_get('@original_resource_owner').blank?
+              begin
+                self.class.instance_variable_set('@original_resource_owner', self)
+                # The resource we are copying must be saved for paperclip to work correctly
+                self.resource.save
+                translations.each do |translation|
+                  translation.without_updating_translations do
+                    translation.resource = self.resource
+                    translation.save
+                  end
+                end
+              ensure
+                self.class.instance_variable_set('@original_resource_owner', nil)
+              end
             end
           end
         end

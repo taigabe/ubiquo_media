@@ -25,6 +25,15 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
     Asset.uhook_filtered_search({:locale => 'ca'}) { Asset.all }
   end
   
+  test 'uhook_after_update in asset should update resource in translations' do
+    asset_1 = AssetPublic.new(:locale => 'ca', :resource => 'one')
+    asset_2 = AssetPublic.new(:locale => 'en')
+    asset_1.expects(:translations).returns([asset_2])
+    asset_2.expects(:resource=)
+    asset_2.expects(:save)
+    asset_1.uhook_after_update
+  end
+  
   test 'uhook_index_filters_should_return_locale_filter' do
     mock_params :filter_locale => 'ca'
     assert_equal({:locale => 'ca'}, Ubiquo::AssetsController.new.uhook_index_filters)

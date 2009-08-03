@@ -7,13 +7,21 @@ module UbiquoMedia
         
         def self.included(klass)
           klass.send(:extend, ClassMethods)
-          Standard.register_uhooks klass, ClassMethods
+          klass.send(:include, InstanceMethods)
+          Standard.register_uhooks klass, ClassMethods, InstanceMethods
         end
         
         module ClassMethods
           # Applies any required extra scope to the filtered_search method
           def uhook_filtered_search filters = {}
             yield
+          end
+        end
+        
+        module InstanceMethods
+          # Performs any necessary step after an update
+          # This can be useful to handle the asset special attribute :resource
+          def uhook_after_update
           end
         end
         
