@@ -50,6 +50,13 @@ class UbiquoMedia::Connectors::BaseTest < ActiveSupport::TestCase
     assert asset.new_record?
   end
   
+  test 'uhook_edit_asset should not break' do
+    mock_controller
+    assert_nothing_raised do
+      Ubiquo::AssetsController.new.uhook_edit_asset Asset.new
+    end
+  end
+  
   test 'uhook_create_asset_should_return_new_asset' do
     mock_controller
     %w{AssetPublic AssetPrivate}.each do |visibility|

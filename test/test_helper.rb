@@ -17,10 +17,20 @@ def mock_session session = nil
   Ubiquo::AssetsController.any_instance.expects(:session).at_least(0).returns(session || {:asset => {}})
 end
 
+def mock_routes
+  Ubiquo::AssetsController.any_instance.expects(:ubiquo_assets_path).at_least(0).returns('')  
+end
+
+def mock_response
+  Ubiquo::AssetsController.any_instance.expects(:redirect_to).at_least(0)
+end
+
 # Prepares the proper mocks for a hook that will be using controller features
 def mock_controller
   mock_params
   mock_session
+  mock_routes
+  mock_response
 end
 
 # Prepares the proper mocks for a hook that will be using helper features

@@ -44,6 +44,7 @@ class Ubiquo::AssetsController < UbiquoAreaController
   # GET /assets/1/edit
   def edit
     @asset = Asset.find(params[:id])
+    return if uhook_edit_asset(@asset) == false
   end
 
   # POST /assets

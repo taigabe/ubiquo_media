@@ -132,6 +132,14 @@ module UbiquoMedia
             ::AssetPublic.translate(params[:from], current_locale, :copy_all => true)
           end
           
+          # Performs any required action on asset when in edit
+          def uhook_edit_asset asset
+            unless asset.locale?(current_locale)
+              redirect_to(ubiquo_assets_path)
+              false
+            end            
+          end
+          
           # Creates a new instance of asset.
           def uhook_create_asset visibility
             asset = visibility.new(params[:asset])

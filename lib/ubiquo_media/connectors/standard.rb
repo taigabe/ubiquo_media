@@ -95,6 +95,12 @@ module UbiquoMedia
             ::AssetPublic.new
           end
           
+          # Performs any required action on asset when in edit
+          # Edit action will not continue if this hook returns false
+          def uhook_edit_asset asset
+            true
+          end
+          
           # Creates a new instance of asset.
           def uhook_create_asset visibility
             visibility.new(params[:asset])

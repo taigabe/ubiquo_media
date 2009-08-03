@@ -38,6 +38,10 @@ class UbiquoMedia::Connectors::StandardTest < ActiveSupport::TestCase
     assert asset.new_record?
   end
   
+  test 'uhook_edit_asset should return true' do
+    assert Ubiquo::AssetsController.new.uhook_edit_asset Asset.new
+  end
+  
   test 'uhook_create_asset_should_return_new_asset' do
     mock_params
     %w{AssetPublic AssetPrivate}.each do |visibility|

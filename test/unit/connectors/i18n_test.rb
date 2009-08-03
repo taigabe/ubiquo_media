@@ -45,6 +45,19 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
     asset = Ubiquo::AssetsController.new.uhook_new_asset 
   end
   
+  test 'uhook_edit_asset should not return false if current locale' do
+    Ubiquo::AssetsController.any_instance.expects(:current_locale).at_least_once.returns('ca')
+    assert_not_equal false, Ubiquo::AssetsController.new.uhook_edit_asset(Asset.new(:locale => 'ca'))
+  end
+  
+  test 'uhook_edit_asset should redirect if not current locale' do
+    Ubiquo::AssetsController.any_instance.expects(:current_locale).at_least_once.returns('ca')
+    Ubiquo::AssetsController.any_instance.expects(:ubiquo_assets_path).at_least_once.returns('')
+    Ubiquo::AssetsController.any_instance.expects(:redirect_to).at_least_once
+    Ubiquo::AssetsController.new.uhook_edit_asset Asset.new(:locale => 'en')
+    assert_equal false, Ubiquo::AssetsController.new.uhook_edit_asset(Asset.new(:locale => 'en'))
+  end
+  
   test 'uhook_create_asset_should_return_new_asset_with_current_locale' do
     mock_params
     Ubiquo::AssetsController.any_instance.expects(:current_locale).at_least_once.returns('ca')
