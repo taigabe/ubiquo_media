@@ -142,6 +142,25 @@ module UbiquoMedia
         end
       end
       
+      module ActiveRecord
+        module Base
+
+          def self.included(klass)
+            klass.send(:extend, ClassMethods)
+            Standard.register_uhooks klass, ClassMethods
+          end
+
+          module ClassMethods
+            # called after a media_attachment has been defined and built
+            def uhook_media_attachment field, options
+              parameters = {:klass => self, :field => field, :options => options}
+              Standard.register_uhook_call parameters
+            end
+          end
+
+        end
+      end
+      
     end
   end
 end

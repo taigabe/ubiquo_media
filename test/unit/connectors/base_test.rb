@@ -9,6 +9,7 @@ class UbiquoMedia::Connectors::BaseTest < ActiveSupport::TestCase
     ::Ubiquo::AssetsController.expects(:include).with(Base::UbiquoAssetsController)
 #    ::AssetRelation.expects(:include).with(Base::AssetRelation)
     ::ActiveRecord::Migration.expects(:include).with(Base::Migration)
+    ::ActiveRecord::Base.expects(:include).with(Base::ActiveRecord::Base)
     Base.expects(:set_current_connector).with(Base)
     Base.load!
   end
@@ -126,10 +127,20 @@ class UbiquoMedia::Connectors::BaseTest < ActiveSupport::TestCase
     assert Base.current_connector::UbiquoAssetsController::Helper.uhook_asset_form(f).is_a?(String)
   end
 
+  test 'uhook_media_attachment should register call' do
+    AssetType.uhook_media_attachment :simple, {}
+    assert Base::get_uhook_calls(:uhook_media_attachment).flatten.detect { |call|
+      call == {:klass => AssetType, :field => :simple, :options => {}}
+    }
+  end
+  
   # Define module mocks for testing
   module Base::Asset; end
   module Base::UbiquoAssetsController; end
 #  module Base::AssetRelation; end
   module Base::Migration; end
+  module Base::ActiveRecord
+    module Base; end
+  end
     
 end

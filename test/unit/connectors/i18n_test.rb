@@ -191,6 +191,15 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
     I18n::UbiquoAssetsController::Helper.uhook_asset_form(f)
   end
     
+  test 'uhook_media_attachment should add translation_shared option if set' do
+    AssetType.uhook_media_attachment :simple, {:translation_shared => true}
+    assert AssetType.reflections[:simple].options[:translation_shared]
+  end
+  
+  test 'uhook_media_attachment should not add translation_shared option if not set' do
+    AssetType.uhook_media_attachment :simple, {:translation_shared => false}
+    assert !AssetType.reflections[:simple].options[:translation_shared]
+  end
 end
 
 add_mock_helper_stubs({

@@ -116,4 +116,11 @@ class UbiquoMedia::Connectors::StandardTest < ActiveSupport::TestCase
     assert_equal '', Standard::UbiquoAssetsController::Helper.uhook_asset_form(f)
   end
 
+  test 'uhook_media_attachment should register call' do
+    AssetType.uhook_media_attachment :simple, {}
+    assert Standard::get_uhook_calls(:uhook_media_attachment).flatten.detect { |call|
+      call == {:klass => AssetType, :field => :simple, :options => {}}
+    }
+  end
+  
 end

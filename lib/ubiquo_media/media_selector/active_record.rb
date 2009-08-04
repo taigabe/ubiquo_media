@@ -171,6 +171,8 @@ module UbiquoMedia
             end
             true
           end
+          
+          uhook_media_attachment field, options
         end
       end
 

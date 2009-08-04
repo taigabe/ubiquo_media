@@ -4,6 +4,7 @@ module UbiquoMedia
       
       # loads this connector. It's called if that connector is used
       def self.load!
+        ::ActiveRecord::Base.send(:include, self::ActiveRecord::Base)
         ::Asset.send(:include, self::Asset)
 #        ::AssetRelation.send(:include, self::AssetRelation)
         ::Ubiquo::AssetsController.send(:include, self::UbiquoAssetsController)
@@ -36,6 +37,28 @@ module UbiquoMedia
             end
           end
         end
+      end
+      
+      # Registers a uhook call and keeps a registry of this
+      # 
+      #   parameters: List of parameters that will be recorded along with the call
+      #   replace_block: Optional block that will be called for each previous call to this function.
+      #                  If it returns true, the previous call will be deleted
+      def self.register_uhook_call *parameters, &replace_block
+        # make sure we are registering at Base and not in a subclass
+        uhook_calls = Base.instance_variable_get('@uhook_calls')
+        uhook_calls ||= {}
+        caller[0]=~/`(.*?)'/
+        if replace_block
+          (uhook_calls[$1.to_sym] ||= []).reject!{ |prev_call| replace_block.call(prev_call)}
+        end
+        (uhook_calls[$1.to_sym] ||= []) << parameters
+        Base.instance_variable_set('@uhook_calls', uhook_calls)
+      end
+      
+      # Returns the list of calls for this method
+      def self.get_uhook_calls method
+        Array((Base.instance_variable_get('@uhook_calls')||{})[method.to_sym])
       end
     end
     

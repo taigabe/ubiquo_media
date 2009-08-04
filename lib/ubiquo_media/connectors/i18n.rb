@@ -208,6 +208,47 @@ module UbiquoMedia
         end
       end
       
+      module ActiveRecord
+        module Base
+        
+          def self.included(klass)
+            klass.send(:extend, ClassMethods)
+            I18n.register_uhooks klass, ClassMethods
+            update_reflections_for_uhook_media_attachment
+          end
+          
+          # Updates the needed reflections for 
+          def self.update_reflections_for_uhook_media_attachment
+            ClassMethods.module_eval do
+              module_function :uhook_media_attachment_process_call
+            end
+            I18n.get_uhook_calls(:uhook_media_attachment).flatten.each do |call|
+              ClassMethods.uhook_media_attachment_process_call call
+            end
+          end
+
+          module ClassMethods
+            # called after a media_attachment has been defined and built
+            def uhook_media_attachment field, options
+              parameters = {:klass => self, :field => field, :options => options}
+              I18n.register_uhook_call(parameters) {|call| call.first[:klass] == self && call.first[:field] == field}
+              uhook_media_attachment_process_call parameters
+            end
+            
+            protected
+            
+            def uhook_media_attachment_process_call parameters
+              unless parameters[:options][:translation_shared].nil?
+                # Mark the association as translation_shared
+                parameters[:klass].reflections[parameters[:field]].options[:translation_shared] = 
+                  parameters[:options][:translation_shared]
+              end
+            end
+          end
+
+        end
+      end      
+      
     end
   end
 end
