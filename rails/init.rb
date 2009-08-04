@@ -31,3 +31,5 @@ Ubiquo::Plugin.register(:ubiquo_media, directory, config) do |config|
   
   config.add :force_visibility, "public" # set to public or protected to force it to the entire application
 end
+
+UbiquoMedia::Connectors::Standard.load!
