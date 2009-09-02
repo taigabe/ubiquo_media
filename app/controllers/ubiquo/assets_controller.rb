@@ -63,8 +63,6 @@ class Ubiquo::AssetsController < UbiquoAreaController
         format.js {
           responds_to_parent do 
             render :update do |page|
-              created = @asset
-              @asset = uhook_create_asset asset_visibility
               page.replace_html(
                 "add_#{counter}", 
                 :partial => "ubiquo/asset_relations/asset_form",
@@ -74,7 +72,7 @@ class Ubiquo::AssetsController < UbiquoAreaController
                   :visibility => visibility 
                 })
               page.hide "add_#{counter}"
-              page << "media_fields.add_element('#{field}', #{created.id}, #{created.name.to_json}, #{counter}, #{thumbnail_url(created).to_json}, #{view_asset_link(created).to_json});"
+              page << "media_fields.add_element('#{field}', #{@asset.id}, #{@asset.name.to_json}, #{counter}, #{thumbnail_url(@asset).to_json}, #{view_asset_link(@asset).to_json});"
             end
           end
         }
