@@ -52,7 +52,8 @@
       <%= object.name_for_asset(field, asset).to_json %>,
       <%= counter %>, 
       <%= thumbnail_url(asset).to_json %>,
-      <%= view_asset_link(asset).to_json %>
+      <%= view_asset_link(asset).to_json %>,
+      <%= asset.name.to_json %>
     );
   <% end %>
 </script>
