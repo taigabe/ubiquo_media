@@ -23,8 +23,8 @@
 	</fieldset>
     <p>
       <% if f.object.new_record? && !Ubiquo::Config.context(:ubiquo_media).get(:force_visibility) -%>
-        <%= label_tag :is_protected, t("ubiquo.media.is_protected") %>
-        <%= check_box_tag :is_protected %>
+        <%= f.label :is_protected, t("ubiquo.media.is_protected") %>
+        <%= f.check_box :is_protected %>
       <% end %>
     </p>
 </div>
