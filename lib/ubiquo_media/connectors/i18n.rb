@@ -120,12 +120,12 @@ module UbiquoMedia
             
             actions << link_to(t("ubiquo.remove"), 
               ubiquo_asset_path(asset, :destroy_content => true), 
-              :confirm => t("ubiquo.asset.index.confirm_removal"), :method => :delete
+              :confirm => t("ubiquo.media.confirm_asset_removal"), :method => :delete
             )
             
             if asset.locale?(current_locale, :skip_any => true)
               actions << link_to(t("ubiquo.remove_translation"), ubiquo_asset_path(asset), 
-                :confirm => t("ubiquo.asset.index.confirm_removal"), :method => :delete
+                :confirm => t("ubiquo.media.confirm_asset_removal"), :method => :delete
               )
             end
             
