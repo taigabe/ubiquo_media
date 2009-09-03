@@ -19,6 +19,11 @@ class UbiquoMedia::Connectors::StandardTest < ActiveSupport::TestCase
     ActiveRecord::Migration.uhook_create_assets_table {}
   end
   
+  test 'uhook_create_asset_relations_table_should_create_table' do
+    ActiveRecord::Migration.expects(:create_table).with(:asset_relations)
+    ActiveRecord::Migration.uhook_create_asset_relations_table {}
+  end
+  
   test 'uhook_filtered_search_in_asset_should_yield' do
     Asset.expects(:all)
     Asset.uhook_filtered_search { Asset.all }

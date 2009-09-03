@@ -139,6 +139,12 @@ module UbiquoMedia
               yield t
             end
           end
+
+          def uhook_create_asset_relations_table
+            create_table :asset_relations do |t|
+              yield t
+            end
+          end
         end
       end
       

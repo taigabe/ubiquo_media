@@ -19,6 +19,11 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
     ActiveRecord::Migration.uhook_create_assets_table {}
   end
   
+  test 'uhook_create_asset_relations_table_should_create_table' do
+    ActiveRecord::Migration.expects(:create_table).with(:asset_relations, :translatable => true)
+    ActiveRecord::Migration.uhook_create_asset_relations_table {}
+  end
+
   test 'uhook_filtered_search_in_asset_should_yield_with_locale_filter' do
     Asset.expects(:all)
     Asset.expects(:with_scope).with(:find => {:conditions => ["assets.locale <= ?", 'ca']}).yields
