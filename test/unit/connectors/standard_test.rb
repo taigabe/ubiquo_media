@@ -127,11 +127,5 @@ class UbiquoMedia::Connectors::StandardTest < ActiveSupport::TestCase
       call == {:klass => AssetType, :field => :simple, :options => {}}
     }
   end
-
-  test 'uhook_asset_relation_scoped_creation should yield' do
-    Asset.expects(:all)
-    AssetRelation.uhook_asset_relation_scoped_creation(AssetPublic.create) { Asset.all }
-  end
-
   
 end

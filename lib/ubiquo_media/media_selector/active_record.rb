@@ -111,7 +111,7 @@ module UbiquoMedia
                         end
                 next if asset.nil?
                 next unless self.accepts?(asset)
-                AssetRelation.scoped_creation(field, (name || asset.name), asset) do
+                AssetRelation.scoped_creation(field, (name || asset.name)) do
                   self.concat(asset)
                 end
               end

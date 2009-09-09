@@ -50,25 +50,6 @@ module UbiquoMedia
         
       end
       
-      module AssetRelation
-        
-        def self.included(klass)
-#          klass.send(:translatable, :name)
-          klass.send(:extend, ClassMethods)
-          I18n.register_uhooks klass, ClassMethods
-        end
-
-        module ClassMethods
-          # Applies any required extra scope to the filtered_search method
-          def uhook_asset_relation_scoped_creation asset
-            with_scope(:create => {:locale => asset.locale}) do
-              yield
-            end
-          end
-        end
-        
-      end
-      
       module UbiquoAssetsController
         def self.included(klass)
           klass.send(:include, InstanceMethods)

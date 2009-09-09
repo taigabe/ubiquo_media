@@ -7,7 +7,6 @@ class UbiquoMedia::Connectors::BaseTest < ActiveSupport::TestCase
   test 'should_load_correct_modules' do
     ::Asset.expects(:include).with(Base::Asset)
     ::Ubiquo::AssetsController.expects(:include).with(Base::UbiquoAssetsController)
-    ::AssetRelation.expects(:include).with(Base::AssetRelation)
     ::ActiveRecord::Migration.expects(:include).with(Base::Migration)
     ::ActiveRecord::Base.expects(:include).with(Base::ActiveRecord::Base)
     Base.expects(:set_current_connector).with(Base)
@@ -139,15 +138,9 @@ class UbiquoMedia::Connectors::BaseTest < ActiveSupport::TestCase
     }
   end
 
-  test 'uhook_asset_relation_scoped_creation should yield' do
-    Asset.expects(:all)
-    AssetRelation.uhook_asset_relation_scoped_creation(AssetPublic.create) { Asset.all }
-  end
-  
   # Define module mocks for testing
   module Base::Asset; end
   module Base::UbiquoAssetsController; end
-  module Base::AssetRelation; end
   module Base::Migration; end
   module Base::ActiveRecord
     module Base; end

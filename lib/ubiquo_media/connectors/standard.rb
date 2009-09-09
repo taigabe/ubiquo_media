@@ -26,20 +26,7 @@ module UbiquoMedia
         end
         
       end
-      
-      module AssetRelation
-        def self.included(klass)
-          klass.send(:extend, ClassMethods)
-          Standard.register_uhooks klass, ClassMethods
-        end
 
-        module ClassMethods
-          # Applies any required extra scope to the filtered_search method
-          def uhook_asset_relation_scoped_creation asset
-            yield
-          end
-        end
-      end
 
       module UbiquoAssetsController
         def self.included(klass)

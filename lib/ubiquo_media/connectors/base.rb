@@ -6,7 +6,6 @@ module UbiquoMedia
       def self.load!
         ::ActiveRecord::Base.send(:include, self::ActiveRecord::Base)
         ::Asset.send(:include, self::Asset)
-        ::AssetRelation.send(:include, self::AssetRelation)
         ::Ubiquo::AssetsController.send(:include, self::UbiquoAssetsController)
         ::ActiveRecord::Migration.send(:include, self::Migration)
         UbiquoMedia::Connectors::Base.set_current_connector self
