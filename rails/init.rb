@@ -1,5 +1,9 @@
 require 'ubiquo_media'
 
+config.after_initialize do
+  UbiquoMedia::Connectors.load!
+end
+
 Ubiquo::Plugin.register(:ubiquo_media, directory, config) do |config|
   config.add :assets_elements_per_page
   config.add_inheritance :assets_elements_per_page, :elements_per_page
@@ -17,7 +21,7 @@ Ubiquo::Plugin.register(:ubiquo_media, directory, config) do |config|
   config.add :assets_date_filter_enabled, true
   config.add :assets_default_order_field, 'assets.id'
   config.add :assets_default_sort_order, 'desc'
-  config.add :asset_types_icons, { :doc => "icon_doc.png", 
+  config.add :asset_types_icons, { :doc => "icon_doc.png",
                                    :video => "icon_video.png",
                                    :audio => "icon_audio.png",
                                    :flash => "icon_flash.png",
@@ -30,6 +34,7 @@ Ubiquo::Plugin.register(:ubiquo_media, directory, config) do |config|
   config.add :media_styles_list, { :thumb => "100x100>" }
   
   config.add :force_visibility, "public" # set to public or protected to force it to the entire application
+
+  config.add :connector, :standard
 end
 
-UbiquoMedia::Connectors::Standard.load!
