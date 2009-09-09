@@ -13,7 +13,16 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
     reload_old_connector
   end
   
-  
+  test 'Asset should be translatable' do
+    [Asset, AssetPublic, AssetPrivate].each do |klass|
+      assert klass.is_translatable?
+    end
+  end
+
+  test 'AssetRelation should be translatable' do
+    assert AssetRelation.is_translatable?
+  end
+
   test 'uhook_create_assets_table_should_create_table_with_i18n_info' do
     ActiveRecord::Migration.expects(:create_table).with(:assets, :translatable => true)
     ActiveRecord::Migration.uhook_create_assets_table {}
@@ -204,6 +213,79 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
   test 'uhook_media_attachment should not add translation_shared option if not set' do
     AssetType.uhook_media_attachment :simple, {:translation_shared => false}
     assert !AssetType.reflections[:simple].options[:translation_shared]
+  end
+
+  test 'uhook_asset_relation_scoped_creation should set asset locale in create scope' do
+    asset = AssetPublic.create(:locale => 'ca')
+    AssetRelation.uhook_asset_relation_scoped_creation(asset) do
+      asset = AssetRelation.create
+      assert_equal 'ca', asset.locale
+    end
+  end
+
+  test 'uhook_asset_relation_scoped_creation should only set relation locale for the current relation' do
+    original_options = AssetPublic.reflections[:asset_relations].options
+    AssetPublic.reflections[:asset_relations].instance_variable_set('@options', original_options.merge(:translation_shared => true))
+
+    asset = AssetPublic.create :locale => 'ca', :resource => Tempfile.new('tmp'), :name => 'asset'
+    translated_asset = asset.translate('en', :copy_all => true)
+    translated_asset.save
+    AssetRelation.uhook_asset_relation_scoped_creation(asset) do
+      asset.asset_relations << AssetRelation.create(:related_object => asset)
+      assert_equal 'ca', asset.asset_relations.first.locale
+      assert_equal 1, translated_asset.reload.asset_relations.size
+      assert_equal 'en', translated_asset.asset_relations.first.locale
+    end
+
+    AssetPublic.reflections[:asset_relations].instance_variable_set('@options', original_options)
+  end
+
+  test 'should not share attachments between translations' do
+    AssetPublic.class_eval do
+      media_attachment :photo
+    end
+
+    asset = AssetPublic.create :locale => 'ca', :resource => Tempfile.new('tmp'), :name => 'asset'
+    translated_asset = asset.translate('en', :copy_all => true)
+    translated_asset.save
+    
+    asset.photo << AssetPublic.create(:locale => 'ca', :resource => Tempfile.new('tmp'), :name => 'photo')
+    assert_equal 0, translated_asset.reload.photo.size
+  end
+
+  test 'should share attachments between translations' do
+    AssetPublic.class_eval do
+      media_attachment :photo, :translation_shared => true
+    end
+
+    asset = AssetPublic.create :locale => 'ca', :resource => Tempfile.new('tmp'), :name => 'asset'
+    translated_asset = asset.translate('en', :copy_all => true)
+    translated_asset.save
+
+    asset.photo << AssetPublic.create(:locale => 'ca', :resource => Tempfile.new('tmp'), :name => 'photo')
+    assert_equal 1, translated_asset.reload.photo.size
+    assert_equal 'en', translated_asset.photo.first.locale
+  end
+
+  test 'should only update asset relation name in one translation' do
+    AssetPublic.class_eval do
+      media_attachment :photo, :translation_shared => true
+    end
+
+    asset = AssetPublic.create :locale => 'ca', :resource => Tempfile.new('tmp'), :name => 'asset'
+    translated_asset = asset.translate('en', :copy_all => true)
+    translated_asset.save
+    asset.photo << original_photo = AssetPublic.create(:locale => 'ca', :resource => Tempfile.new('tmp'), :name => 'photo')
+
+    # save the original name in the translation and then update it
+    original_name = AssetRelation.name_for_asset :photo, translated_asset.photo.first, translated_asset
+    asset.photo_ids = [{"id" => original_photo.id, "name" => 'newname'}]
+    asset.save
+
+    # name successfully changed
+    assert_equal 'newname', AssetRelation.first(:conditions => {:related_object_id => asset.id}).name
+    # translation untouched
+    assert_equal original_name, AssetRelation.first(:conditions => {:related_object_id => translated_asset.id}).name
   end
 end
 

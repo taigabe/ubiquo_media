@@ -5,11 +5,13 @@ class AssetRelation < ActiveRecord::Base
   validates_presence_of :asset, :related_object
 
   # Create a scope so as to position attribute is autoincremented on creation     
-  def self.scoped_creation(field, name)
+  def self.scoped_creation(field, name, asset)
     last_order = self.maximum("asset_relations.position", :conditions => {:field_name => field.to_s})
     last_order ||= 0
     self.with_scope(:create => {:field_name => field.to_s, :name => name.to_s, :position => (last_order+1)}) do
-      yield
+      uhook_asset_relation_scoped_creation asset do
+        yield
+      end
     end
   end
 

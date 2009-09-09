@@ -27,22 +27,20 @@ module UbiquoMedia
         
       end
       
-#      module AssetRelation
-#        
-#        def self.included(klass)
-##          klass.send(:extend, ClassMethods)
-##          klass.send(:include, InstanceMethods)
-#        end
-#        
-##        module ClassMethods
-##          # Applies any required extra scope to the filtered_search method
-##          def uhook_filtered_search
-##            yield
-##          end
-##        end
-##        
-#      end
-      
+      module AssetRelation
+        def self.included(klass)
+          klass.send(:extend, ClassMethods)
+          Standard.register_uhooks klass, ClassMethods
+        end
+
+        module ClassMethods
+          # Applies any required extra scope to the filtered_search method
+          def uhook_asset_relation_scoped_creation asset
+            yield
+          end
+        end
+      end
+
       module UbiquoAssetsController
         def self.included(klass)
           klass.send(:include, InstanceMethods)
@@ -114,12 +112,7 @@ module UbiquoMedia
             visibility.new(params[:asset])
           end
          
-#          #updates an asset instance. returns a boolean that means if update was done.
-#          def uhook_update_asset(asset)
-#            asset.update_attributes(params[:asset])
-#          end
-#
-          #destroys an asset instance. returns a boolean that means if the destroy was done.
+         #destroys an asset instance. returns a boolean that means if the destroy was done.
           def uhook_destroy_asset(asset)
             asset.destroy
           end

@@ -111,7 +111,7 @@ module UbiquoMedia
                         end
                 next if asset.nil?
                 next unless self.accepts?(asset)
-                AssetRelation.scoped_creation(field, (name || asset.name)) do
+                AssetRelation.scoped_creation(field, (name || asset.name), asset) do
                   self.concat(asset)
                 end
               end
@@ -164,9 +164,17 @@ module UbiquoMedia
           after_save "#{field}_after_save"
 
           define_method("#{field}_after_save") do
-            unless instance_variable_get("@#{field}_values_ids").nil?
-              send(field).delete(send(field))
-              send(field) << instance_variable_get("@#{field}_values_ids")
+            if new_assets = instance_variable_get("@#{field}_values_ids")
+              old_assets = send(field)
+              old_assets.each do |old_asset|
+                if new_asset = new_assets.detect{|asset_info| asset_info["id"].to_i == old_asset.id}
+                  relation = self.asset_relations.first(:conditions => {:asset_id => old_asset.id})
+                  relation.update_attribute :name, new_asset["name"]
+                else
+                  send(field).delete(old_asset)
+                end
+              end
+              send(field) << new_assets.reject{|asset| old_assets.map(&:id).include?(asset["id"])}
               instance_variable_set "@#{field}_values_ids", nil
             end
             true

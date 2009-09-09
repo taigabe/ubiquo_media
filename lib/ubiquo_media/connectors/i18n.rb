@@ -50,21 +50,24 @@ module UbiquoMedia
         
       end
       
-#      module AssetRelation
-#        
-#        def self.included(klass)
-##          klass.send(:extend, ClassMethods)
-##          klass.send(:include, InstanceMethods)
-#        end
-#        
-##        module ClassMethods
-##          # Applies any required extra scope to the filtered_search method
-##          def uhook_filtered_search
-##            yield
-##          end
-##        end
-##        
-#      end
+      module AssetRelation
+        
+        def self.included(klass)
+#          klass.send(:translatable, :name)
+          klass.send(:extend, ClassMethods)
+          I18n.register_uhooks klass, ClassMethods
+        end
+
+        module ClassMethods
+          # Applies any required extra scope to the filtered_search method
+          def uhook_asset_relation_scoped_creation asset
+            with_scope(:create => {:locale => asset.locale}) do
+              yield
+            end
+          end
+        end
+        
+      end
       
       module UbiquoAssetsController
         def self.included(klass)
@@ -174,11 +177,6 @@ module UbiquoMedia
             asset
           end
          
-#          #updates an asset instance. returns a boolean that means if update was done.
-#          def uhook_update_asset(asset)
-#            asset.update_attributes(params[:asset])
-#          end
-#
           #destroys an asset instance. returns a boolean that means if the destroy was done.
           def uhook_destroy_asset(asset)
             destroyed = false
@@ -240,7 +238,7 @@ module UbiquoMedia
               I18n.register_uhook_call(parameters) {|call| call.first[:klass] == self && call.first[:field] == field}
               uhook_media_attachment_process_call parameters
             end
-            
+
             protected
             
             def uhook_media_attachment_process_call parameters
