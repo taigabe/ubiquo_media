@@ -81,7 +81,7 @@ class Asset < ActiveRecord::Base
     if self.resource.errors.blank?
       # mime_types hash is here momentarily but maybe its must be in ubiquo config
       mime_types = Ubiquo::Config.context(:ubiquo_media).get(:mime_types)
-      content_type = self.resource_content_type.split('/')
+      content_type = self.resource_content_type.split('/') rescue []
       mime_types.each do |type_relations|
         type_relations.last.each do |mime|
           if content_type.include?(mime)
