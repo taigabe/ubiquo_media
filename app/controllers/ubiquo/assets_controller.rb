@@ -142,7 +142,7 @@ class Ubiquo::AssetsController < UbiquoAreaController
     @search_text = params[:text]
     @page = params[:page] || 1
     @assets_pages, @assets = Asset.paginate(:page => @page, :per_page => Ubiquo::Config.context(:ubiquo_media).get(:media_selector_list_size)) do
-      Asset.filtered_search({:text => @search_text, :type => params[:asset_type_id], :visibility => params[:visibility]})
+      uhook_index_search_subject.filtered_search({:text => @search_text, :type => params[:asset_type_id], :visibility => params[:visibility]})
     end
   end
   
