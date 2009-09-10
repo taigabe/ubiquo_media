@@ -2,8 +2,6 @@
 <h2><%= render :partial => 'submenu' %></h2>
 <%= render :partial => "shared/ubiquo/feedback" %>
 
-<%= link_to t('ubiquo.media.asset_new'), new_ubiquo_asset_path, :class => "new" %>
-
 <%= asset_filters_info(params) %>
 <%= render(:partial => "shared/ubiquo/lists/standard", :locals => {
   :name => 'asset',
@@ -24,6 +22,7 @@
     }
   end,
   :pages => @assets_pages,
+  :link_to_new => link_to(t('ubiquo.media.asset_new'), new_ubiquo_asset_path, :class => "new")
 }) %>
 
 <% content_for :sidebar do %>
