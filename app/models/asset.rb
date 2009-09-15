@@ -7,6 +7,7 @@ class Asset < ActiveRecord::Base
   
   validates_presence_of :name, :asset_type_id, :type
   before_validation_on_create :set_asset_type
+  after_update :uhook_after_update
 
   # Generic find (ID, key or record)
   def self.gfind(something, options={})
@@ -51,15 +52,17 @@ class Asset < ActiveRecord::Base
     filter_create_end = if filters[:created_end]
       {:find => {:conditions => ["assets.created_at <= ?", filters[:created_end]]}}
     else {}
-    end      
+    end   
     
-    with_scope(filter_text) do
-      with_scope(filter_type) do
-        with_scope(filter_visibility) do
-          with_scope(filter_create_start) do
-            with_scope(filter_create_end) do  
-              with_scope(:find => options) do
-                Asset.find(:all)
+    uhook_filtered_search(filters) do
+      with_scope(filter_text) do
+        with_scope(filter_type) do
+          with_scope(filter_visibility) do
+            with_scope(filter_create_start) do
+              with_scope(filter_create_end) do  
+                with_scope(:find => options) do
+                  Asset.find(:all)
+                end
               end
             end
           end
@@ -78,7 +81,7 @@ class Asset < ActiveRecord::Base
     if self.resource.errors.blank?
       # mime_types hash is here momentarily but maybe its must be in ubiquo config
       mime_types = Ubiquo::Config.context(:ubiquo_media).get(:mime_types)
-      content_type = self.resource_content_type.split('/')
+      content_type = self.resource_content_type.split('/') rescue []
       mime_types.each do |type_relations|
         type_relations.last.each do |mime|
           if content_type.include?(mime)

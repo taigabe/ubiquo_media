@@ -36,7 +36,9 @@ module Ubiquo::AssetsHelper
     else
       nil
     end
-    build_filter_info(string_filter, asset_types_filter, asset_visibility_filter, date_filter)
+    extra_filters = uhook_asset_filters_info
+    
+    build_filter_info(string_filter, asset_types_filter, asset_visibility_filter, date_filter, *extra_filters)
   end
 
   def asset_filters(url_for_options = {})
@@ -77,7 +79,9 @@ module Ubiquo::AssetsHelper
     else
       ''
     end
-    (string_filter + asset_types_filter + asset_visibility_filter + date_filter)
+    extra_filters = uhook_asset_filters(url_for_options)
+    
+    (string_filter + asset_types_filter + asset_visibility_filter + date_filter + extra_filters)
   end
   
 end

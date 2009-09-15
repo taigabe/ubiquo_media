@@ -1,5 +1,6 @@
 <%= error_messages_for 'asset' %>
 <div class="form_box">
+  <%= uhook_asset_form f %>
 	<p>
       <%= f.label :name, Asset.human_attribute_name("name") %>
       <%= f.text_field :name %>
@@ -22,8 +23,9 @@
 	</fieldset>
     <p>
       <% if f.object.new_record? && !Ubiquo::Config.context(:ubiquo_media).get(:force_visibility) -%>
-        <%= label_tag :is_protected, t("ubiquo.media.is_protected") %>
-        <%= check_box_tag :is_protected %>
+
+        <%= f.label :is_protected, t("ubiquo.media.is_protected") %>
+        <%= f.check_box :is_protected %>
       <% end %>
     </p>
 </div>

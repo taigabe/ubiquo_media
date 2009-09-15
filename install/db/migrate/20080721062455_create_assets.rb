@@ -1,6 +1,6 @@
 class CreateAssets < ActiveRecord::Migration
   def self.up
-    create_table :assets do |t|
+    uhook_create_assets_table do |t|
       t.string :name
       t.text :description
       t.integer :asset_type_id
