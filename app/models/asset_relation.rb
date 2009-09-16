@@ -16,7 +16,7 @@ class AssetRelation < ActiveRecord::Base
   # Return the name (used for foot-text of images, for example) for a given asset and field
   def self.name_for_asset(field, asset, related_object)
     asset = Asset.gfind(asset)
-    ar = self.find(:first, :conditions => {:field_name => field.to_s, :asset_id => asset.id, :related_object_type => related_object.class.to_s, :related_object_id => related_object.id})
+    ar = self.find(:first, :conditions => {:field_name => field.to_s, :asset_id => asset.id, :related_object_type => related_object.class.base_class.to_s, :related_object_id => related_object.id})
     return asset.name if ar.nil?
     ar.name
   end
