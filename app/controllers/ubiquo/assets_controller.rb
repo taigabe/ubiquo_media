@@ -163,7 +163,7 @@ class Ubiquo::AssetsController < UbiquoAreaController
     if (forced_vis = Ubiquo::Config.context(:ubiquo_media).get(:force_visibility))
       return forced_vis
     end
-    if params[:asset][:is_protected] == "private" || params[:asset][:is_protected] == "1"
+    if %w{private 1 true}.include?(params[:asset][:is_protected])
       "private"
     else
       "public"
