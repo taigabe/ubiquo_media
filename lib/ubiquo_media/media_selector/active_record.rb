@@ -174,7 +174,7 @@ module UbiquoMedia
                   send(field).delete(old_asset)
                 end
               end
-              send(field) << new_assets.reject{|asset| old_assets.map(&:id).include?(asset["id"])}
+              send(field) << new_assets.reject{|asset| old_assets.map(&:id).include?(asset["id"].to_i)}
               instance_variable_set "@#{field}_values_ids", nil
             end
             true
