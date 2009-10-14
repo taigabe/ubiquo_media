@@ -1,5 +1,8 @@
 en:
   ubiquo:
+    asset:
+      empty_list_title: "Multimedia list"
+      empty_list_message: "In the section you can manage your assets catalog."
     media:
       media: "Multimedia"
       media_title: "Go to multimedia"

@@ -1,5 +1,8 @@
 ca:
   ubiquo:
+    asset:
+      empty_list_title: "Llistat multimèdia"
+      empty_list_message: "Des d'aquest apartat podeu gestionar el vostre catàleg d'elements multimèdia."
     media:
       media: "Multimèdia"
       media_title: "Anar a multimèdia"
