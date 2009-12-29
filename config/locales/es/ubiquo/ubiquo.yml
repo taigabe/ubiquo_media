@@ -50,4 +50,3 @@ es:
       invalid_related_object_type: "Identificador invalido para el tipo seleccionado: {{type}} {{id}}"
       invalid: "invalido"
       type_filter: "Filtrar por tipo"
-

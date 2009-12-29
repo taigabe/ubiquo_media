@@ -51,4 +51,3 @@ en:
       invalid_related_object_type: "Invalid identifier for the selected type: {{type}} {{id}}"
       invalid: "invalid"
       type_filter: "Filter by type"
-
