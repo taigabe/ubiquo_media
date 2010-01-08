@@ -5,110 +5,115 @@ if @is_media_included != true
 %>
 <script type="text/javascript">
   var Media = Class.create({
-      initialize: function(){
-        this.fields = [];
-        
-      },
-      // Limit = 0 -> no limit
-      add_field: function(counter, field, limit, name){
-        this.fields[counter] = {field: field, size: 0, max: limit, name: name};
-      },
-      //Adds a new element to a media field
-      add_element: function(field, id, name, counter, thumbnail_url, view_link, asset_name){
+    initialize: function(){
+      this.fields = [];
+    },
+    // Limit = 0 -> no limit
+    add_field: function(counter, field, limit, name){
+      this.fields[counter] = {field: field, size: 0, max: limit, name: name};
+    },
+    //Adds a new element to a media field
+    add_element: function(field, id, name, counter, thumbnail_url, view_link, asset_name){
       if (asset_name == undefined) asset_name = name;
-        var templ = new Template(
-        "<li class='element element_#{id}'>"+
-          "<input type='hidden' name='#{field_name}[#{field}_ids][][id]' value='#{id}' />"+
-          "<a class='handle'>handle</a>"+
-          "<h4>#{asset_name}</h4>" +
-          "<img src='#{thumb}' alt='#{asset_name}'/>" +
-          "#{view_link}" + 
-          "<a onclick='media_fields.delete_element(\"#{field}\",\"#{counter}\", #{id}); return false;' href='#' class='delete'><%= t('ubiquo.media.remove') %></a>" +
-        "#{content}"+
-          "<dl class='assigned_text'>"+
-          "<dt><%= t('ubiquo.media.assigned_text') %>:</dt>"+
-        "<dd class='name'>"+
-          "<span>#{name}</span>"+
-          "<a class='change' href='#' onclick='media_fields.change_name(\"#{counter}\", \"#{id}\");return false;'><%= t('ubiquo.media.change_text') %></a>"+
-        "</dd>"+
-          "<dd class='field' style='display:none'>"+
-          "<input type='text' class='short' onkeypress='if(event.keyCode==13){media_fields.change_name(\"#{counter}\", \"#{id}\");return false;}' name='#{field_name}[#{field}_ids][][name]' value='#{name}'/>"+
-          "<a class='change' href='#' onclick='media_fields.change_name(\"#{counter}\", \"#{id}\");return false;'><%= t('ubiquo.media.save') %></a>"+
-        "</dd>"+
-          "</dl>"+
-          "</li>")
-        $('media_selector_'+ counter).select(".relations_list").first().insert(templ.evaluate({
-          counter: counter,
-          field: field,
-          id: id,
-          view_link: view_link,
-          thumb: thumbnail_url,
-          name: name,
-          asset_name: asset_name,
-          field_name: this.fields[counter]['name']
-        }));
-        Sortable.create('relations_list_'+ counter, {
-          handle:'handle', 
-          onUpdate:function(){
-            new Ajax.Request('#', {
-              asynchronous:true, 
-              evalScripts:true, 
-              parameters:Sortable.serialize(
+	  var templ = new Template(
+      "<li class='element element_#{id}'>"+
+        "<input type='hidden' name='#{field_name}[#{field}_ids][][id]' value='#{id}' />"+
+        "<a class='handle'>handle</a>"+
+        "<h4>#{asset_name}</h4>" +
+        "<img src='#{thumb}' alt='#{asset_name}'/>" +
+        "#{view_link}" + 
+        "<a onclick='media_fields.delete_element(\"#{field}\",\"#{counter}\", #{id}); return false;' href='#' class='delete'><%= t('ubiquo.media.remove') %></a>" +
+      "#{content}"+
+        "<dl class='assigned_text'>"+
+        "<dt><%= t('ubiquo.media.assigned_text') %>:</dt>"+
+      "<dd class='name'>"+
+        "<span>#{name}</span>"+
+        "<a class='change' href='#' onclick='media_fields.change_name(\"#{counter}\", \"#{id}\");return false;'><%= t('ubiquo.media.change_text') %></a>"+
+      "</dd>"+
+      "<dd class='field' style='display:none'>"+
+        "<input type='text' class='short' onkeypress='if(event.keyCode==13){media_fields.change_name(\"#{counter}\", \"#{id}\");return false;}' name='#{field_name}[#{field}_ids][][name]' value='#{name}'/>"+
+        "<a class='change' href='#' onclick='media_fields.change_name(\"#{counter}\", \"#{id}\");return false;'><%= t('ubiquo.media.save') %></a>"+
+      "</dd>"+
+      "</dl>"+
+      "</li>")
+	  $('media_selector_'+ counter).select(".relations_list").first().insert(templ.evaluate({
+	    counter: counter,
+	    field: field,
+	    id: id,
+	    view_link: view_link,
+        thumb: thumbnail_url,
+	    name: name,
+        asset_name: asset_name,
+        field_name: this.fields[counter]['name']
+	  }));
+	  Sortable.create('relations_list_'+ counter, {
+        handle:'handle', 
+	    onUpdate:function(){
+	  	  new Ajax.Request('#', {
+	  	    asynchronous:true, 
+	  	    evalScripts:true, 
+	  	    parameters:Sortable.serialize(
               $('media_selector_'+ counter).select(".relations_list").first()
-            ) + '&authenticity_token=' + encodeURIComponent('<%= params[:authenticity_token] %>')
-            })
-          }, 
-          onupdate:function(){}
-        })
-        
-        this.fields[counter]['size']++;
-        this.reload(field, counter);
-      },
-      
-      change_name: function(counter, id){
-        parent = $('media_selector_'+ counter).select(".element_"+id).first()
-        parent.select('.name span').first().innerHTML = parent.select('.field input').first().value;
-        parent.select('.name').first().toggle();
-        parent.select('.field').first().toggle();
+              ) + '&authenticity_token=' + encodeURIComponent('<%= params[:authenticity_token] %>')
+          })
+	    }, 
+	    onupdate:function(){}
+	  })
+	  
+	  this.fields[counter]['size']++;
+	  this.reload(field, counter);
+    },
+
+    change_name: function(counter, id){
+      var parent = $('media_selector_'+ counter).select(".element_"+id).first()
+      parent.select('.name span').first().innerHTML = parent.select('.field input').first().value;
+      parent.select('.name').first().toggle();
+      parent.select('.field').first().toggle();
+      try{
+        /* Preventing Javascript Error in IE8 when try to focus to a hidden field */
         parent.select('.field input').first().focus();
-      },
-      
-      //Deletes a selected element from a media field
-      delete_element: function(field, counter, id){
-        parent = $('media_selector_'+ counter).select(".element_"+id).first()
-        parent.remove();
-        this.fields[counter]['size']--;
-        this.reload(field, counter);
-      },
-      
-      //Hides or show 'add' and 'search' links (and inner content)
-      reload: function(field, counter){
-        var f = this.fields[counter];
-        var action = null;
-        if(f['max'] == 0 || f['size'] < f['max']){
-          action = function(s){s.show();}
-        }else{
-          action = function(s){s.hide();}
-        }
-        selector = $('media_selector_'+ counter)
-        selector.select('.handle').each(function(e){
-          if(f['size'] <= 1){
-            e.hide();
-          }else{
-            e.show();
-          }
-        });
-        var e = selector.select(".list_caption").first();
-        if(f['size'] == 0){
-          e.innerHTML="<input type='hidden' name='"+this.fields[counter]['name']+"["+field+"_ids][]' />";
-        }else if(f['size'] == 1){
-          e.innerHTML="<h4><%= t('ubiquo.media.selected_media_element') %>:</h4><p><%= t('ubiquo.media.footer_text') %></p>";
-        }else{
-          e.innerHTML="<h4><%= t('ubiquo.media.selected_media_elements') %>:</h4><p><%= t('ubiquo.media.footer_text') %></p>";
-        }
-        action(selector.select(".actions").first());
       }
-    });
-    media_fields = new Media();
-  </script>
+      catch(e){
+        return false;
+      }
+    },
+
+    //Deletes a selected element from a media field
+    delete_element: function(field, counter, id){
+      var parent = $('media_selector_'+ counter).select(".element_"+id).first();
+      parent.remove();
+      this.fields[counter]['size']--;
+      this.reload(field, counter);
+    },
+
+    //Hides or show 'add' and 'search' links (and inner content)
+    reload: function(field, counter){
+      var f = this.fields[counter];
+      var action = null;
+      if(f['max'] == 0 || f['size'] < f['max']){
+        action = function(s){s.show();}
+      } else {
+        action = function(s){s.hide();}
+      }
+      selector = $('media_selector_'+ counter)
+      selector.select('.handle').each(function(e){
+	    if(f['size'] <= 1){
+		  e.hide();
+	    } else {
+		  e.show();
+	    }
+      });
+      var e = selector.select(".list_caption").first();
+      if(f['size'] == 0){
+	    e.innerHTML="<input type='hidden' name='"+this.fields[counter]['name']+"["+field+"_ids][]' />";
+      } else if(f['size'] == 1){
+        e.innerHTML="<h4><%= t('ubiquo.media.selected_media_element') %>:</h4><p><%= t('ubiquo.media.footer_text') %></p>";
+      } else{
+	    e.innerHTML="<h4><%= t('ubiquo.media.selected_media_elements') %>:</h4><p><%= t('ubiquo.media.footer_text') %></p>";
+      }
+      action(selector.select(".actions").first());
+    }
+  });
+  media_fields = new Media();
+</script>
 <% end %>
