@@ -78,7 +78,7 @@ class Asset < ActiveRecord::Base
   private
 
   def set_asset_type
-    if self.resource.errors.blank?
+    if self.resource_file_name && self.resource.errors.blank?
       # mime_types hash is here momentarily but maybe its must be in ubiquo config
       mime_types = Ubiquo::Config.context(:ubiquo_media).get(:mime_types)
       content_type = self.resource_content_type.split('/') rescue []

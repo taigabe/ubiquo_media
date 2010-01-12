@@ -11,22 +11,22 @@ class AssetTest < ActiveSupport::TestCase
 
   def test_should_require_name
     assert_no_difference "Asset.count" do
-      asset = create_asset :name => nil
+      asset = create_asset(:name => nil)
       assert asset.errors.on(:name)
     end
   end
 
   def test_should_require_resource
     assert_no_difference "Asset.count" do
-      asset = create_asset :resource => nil
-      assert asset.errors.on(:resource)
+      asset = create_asset(:resource => nil)
+      assert asset.errors.on(:resource_file_name)
     end
   end
 
   def test_should_require_asset_type_id
     assert_no_difference "Asset.count" do
       #if asset hasn't resource, it can't set asset type
-      asset = create_asset :resource => nil
+      asset = create_asset(:resource => nil)
       assert asset.errors.on(:asset_type_id)
     end
   end
