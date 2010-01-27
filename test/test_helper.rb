@@ -1,5 +1,5 @@
 require File.dirname(__FILE__) + "/../../../../test/test_helper.rb"
-
+require 'mocha'
 
 def save_current_connector    
   @old_connector = UbiquoMedia::Connectors::Base.current_connector
