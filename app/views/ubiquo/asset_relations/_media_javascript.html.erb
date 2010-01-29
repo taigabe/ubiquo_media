@@ -42,7 +42,7 @@ if @is_media_included != true
 	    id: id,
 	    view_link: view_link,
         thumb: thumbnail_url,
-	    name: name,
+        name: name.gsub('"', "&quot;").gsub("'","&#39;"),
         asset_name: asset_name,
         field_name: this.fields[counter]['name']
 	  }));
