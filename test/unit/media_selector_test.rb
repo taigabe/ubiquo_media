@@ -4,7 +4,7 @@ class AssetRelationTest < ActiveSupport::TestCase
   use_ubiquo_fixtures
   
   def test_should_delete_all_relations
-    obj = TestModel.create(:images_ids => Asset.all.collect(&:id).collect(&:to_s))
+    obj = UbiquoMedia::TestModel.create(:images_ids => Asset.all.collect(&:id).collect(&:to_s))
     assert_difference 'AssetRelation.count', -Asset.count do
       obj.update_attributes(:images_ids => [])
     end
@@ -12,8 +12,8 @@ class AssetRelationTest < ActiveSupport::TestCase
   end
 end
 
-ActiveRecord::Base.connection.create_table(:test_models, :force => true) do |t|
-end
-class TestModel < ActiveRecord::Base
+ActiveRecord::Base.connection.create_table(:ubiquo_media_test_models, :force => true) {}
+
+class UbiquoMedia::TestModel < ActiveRecord::Base
   media_attachment :images, :size => :many
 end
