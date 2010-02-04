@@ -33,7 +33,6 @@ class MediaFileTest < ActiveSupport::TestCase
   end
 
   def test_sized
-
     t = AssetType.find(:first)
     a = Asset.find(:first)
     b = Asset.find(:first, :offset => 1)
@@ -114,7 +113,7 @@ class MediaFileTest < ActiveSupport::TestCase
   end
 
 
-  def test_order
+  def test_relation_order_on_creation
     AssetRelation.delete_all
     a = Asset.find(:first)
     b = Asset.find(:first, :offset => 1)
@@ -124,6 +123,22 @@ class MediaFileTest < ActiveSupport::TestCase
     assert_equal AssetRelation.find(:first).position, 1
     assert_equal AssetRelation.find(:first, :offset => 1).position, 2
   end
+
+  def test_relation_order_on_update
+    AssetRelation.delete_all
+    asset_one, asset_two = Asset.find(:first), Asset.find(:first, :offset => 1)
+    asset_relations = [ 
+      { "id" => asset_one.id.to_s, "name" => "Relation to asset one" },
+      { "id" => asset_two.id.to_s, "name" => "Relation to asset two" } 
+    ]
+    asset_type = AssetType.create :multiple_ids => asset_relations
+    asset_type.multiple_ids = asset_relations.reverse
+    asset_type.save
+
+    assert_equal AssetRelation.find(:first, :order => "id").position, 2
+    assert_equal AssetRelation.find(:first, :order => "id", :offset => 1).position, 1
+  end
+
   
   def test_name_for_asset_should_work_when_multiple_media_attachments_are_in_use
     a = assets(:audio)
@@ -140,11 +155,10 @@ class MediaFileTest < ActiveSupport::TestCase
     b = Asset.find(:first, :offset => 1)
     t = nil
     assert_difference "AssetRelation.count" do
-      t = AssetType.create :simple_ids => [a.id.to_s]
+      t = AssetType.create :simple_ids => [{ "id" => a.id.to_s}]
     end
-    
     assert_no_difference "AssetRelation.count" do
-      t.simple_ids = [b.id.to_s]
+      t.simple_ids = [{"id" => b.id.to_s}]
       t.save
     end
   end

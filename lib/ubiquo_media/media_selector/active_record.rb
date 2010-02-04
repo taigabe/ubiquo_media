@@ -166,10 +166,11 @@ module UbiquoMedia
           define_method("#{field}_after_save") do
             if new_assets = instance_variable_get("@#{field}_values_ids")
               old_assets = send(field).dup
+              new_assets.each_with_index { |a, i| a["position"] = i + 1 } unless old_assets.empty?
               old_assets.each do |old_asset|
                 if new_asset = new_assets.detect{|asset_info| asset_info["id"].to_i == old_asset.id}
                   relation = self.asset_relations.first(:conditions => {:asset_id => old_asset.id})
-                  relation.update_attribute :name, new_asset["name"]
+                  relation.update_attributes({ :name => new_asset["name"], :position => new_asset["position"] })
                 else
                   send(field).delete(old_asset)
                 end
