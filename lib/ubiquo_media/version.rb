@@ -4,7 +4,7 @@ module UbiquoMedia
   end
   module VERSION #:nodoc:
     MAJOR = 0
-    MINOR = 6
+    MINOR = 7
     TINY  = 0
 
     STRING = [MAJOR, MINOR, TINY].join('.')
