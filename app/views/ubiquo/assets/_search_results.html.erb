@@ -20,7 +20,7 @@
     :before => "Element.show(\"search_spinner_#{counter}\")", 
     :success => "Element.hide(\"search_spinner_#{counter}\")",
     :failure => "Element.hide(\"search_spinner_#{counter}\")",
-    :with => "'field=#{field}&counter=#{counter}&text=' + $('asset_search_string_#{counter}').value",
+    :with => "'field=#{field}&counter=#{counter}&asset_type_id=' + $('asset_type_id_#{counter}').value + '&text=' + $('asset_search_string_#{counter}').value",
     :method => :get,    
   }
 %>
