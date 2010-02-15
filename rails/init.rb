@@ -32,6 +32,7 @@ Ubiquo::Plugin.register(:ubiquo_media, directory, config) do |config|
                             :audio => ["audio"],
                             :flash => ["swf", "x-shockwave-flash"] }
   config.add :media_styles_list, { :thumb => "100x100>" }
+  config.add :media_processors_list, [:thumbnail]
   
   config.add :force_visibility, "public" # set to public or protected to force it to the entire application
 
