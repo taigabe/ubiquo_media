@@ -15,5 +15,6 @@ end
 ActiveRecord::Base.connection.create_table(:ubiquo_media_test_models, :force => true) {}
 
 class UbiquoMedia::TestModel < ActiveRecord::Base
+  set_table_name 'ubiquo_media_test_models'
   media_attachment :images, :size => :many
 end
