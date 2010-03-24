@@ -4,7 +4,7 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
   
   I18n = UbiquoMedia::Connectors::I18n
 
-  if Ubiquo::Config.context(:ubiquo_media).get(:connector) == "i18n"
+  if Ubiquo::Config.context(:ubiquo_media).get(:connector).to_sym == :i18n
     
     test 'Asset should be translatable' do
       [Asset, AssetPublic, AssetPrivate].each do |klass|
@@ -227,6 +227,20 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
       translated_asset.save
 
       asset.photo << AssetPublic.create(:locale => 'ca', :resource => Tempfile.new('tmp'), :name => 'photo')
+      assert_equal 1, translated_asset.reload.photo.size
+      assert_equal 'en', translated_asset.photo.first.locale
+    end
+
+    test 'should share attachments between translations when assignating' do
+      AssetPublic.class_eval do
+        media_attachment :photo, :translation_shared => true
+      end
+
+      asset = AssetPublic.create :locale => 'ca', :resource => Tempfile.new('tmp'), :name => 'asset'
+      translated_asset = asset.translate('en', :copy_all => true)
+      translated_asset.save
+
+      asset.photo = [AssetPublic.create(:locale => 'ca', :resource => Tempfile.new('tmp'), :name => 'photo')]
       assert_equal 1, translated_asset.reload.photo.size
       assert_equal 'en', translated_asset.photo.first.locale
     end

@@ -136,6 +136,11 @@ module UbiquoMedia
                 options[:asset_types] = options[:types].map{|o|AssetType.gfind(o)}
               end
             end
+            
+            # Automatically set the required attr_name when creating through the through
+            define_method 'construct_owner_attributes' do |reflection|
+              super.merge(:field_name => field.to_s)
+            end
           end
 
 

@@ -163,11 +163,3 @@ class MediaFileTest < ActiveSupport::TestCase
     end
   end
 end
-
-class AssetType # Using this model because is very simple and has no validations
-  media_attachment :simple
-  media_attachment :multiple, :size => :many
-  media_attachment :sized, :size => 2
-  media_attachment :all_types, :types => :ALL
-  media_attachment :some_types, :types => %w{audio video}
-end
