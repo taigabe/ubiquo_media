@@ -188,6 +188,9 @@ class MediaFileTest < ActiveSupport::TestCase
 
     assert_equal styles_hash, Ubiquo::Config.context(:ubiquo_media).get(:media_styles_list)
     assert !styles_hash[:style_name].blank?
+
+    # cleanup
+    AssetPublic.attachment_definitions[:resource] = AssetPrivate.attachment_definitions[:resource]
   end
 
 end
