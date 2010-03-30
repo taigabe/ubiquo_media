@@ -162,4 +162,32 @@ class MediaFileTest < ActiveSupport::TestCase
       t.save
     end
   end
+
+  # Test for the issue detected in #268
+  def test_should_not_modify_config_when_defining_paperclip_styles
+    styles_hash = {
+        :style_name => {
+          :processors => [:example_processor],
+        }
+    }
+
+    # short way to recursivelly clone
+    styles_hash_copy = Marshal.load(Marshal.dump(styles_hash))
+
+    Ubiquo::Config.context(:ubiquo_media).set do |config|
+      config.media_styles_list = styles_hash_copy
+    end
+
+    # Reload the AssetPublic class, that uses this defined option
+    Object.send :remove_const, 'AssetPublic'
+    require File.dirname(__FILE__) + '/../../app/models/asset_public'
+
+    # this triggers the Style initialization, which uses the hash
+    asset = AssetPublic.new
+    asset.attachment_for(:resource).styles
+
+    assert_equal styles_hash, Ubiquo::Config.context(:ubiquo_media).get(:media_styles_list)
+    assert !styles_hash[:style_name].blank?
+  end
+
 end
