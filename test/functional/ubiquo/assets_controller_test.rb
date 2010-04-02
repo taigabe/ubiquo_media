@@ -132,10 +132,9 @@ class Ubiquo::AssetsControllerTest < ActionController::TestCase
     asset3 = create_asset(:created_at => 10.days.from_now)
 
     I18n.locale = Ubiquo.default_locale
-    
-    get :index, :filter_created_start => I18n.localize(Date.today)
+    get :index, :filter_created_start => I18n.localize(Time.zone.today)
     assert_equal_set [asset2, asset3], assigns(:assets)
-    get :index, :filter_created_end => I18n.localize(Date.today)
+    get :index, :filter_created_end => I18n.localize(Time.zone.today)
     assert_equal_set [asset1], assigns(:assets)
     get :index, :filter_created_start =>  I18n.localize(5.days.ago.to_date), :filter_created_end => I18n.localize(1.days.from_now.to_date)
     assert_equal_set [asset1, asset2], assigns(:assets)
