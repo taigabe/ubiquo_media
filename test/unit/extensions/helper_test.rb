@@ -55,12 +55,14 @@ class UbiquoMedia::Extensions::HelperTest < ActionView::TestCase
   end
 
   def create_media_test
-    test = MediaTestModel.create
+    test = MediaTestModel.create(:field => "value")
     test.images = Asset.all
     test
   end
 
-ActiveRecord::Base.connection.create_table(:media_test_models, :force => true) {}
+  ActiveRecord::Base.connection.create_table(:media_test_models, :force => true) do |t|
+    t.string :field
+  end
 
 class MediaTestModel < ActiveRecord::Base
   media_attachment :images, :size => :many
