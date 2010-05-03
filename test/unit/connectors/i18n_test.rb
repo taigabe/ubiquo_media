@@ -4,8 +4,8 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
   
   I18n = UbiquoMedia::Connectors::I18n
 
-  if Ubiquo::Config.context(:ubiquo_media).get(:connector).to_sym == :i18n
-    
+  if Ubiquo::Plugin.registered[:ubiquo_i18n] && Ubiquo::Config.context(:ubiquo_media).get(:connector).to_sym == :i18n
+
     test 'Asset should be translatable' do
       [Asset, AssetPublic, AssetPrivate].each do |klass|
         assert klass.is_translatable?
@@ -265,6 +265,11 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
       # translation untouched
       assert_equal original_name, AssetRelation.first(:conditions => {:related_object_id => translated_asset.id}).name
     end
+
+  elsif !Ubiquo::Plugin.registered[:ubiquo_i18n]
+    puts 'ubiquo_i18n not found, omitting UbiquoMedia::Connectors::I18n tests'
+  else
+    puts 'The i18n connector needs to be loaded to run UbiquoMedia::Connectors::I18n tests'
   end
 end
 
