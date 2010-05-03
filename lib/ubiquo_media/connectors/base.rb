@@ -33,6 +33,7 @@ module UbiquoMedia
                   self
                 end.send :alias_method, method, connectorized_method              
               end
+              connector.send :undef_method, connectorized_method
             end
           end
         end
