@@ -4,7 +4,24 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
   
   I18n = UbiquoMedia::Connectors::I18n
 
-  if Ubiquo::Plugin.registered[:ubiquo_i18n] && Ubiquo::Config.context(:ubiquo_media).get(:connector).to_sym == :i18n
+  if Ubiquo::Plugin.registered[:ubiquo_i18n]
+
+    def setup
+      save_current_connector
+      ActiveRecord::Base.connection.change_table(:assets, :translatable => true){}
+      Asset.reset_column_information
+      AssetPublic.reset_column_information
+      AssetPrivate.reset_column_information
+      I18n.load!
+    end
+
+    def teardown
+      reload_old_connector
+      ActiveRecord::Base.connection.change_table(:assets, :translatable => false){}
+      Asset.reset_column_information
+      AssetPublic.reset_column_information
+      AssetPrivate.reset_column_information
+    end
 
     test 'Asset should be translatable' do
       [Asset, AssetPublic, AssetPrivate].each do |klass|
