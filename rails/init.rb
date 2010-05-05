@@ -36,6 +36,11 @@ Ubiquo::Plugin.register(:ubiquo_media, directory, config) do |config|
   
   config.add :force_visibility, "public" # set to public or protected to force it to the entire application
 
+  # Connectors available in the application.
+  # These connectors will be tested against the Base uhooks api
+  config.add :available_connectors, [:i18n, :standard]
+
+  # Currently enabled connector
   config.add :connector, :standard
 end
 
