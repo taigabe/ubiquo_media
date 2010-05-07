@@ -7,6 +7,7 @@ module UbiquoMedia
         unless Ubiquo::Plugin.registered[:ubiquo_i18n]
           raise ConnectorRequirementError, "You need the ubiquo_i18n plugin to load #{self}"
         end
+        ::Asset.reset_column_information
         asset_columns = ::Asset.columns.map(&:name).map(&:to_sym)
         unless [:locale, :content_id].all?{|field| asset_columns.include? field}
           if Rails.env.test?
