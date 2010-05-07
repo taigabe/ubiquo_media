@@ -8,19 +8,11 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
 
     def setup
       save_current_connector
-      ActiveRecord::Base.connection.change_table(:assets, :translatable => true){}
-      Asset.reset_column_information
-      AssetPublic.reset_column_information
-      AssetPrivate.reset_column_information
       I18n.load!
     end
 
     def teardown
       reload_old_connector
-      ActiveRecord::Base.connection.change_table(:assets, :translatable => false){}
-      Asset.reset_column_information
-      AssetPublic.reset_column_information
-      AssetPrivate.reset_column_information
     end
 
     test 'Asset should be translatable' do
@@ -289,9 +281,3 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
     puts 'The i18n connector needs to be loaded to run UbiquoMedia::Connectors::I18n tests'
   end
 end
-
-add_mock_helper_stubs({
-  :show_translations => '', :edit_ubiquo_asset_path => '', 
-  :new_ubiquo_asset_path => '', :ubiquo_asset_path => '', :current_locale => '',
-  :hidden_field_tag => '', :locale => Asset
-})

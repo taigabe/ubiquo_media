@@ -1,8 +1,27 @@
 module UbiquoMedia
   module Connectors
     class I18n < Base
-      
-      
+
+      # Validates the ubiquo_i18n-related dependencies
+      def self.validate_requirements
+        unless Ubiquo::Plugin.registered[:ubiquo_i18n]
+          raise ConnectorRequirementError, "You need the ubiquo_i18n plugin to load #{self}"
+        end
+        asset_columns = ::Asset.columns.map(&:name).map(&:to_sym)
+        unless [:locale, :content_id].all?{|field| asset_columns.include? field}
+          if Rails.env.test?
+            ::ActiveRecord::Base.connection.change_table(:assets, :translatable => true){}
+            [::Asset, ::AssetPublic, ::AssetPrivate].each do |klass|
+              klass.reset_column_information
+            end
+          else
+            raise ConnectorRequirementError,
+              "The assets table does not have the i18n fields. " +
+              "To use this connector, update the table enabling :translatable => true"
+          end
+        end
+      end
+
       module Asset
         
         def self.included(klass)
@@ -232,8 +251,16 @@ module UbiquoMedia
           end
 
         end
-      end      
-      
+      end
+
+      def self.prepare_mocks
+        add_mock_helper_stubs({
+          :show_translations => '', :edit_ubiquo_asset_path => '',
+          :new_ubiquo_asset_path => '', :ubiquo_asset_path => '',
+          :current_locale => '', :hidden_field_tag => '', :locale => Asset
+        })
+      end
+
     end
   end
 end

@@ -147,6 +147,11 @@ module UbiquoMedia
         end
       end
       
+      def self.prepare_mocks
+        add_mock_helper_stubs({
+          :edit_ubiquo_asset_path => '', :ubiquo_asset_path => '',
+        })
+      end
     end
   end
 end

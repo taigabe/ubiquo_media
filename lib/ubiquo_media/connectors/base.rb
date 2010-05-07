@@ -4,6 +4,8 @@ module UbiquoMedia
       
       # loads this connector. It's called if that connector is used
       def self.load!
+        validate_requirements
+        prepare_mocks if Rails.env.test?
         ::ActiveRecord::Base.send(:include, self::ActiveRecord::Base)
         ::Asset.send(:include, self::Asset)
         ::Ubiquo::AssetsController.send(:include, self::UbiquoAssetsController)
@@ -60,7 +62,31 @@ module UbiquoMedia
       def self.get_uhook_calls method
         Array((Base.instance_variable_get('@uhook_calls')||{})[method.to_sym])
       end
+
+      # Validate here the possible connector requirements and dependencies
+      def self.validate_requirements; end
+
+      # Load any test mock needed for base tests
+      # If your connector calls to a method that will be undefined in test time,
+      # using this method you can mock them to allow it pass.
+      def self.prepare_mocks; end
+
+      # Prepared helper stubs for this connector
+      class << self
+        attr_accessor :mock_helper_stubs
+      end
+
+      # Used to add particular helper expectations from the connectors
+      # Usually called from prepare_mocks
+      def self.add_mock_helper_stubs(methods_with_returns)
+        future_stubs = (mock_helper_stubs || {}).merge(methods_with_returns)
+        self.mock_helper_stubs = future_stubs
+      end
+
     end
-    
+
+    # Raised when a connector requirement is not met
+    class ConnectorRequirementError < StandardError; end
+
   end
 end 

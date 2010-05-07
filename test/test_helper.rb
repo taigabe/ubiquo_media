@@ -39,17 +39,11 @@ def mock_helper
   stubs = {
     :params => {}, :t => '', :filter_info => '',
     :render_filter => '', :link_to => ''
-  }.merge(UbiquoMedia::Connectors::Base.instance_variable_get('@methods_with_returns') || {})
+  }.merge(UbiquoMedia::Connectors::Base.current_connector.mock_helper_stubs || {})
   
   stubs.each_pair do |method, retvalue|
     UbiquoMedia::Connectors::Base.current_connector::UbiquoAssetsController::Helper.stubs(method).returns(retvalue)
   end  
-end
-
-# Used to add particular helper expectations from the connectors
-def add_mock_helper_stubs(methods_with_returns)
-  future_stubs = (UbiquoMedia::Connectors::Base.instance_variable_get('@methods_with_returns') || {}).merge(methods_with_returns)
-  UbiquoMedia::Connectors::Base.instance_variable_set('@methods_with_returns', future_stubs)
 end
 
 
@@ -106,4 +100,8 @@ def test_each_connector
     end
     yield
   end
+end
+
+if ActiveRecord::Base.connection.class.to_s == "ActiveRecord::ConnectionAdapters::PostgreSQLAdapter"
+  ActiveRecord::Base.connection.client_min_messages = "ERROR"
 end

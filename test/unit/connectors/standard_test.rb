@@ -103,8 +103,6 @@ class UbiquoMedia::Connectors::StandardTest < ActiveSupport::TestCase
     
     # expectations to mock
     Standard::UbiquoAssetsController::Helper.expects(:t).at_least_once
-    Standard::UbiquoAssetsController::Helper.expects(:edit_ubiquo_asset_path)
-    Standard::UbiquoAssetsController::Helper.expects(:ubiquo_asset_path)
     Standard::UbiquoAssetsController::Helper.expects(:link_to).twice
     
     actions = Standard::UbiquoAssetsController::Helper.uhook_asset_index_actions Asset.new
