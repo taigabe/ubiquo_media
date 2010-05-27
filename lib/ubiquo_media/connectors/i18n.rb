@@ -7,18 +7,20 @@ module UbiquoMedia
         unless Ubiquo::Plugin.registered[:ubiquo_i18n]
           raise ConnectorRequirementError, "You need the ubiquo_i18n plugin to load #{self}"
         end
-        ::Asset.reset_column_information
-        asset_columns = ::Asset.columns.map(&:name).map(&:to_sym)
-        unless [:locale, :content_id].all?{|field| asset_columns.include? field}
-          if Rails.env.test?
-            ::ActiveRecord::Base.connection.change_table(:assets, :translatable => true){}
-            [::Asset, ::AssetPublic, ::AssetPrivate].each do |klass|
-              klass.reset_column_information
+        if ::Asset.table_exists?
+          ::Asset.reset_column_information
+          asset_columns = ::Asset.columns.map(&:name).map(&:to_sym)
+          unless [:locale, :content_id].all?{|field| asset_columns.include? field}
+            if Rails.env.test?
+              ::ActiveRecord::Base.connection.change_table(:assets, :translatable => true){}
+              [::Asset, ::AssetPublic, ::AssetPrivate].each do |klass|
+                klass.reset_column_information
+              end
+            else
+              raise ConnectorRequirementError,
+                "The assets table does not have the i18n fields. " +
+                "To use this connector, update the table enabling :translatable => true"
             end
-          else
-            raise ConnectorRequirementError,
-              "The assets table does not have the i18n fields. " +
-              "To use this connector, update the table enabling :translatable => true"
           end
         end
       end
