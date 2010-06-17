@@ -33,6 +33,11 @@ class UbiquoMedia::Connectors::StandardTest < ActiveSupport::TestCase
     assert_not_equal false, Asset.new.uhook_after_update
   end
   
+  test 'uhook_filtered_search_in_asset_relations_should_yield' do
+    AssetRelation.expects(:all)
+    AssetRelation.uhook_filtered_search { AssetRelation.all }
+  end
+
   test 'uhook_index_filters_should_return_empty_hash' do
     assert_equal({}, Ubiquo::AssetsController.new.uhook_index_filters)
   end

@@ -6,6 +6,7 @@ class UbiquoMedia::Connectors::BaseTest < ActiveSupport::TestCase
   
   test 'should_load_correct_modules' do
     ::Asset.expects(:include).with(Base::Asset)
+    ::AssetRelation.expects(:include).with(Base::AssetRelation)
     ::Ubiquo::AssetsController.expects(:include).with(Base::UbiquoAssetsController)
     ::ActiveRecord::Migration.expects(:include).with(Base::Migration)
     ::ActiveRecord::Base.expects(:include).with(Base::ActiveRecord::Base)
@@ -39,6 +40,11 @@ class UbiquoMedia::Connectors::BaseTest < ActiveSupport::TestCase
 
     test 'uhook_after_update in asset should continue' do
       assert_not_equal false, AssetPublic.new.uhook_after_update
+    end
+
+    test 'uhook_filtered_search_in_asset_relations_should_yield' do
+      AssetRelation.expects(:all)
+      AssetRelation.uhook_filtered_search { AssetRelation.all }
     end
 
     test 'uhook_index_filters_should_return_hash' do
@@ -143,6 +149,7 @@ class UbiquoMedia::Connectors::BaseTest < ActiveSupport::TestCase
   
   # Define module mocks for testing
   module Base::Asset; end
+  module Base::AssetRelation; end
   module Base::UbiquoAssetsController; end
   module Base::Migration; end
   module Base::ActiveRecord

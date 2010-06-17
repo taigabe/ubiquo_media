@@ -12,12 +12,13 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
     end
 
     def teardown
+      Locale.current = nil
       reload_old_connector
     end
 
-    test 'Asset should be translatable' do
-      [Asset, AssetPublic, AssetPrivate].each do |klass|
-        assert klass.is_translatable?
+    test 'Asset classes should be translatable' do
+      [Asset, AssetPublic, AssetPrivate, AssetRelation].each do |klass|
+        assert klass.is_translatable?, "#{klass} is not translatable"
       end
     end
 
@@ -46,6 +47,12 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
       asset_1.uhook_after_update
     end
     
+    test 'uhook_filtered_search_in_asset_relations_should_yield_with_locale_filter' do
+      AssetRelation.expects(:all)
+      AssetRelation.expects(:with_scope).with(:find => {:conditions => ["asset_relations.locale <= ?", 'ca']}).yields
+      AssetRelation.uhook_filtered_search({:locale => 'ca'}) { AssetRelation.all }
+    end
+
     test 'uhook_index_filters_should_return_locale_filter' do
       mock_params :filter_locale => 'ca'
       assert_equal({:locale => 'ca'}, Ubiquo::AssetsController.new.uhook_index_filters)
@@ -53,7 +60,7 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
     
     test 'uhook_index_search_subject should return locale filtered assets' do
       Ubiquo::AssetsController.any_instance.expects(:current_locale).at_least_once.returns('ca')
-      Asset.expects(:locale).with('ca', :ALL).returns(Asset)
+      Asset.expects(:locale).with('ca', :all).returns(Asset)
       assert_nothing_raised do
         Ubiquo::AssetsController.new.uhook_index_search_subject.filtered_search
       end
@@ -204,13 +211,19 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
     end
     
     test 'uhook_media_attachment should add translation_shared option if set' do
-      AssetType.uhook_media_attachment :simple, {:translation_shared => true}
-      assert AssetType.reflections[:simple].options[:translation_shared]
+      Asset.class_eval do
+        media_attachment :simple
+      end
+      Asset.uhook_media_attachment :simple, {:translation_shared => true}
+      assert Asset.reflections[:simple].options[:translation_shared]
     end
     
     test 'uhook_media_attachment should not add translation_shared option if not set' do
-      AssetType.uhook_media_attachment :simple, {:translation_shared => false}
-      assert !AssetType.reflections[:simple].options[:translation_shared]
+      Asset.class_eval do
+        media_attachment :simple
+      end
+      Asset.uhook_media_attachment :simple, {:translation_shared => false}
+      assert !Asset.reflections[:simple].options[:translation_shared]
     end
 
     test 'should not share attachments between translations' do
@@ -221,7 +234,9 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
       asset = AssetPublic.create :locale => 'ca', :resource => Tempfile.new('tmp'), :name => 'asset'
       translated_asset = asset.translate('en', :copy_all => true)
       translated_asset.save
-      
+
+      AssetRelation.create
+
       asset.photo << AssetPublic.create(:locale => 'ca', :resource => Tempfile.new('tmp'), :name => 'photo')
       assert_equal 0, translated_asset.reload.photo.size
     end
@@ -237,7 +252,7 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
 
       asset.photo << AssetPublic.create(:locale => 'ca', :resource => Tempfile.new('tmp'), :name => 'photo')
       assert_equal 1, translated_asset.reload.photo.size
-      assert_equal 'en', translated_asset.photo.first.locale
+      assert_equal 'ca', translated_asset.photo.first.locale
     end
 
     test 'should share attachments between translations when assignating' do
@@ -251,7 +266,7 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
 
       asset.photo = [AssetPublic.create(:locale => 'ca', :resource => Tempfile.new('tmp'), :name => 'photo')]
       assert_equal 1, translated_asset.reload.photo.size
-      assert_equal 'en', translated_asset.photo.first.locale
+      assert_equal 'ca', translated_asset.photo.first.locale
     end
 
     test 'should only update asset relation name in one translation' do
@@ -259,6 +274,7 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
         media_attachment :photo, :translation_shared => true
       end
 
+      Locale.current = 'ca'
       asset = AssetPublic.create :locale => 'ca', :resource => Tempfile.new('tmp'), :name => 'asset'
       translated_asset = asset.translate('en', :copy_all => true)
       translated_asset.save
@@ -266,13 +282,15 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
 
       # save the original name in the translation and then update it
       original_name = AssetRelation.name_for_asset :photo, translated_asset.reload.photo.first, translated_asset
+
+      Locale.current = 'en'
       asset.photo_ids = [{"id" => original_photo.id, "name" => 'newname'}]
       asset.save
 
       # name successfully changed
-      assert_equal 'newname', AssetRelation.first(:conditions => {:related_object_id => asset.id}).name
+      assert_equal 'newname', AssetRelation.first(:conditions => {:related_object_id => translated_asset.id}).name
       # translation untouched
-      assert_equal original_name, AssetRelation.first(:conditions => {:related_object_id => translated_asset.id}).name
+      assert_equal original_name, AssetRelation.first(:conditions => {:related_object_id => asset.id}).name
     end
 
   elsif !Ubiquo::Plugin.registered[:ubiquo_i18n]

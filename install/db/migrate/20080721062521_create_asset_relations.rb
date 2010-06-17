@@ -1,6 +1,6 @@
 class CreateAssetRelations < ActiveRecord::Migration
   def self.up
-    create_table :asset_relations do |t|
+    uhook_create_asset_relations_table do |t|
       t.integer :asset_id
       t.string :name
       t.integer :related_object_id

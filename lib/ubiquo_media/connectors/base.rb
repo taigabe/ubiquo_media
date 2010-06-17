@@ -4,10 +4,17 @@ module UbiquoMedia
       
       # loads this connector. It's called if that connector is used
       def self.load!
+        [::Asset, ::AssetPublic, ::AssetPrivate, ::AssetRelation].each(&:reset_column_information)
+        if current = UbiquoMedia::Connectors::Base.current_connector
+          current.unload!
+        end
+
         validate_requirements
         prepare_mocks if Rails.env.test?
+
         ::ActiveRecord::Base.send(:include, self::ActiveRecord::Base)
         ::Asset.send(:include, self::Asset)
+        ::AssetRelation.send(:include, self::AssetRelation)
         ::Ubiquo::AssetsController.send(:include, self::UbiquoAssetsController)
         ::ActiveRecord::Migration.send(:include, self::Migration)
         UbiquoMedia::Connectors::Base.set_current_connector self
@@ -21,6 +28,9 @@ module UbiquoMedia
         @current_connector = klass
       end
       
+      # Possible cleanups to perform
+      def self.unload!; end
+
       # Register the uhooks methods in connectors to be used in klass
       def self.register_uhooks klass, *connectors
         connectors.each do |connector|

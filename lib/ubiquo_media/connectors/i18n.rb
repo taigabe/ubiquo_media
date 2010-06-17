@@ -7,21 +7,27 @@ module UbiquoMedia
         unless Ubiquo::Plugin.registered[:ubiquo_i18n]
           raise ConnectorRequirementError, "You need the ubiquo_i18n plugin to load #{self}"
         end
-        if ::Asset.table_exists?
-          ::Asset.reset_column_information
-          asset_columns = ::Asset.columns.map(&:name).map(&:to_sym)
-          unless [:locale, :content_id].all?{|field| asset_columns.include? field}
-            if Rails.env.test?
-              ::ActiveRecord::Base.connection.change_table(:assets, :translatable => true){}
-              [::Asset, ::AssetPublic, ::AssetPrivate].each do |klass|
+        [::Asset, ::AssetPublic, ::AssetPrivate, ::AssetRelation].each do |klass|
+          if klass.table_exists?
+            klass.reset_column_information
+            columns = klass.columns.map(&:name).map(&:to_sym)
+            unless [:locale, :content_id].all?{|field| columns.include? field}
+              if Rails.env.test?
+                ::ActiveRecord::Base.connection.change_table(klass.table_name, :translatable => true){}
                 klass.reset_column_information
+              else
+                raise ConnectorRequirementError,
+                  "The #{klass.table_name} table does not have the i18n fields. " +
+                  "To use this connector, update the table enabling :translatable => true"
               end
-            else
-              raise ConnectorRequirementError,
-                "The assets table does not have the i18n fields. " +
-                "To use this connector, update the table enabling :translatable => true"
             end
           end
+        end
+      end
+
+      def self.unload!
+        [::Asset, ::AssetRelation].each do |klass|
+          klass.instance_variable_set :@translatable, false
         end
       end
 
@@ -72,6 +78,29 @@ module UbiquoMedia
         
       end
       
+      module AssetRelation
+
+        def self.included(klass)
+          klass.send(:extend, ClassMethods)
+          klass.send(:translatable, :name, :position)
+          klass.send(:share_translations_for, :asset, :related_object)
+          I18n.register_uhooks klass, ClassMethods
+        end
+
+        module ClassMethods
+
+          # Applies any required extra scope to the filtered_search method
+          def uhook_filtered_search filters = {}
+            filter_locale = filters[:locale] ?
+              {:find => {:conditions => ["asset_relations.locale <= ?", filters[:locale]]}} : {}
+
+            with_scope(filter_locale) do
+              yield
+            end
+          end
+        end
+      end
+
       module UbiquoAssetsController
         def self.included(klass)
           klass.send(:include, InstanceMethods)
@@ -113,11 +142,11 @@ module UbiquoMedia
           # Returns the available actions links for a given asset
           def uhook_asset_index_actions asset
             actions = []
-            if asset.locale?(current_locale)
+            if asset.in_locale?(current_locale)
               actions << link_to(t("ubiquo.edit"), edit_ubiquo_asset_path(asset))
             end
             
-            unless asset.locale?(current_locale)
+            unless asset.in_locale?(current_locale)
               actions << link_to(
                 t("ubiquo.translate"), 
                 new_ubiquo_asset_path(:from => asset.content_id)
@@ -129,7 +158,7 @@ module UbiquoMedia
               :confirm => t("ubiquo.media.confirm_asset_removal"), :method => :delete
             )
             
-            if asset.locale?(current_locale, :skip_any => true)
+            if asset.in_locale?(current_locale, :skip_any => true)
               actions << link_to(t("ubiquo.remove_translation"), ubiquo_asset_path(asset), 
                 :confirm => t("ubiquo.media.confirm_asset_removal"), :method => :delete
               )
@@ -154,7 +183,7 @@ module UbiquoMedia
           # Returns a subject that will have applied the index filters 
           # (e.g. a class, with maybe some scopes applied)
           def uhook_index_search_subject
-            ::Asset.locale(current_locale, :ALL)
+            ::Asset.locale(current_locale, :all)
           end
           
           # Initializes a new instance of asset.
@@ -164,7 +193,7 @@ module UbiquoMedia
           
           # Performs any required action on asset when in edit
           def uhook_edit_asset asset
-            unless asset.locale?(current_locale)
+            unless asset.in_locale?(current_locale)
               redirect_to(ubiquo_assets_path)
               false
             end            
@@ -245,10 +274,8 @@ module UbiquoMedia
             protected
             
             def uhook_media_attachment_process_call parameters
-              unless parameters[:options][:translation_shared].nil?
-                # Mark the association as translation_shared
-                parameters[:klass].reflections[parameters[:field]].options[:translation_shared] = 
-                  parameters[:options][:translation_shared]
+              if parameters[:options][:translation_shared]
+                parameters[:klass].share_translations_for parameters[:field], :asset_relations
               end
             end
           end
