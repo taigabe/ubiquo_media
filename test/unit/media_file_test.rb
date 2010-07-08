@@ -112,6 +112,29 @@ class MediaFileTest < ActiveSupport::TestCase
     assert_equal t.simple.size, 1
   end
 
+  def test_hashed_ids
+    a = Asset.find(:first)
+    t = nil
+    assert_difference "::AssetRelation.count" do
+      t = AssetType.create :simple_ids => {'0.524' => {'id' => a.id.to_s}}
+    end
+    assert_equal t.simple.size, 1
+  end
+
+  def test_hashed_ids_with_positions
+    asset_one = Asset.find(:first)
+    asset_two = Asset.find(:first, :offset => 1)
+    t = nil
+    assert_difference "::AssetRelation.count", 2 do
+      t = AssetType.create :multiple_ids => {
+        '0.524' => {'id' => asset_one.id.to_s, 'position' => '4'},
+        '0.425' => {'id' => asset_two.id.to_s, 'position' => '5'}
+      }
+    end
+    assert_equal 2, t.multiple.size
+    assert_equal_set [1,2], t.asset_relations.map(&:position)
+    assert_equal asset_one, t.multiple.first
+  end
 
   def test_relation_order_on_creation
     AssetRelation.delete_all
@@ -126,17 +149,17 @@ class MediaFileTest < ActiveSupport::TestCase
 
   def test_relation_order_on_update
     AssetRelation.delete_all
-    asset_one, asset_two = Asset.find(:first), Asset.find(:first, :offset => 1)
+    asset_one, asset_two = Asset.first, Asset.first(:offset => 1)
     asset_relations = [ 
       { "id" => asset_one.id.to_s, "name" => "Relation to asset one" },
       { "id" => asset_two.id.to_s, "name" => "Relation to asset two" } 
     ]
     asset_type = AssetType.create :multiple_ids => asset_relations
-    asset_type.multiple_ids = asset_relations.reverse
+    asset_type.multiple_ids = asset_relations.reverse.each{|r| r.delete('position')}
     asset_type.save
 
-    assert_equal AssetRelation.find(:first, :order => "id").position, 2
-    assert_equal AssetRelation.find(:first, :order => "id", :offset => 1).position, 1
+    assert_equal asset_one.reload.asset_relations.first.position, 2
+    assert_equal asset_two.reload.asset_relations.first.position, 1
   end
 
   

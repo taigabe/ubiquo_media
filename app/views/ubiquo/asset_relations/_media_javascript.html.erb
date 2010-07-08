@@ -17,11 +17,12 @@ if @is_media_included != true
       if (asset_name == undefined) asset_name = name;
 	  var templ = new Template(
       "<li class='element element_#{id}'>"+
-        "<input type='hidden' name='#{field_name}[#{field}_ids][][id]' value='#{id}' />"+
+        "<input type='hidden' name='#{field_name}[#{field}_ids][#{rand}][id]' value='#{id}' />"+
+        "<input type='hidden' name='#{field_name}[#{field}_ids][#{rand}][position]' value='' />"+
         "<a class='handle'>handle</a>"+
         "<h4>#{asset_name}</h4>" +
         "<img src='#{thumb}' alt='#{asset_name}'/>" +
-        "#{view_link}" + 
+        "#{view_link}" +
         "<a onclick='media_fields.delete_element(\"#{field}\",\"#{counter}\", #{id}); return false;' href='#' class='delete'><%= t('ubiquo.media.remove') %></a>" +
       "#{content}"+
         "<dl class='assigned_text'>"+
@@ -31,7 +32,7 @@ if @is_media_included != true
         "<a class='change' href='#' onclick='media_fields.change_name(\"#{counter}\", \"#{id}\");return false;'><%= t('ubiquo.media.change_text') %></a>"+
       "</dd>"+
       "<dd class='field' style='display:none'>"+
-        "<input type='text' class='short' onkeypress='if(event.keyCode==13){media_fields.change_name(\"#{counter}\", \"#{id}\");return false;}' name='#{field_name}[#{field}_ids][][name]' value='#{name}'/>"+
+        "<input type='text' class='short' onkeypress='if(event.keyCode==13){media_fields.change_name(\"#{counter}\", \"#{id}\");return false;}' name='#{field_name}[#{field}_ids][#{rand}][name]' value='#{name}'/>"+
         "<a class='change' href='#' onclick='media_fields.change_name(\"#{counter}\", \"#{id}\");return false;'><%= t('ubiquo.media.save') %></a>"+
       "</dd>"+
       "</dl>"+
@@ -40,27 +41,27 @@ if @is_media_included != true
 	    counter: counter,
 	    field: field,
 	    id: id,
+      rand: '' + Math.random(),
 	    view_link: view_link,
         thumb: thumbnail_url,
         name: name.gsub('"', "&quot;").gsub("'","&#39;"),
         asset_name: asset_name,
         field_name: this.fields[counter]['name']
 	  }));
+    var set_positions = function() {
+      $$('#media_selector_'+counter+' li.element').each(function(el, i) {
+        el.select('input[name*="][position]"]').first().value = i+1;
+      });
+    }
 	  Sortable.create('relations_list_'+ counter, {
-        handle:'handle', 
-	    onUpdate:function(){
-	  	  new Ajax.Request('#', {
-	  	    asynchronous:true, 
-	  	    evalScripts:true, 
-	  	    parameters:Sortable.serialize(
-              $('media_selector_'+ counter).select(".relations_list").first()
-              ) + '&authenticity_token=' + encodeURIComponent('<%= params[:authenticity_token] %>')
-          })
-	    }, 
-	    onupdate:function(){}
-	  })
-	  
+        handle:'handle',
+        onChange:function(){
+          set_positions();
+        }
+	  });
+
 	  this.fields[counter]['size']++;
+    set_positions();
 	  this.reload(field, counter);
     },
 
