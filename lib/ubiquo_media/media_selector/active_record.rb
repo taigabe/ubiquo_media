@@ -158,6 +158,8 @@ module UbiquoMedia
           end
           
           define_method("#{field}_ids=") do |values|
+            # Sometimes +values+ comes grouped in a hash due a prototype issue
+            values = values.values if values.is_a? Hash
             instance_variable_set("@#{field}_values_ids", values.reject(&:blank?))
           end
 
@@ -171,7 +173,7 @@ module UbiquoMedia
           define_method("#{field}_after_save") do
             if new_assets = instance_variable_get("@#{field}_values_ids")
               old_assets = send(field).dup
-              new_assets.each_with_index { |a, i| a["position"] = i + 1 } unless old_assets.empty?
+              new_assets.each_with_index { |a, i| (a["position"] ||= i + 1) if a.is_a?(Hash) }
               old_assets.each do |old_asset|
                 if new_asset = new_assets.detect{|asset_info| asset_info["id"].to_i == old_asset.id}
                   relation = self.asset_relations.first(:conditions => {:asset_id => old_asset.id, :field_name => field.to_s})
@@ -180,6 +182,8 @@ module UbiquoMedia
                   send(field).delete(old_asset)
                 end
               end
+              # ensure they are ordered by position if they have the field
+              new_assets = new_assets.sort_by{|a| (a.is_a?(Hash) && a['position']) || '' }
               send(field) << new_assets.reject{|asset| old_assets.map(&:id).include?(asset["id"].to_i)}
               instance_variable_set "@#{field}_values_ids", nil
             end
