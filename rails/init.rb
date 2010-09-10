@@ -42,5 +42,6 @@ Ubiquo::Plugin.register(:ubiquo_media, directory, config) do |config|
 
   # Currently enabled connector
   config.add :connector, :standard
+  config.add :media_storage, :filesystem
 end
 
