@@ -42,7 +42,7 @@ class AssetTest < ActiveSupport::TestCase
     asset2 = create_asset(:name => 'name2', :description => 'description2')
     assert_equal_set [asset1, asset2], Asset.filtered_search({:text => 'name'})
     assert_equal_set [asset1], Asset.filtered_search({:text => 'nAMe1'})
-    assert_equal_set [asset2], Asset.filtered_search({:text => 'DESCRIPTION2'})    
+    assert_equal_set [asset2], Asset.filtered_search({:text => 'DESCRIPTION2'})
   end
 
   def test_filter_by_creation_date
@@ -54,42 +54,42 @@ class AssetTest < ActiveSupport::TestCase
     assert_equal_set [asset1], Asset.filtered_search({:created_end => Time.now}, {})
     assert_equal_set [asset1, asset2], Asset.filtered_search({:created_start => 5.days.ago, :created_end => 1.days.from_now}, {})
   end
-  
+
   def test_should_be_stored_in_public_path
      asset = create_asset(:name => "FAKE")
-    assert asset.resource.path =~ /#{File.join(RAILS_ROOT, Ubiquo::Config.get(:attachments)[:public_path])}/
+    assert asset.resource.path =~ /#{File.join(Rails.root, Ubiquo::Config.get(:attachments)[:public_path])}/
   end
-  
+
   def test_should_be_stored_in_protected_path
     asset = AssetPrivate.create(:name => "FAKE2",
                                 :resource => test_file,
                                 :asset_type_id => AssetType.find(:first).id)
-    assert asset.resource.path =~ /#{File.join(RAILS_ROOT, Ubiquo::Config.get(:attachments)[:private_path])}/    
+    assert asset.resource.path =~ /#{File.join(Rails.root, Ubiquo::Config.get(:attachments)[:private_path])}/
   end
-  
+
   def test_should_destroy_relations_on_destroy
     Asset.destroy_all
     AssetRelation.destroy_all
-    
+
     asset = create_asset
-    
-    assert_difference("AssetRelation.count") do 
+
+    assert_difference("AssetRelation.count") do
       AssetRelation.create(:asset => asset, :related_object => UbiquoUser.first)
     end
-    assert_difference("AssetRelation.count", -1) do 
+    assert_difference("AssetRelation.count", -1) do
       asset.destroy
-    end    
+    end
   end
 
   private
-    
+
   def create_asset(options = {})
     default_options = {
-      :name => "Created asset", 
-      :description => "Description", 
-      :resource => test_file,       
+      :name => "Created asset",
+      :description => "Description",
+      :resource => test_file,
     }
     a = AssetPublic.create(default_options.merge(options))
   end
-  
+
 end
