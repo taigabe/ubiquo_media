@@ -29,7 +29,7 @@ es:
       filter_between: "entre {{date_start}} y {{date_end}}"
       filter_from: "desde {{date_start}}"
       filter_until: "hasta {{date_end}}"
-      filter_text: "texto {{string}}"
+      filter_text: "texto %{string}"
       # Media column
       remove: "eliminar"
       assigned_text: "texto asignado"
@@ -47,6 +47,6 @@ es:
       asset_next: "siguiente"
       asset_previous: "anterior"
       asset_view: "ver"
-      invalid_related_object_type: "Identificador invalido para el tipo seleccionado: {{type}} {{id}}"
+      invalid_related_object_type: "Identificador invalido para el tipo seleccionado: %{type} %{id}"
       invalid: "invalido"
       type_filter: "Filtrar por tipo"

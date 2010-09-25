@@ -29,7 +29,7 @@ en:
       filter_between: "between {{date_start}} and {{date_end}}"
       filter_from: "from {{date_start}}"
       filter_until: "to {{date_end}}"
-      filter_text: "text {{string}}"
+      filter_text: "text %{string}"
       # Media column
       remove: "remove"
       assigned_text: "assigned text"
@@ -47,7 +47,7 @@ en:
       asset_next: "next"
       asset_previous: "previous"
       asset_view: "view"
-      invalid_related_object_type: "Identificador invalido para el tipo seleccionado: {{type}} {{id}}"
-      invalid_related_object_type: "Invalid identifier for the selected type: {{type}} {{id}}"
+      invalid_related_object_type: "Identificador invalido para el tipo seleccionado: %{type} %{id}"
+      invalid_related_object_type: "Invalid identifier for the selected type: %{type} %{id}"
       invalid: "invalid"
       type_filter: "Filter by type"
