@@ -26,9 +26,9 @@ es:
       private: "privado"
       is_protected: "Es un fichero protegido?"
       # Filters FIXME: (I think all of this should be in base)
-      filter_between: "entre {{date_start}} y {{date_end}}"
-      filter_from: "desde {{date_start}}"
-      filter_until: "hasta {{date_end}}"
+      filter_between: "entre %{date_start} y %{date_end}"
+      filter_from: "desde %{date_start}"
+      filter_until: "hasta %{date_end}"
       filter_text: "texto %{string}"
       # Media column
       remove: "eliminar"
