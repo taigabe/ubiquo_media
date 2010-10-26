@@ -51,3 +51,11 @@ ca:
       invalid_related_object_type: "Identificador invàlid pel tipus seleccionat: %{type} %{id}"
       invalid: "invàlid"
       type_filter: "Filtrar per tipus"
+    asset_type:
+      names:
+        flash: 'Flash'
+        doc: 'Document'
+        audio: 'Àudio' 
+        other: 'Altres'
+        video: 'Vídeo' 
+        image: 'Imatge'

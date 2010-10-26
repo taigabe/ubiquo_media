@@ -54,8 +54,8 @@ module Ubiquo::AssetsHelper
         :caption => t('ubiquo.media.type'),
         :all_caption => t('ubiquo.media.all'),
         :field => :filter_type,
-        :collection => @asset_types,
-        :id_field => :id,
+        :collection =>  @asset_types.map{|lk| OpenStruct.new(:object_id => lk.id, :name => I18n.t("ubiquo.asset_type.names.#{lk.key}"))},
+        :id_field => :object_id,
         :name_field => :name)
     else 
       ''

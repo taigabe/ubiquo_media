@@ -51,3 +51,11 @@ en:
       invalid_related_object_type: "Invalid identifier for the selected type: %{type} %{id}"
       invalid: "invalid"
       type_filter: "Filter by type"
+    asset_type:
+      names:
+        flash: 'Flash'
+        doc: 'Document'
+        audio: 'Audio' 
+        other: 'Other'
+        video: 'Video' 
+        image: 'Image'

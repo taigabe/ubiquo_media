@@ -11,7 +11,7 @@
       :id => asset.id,
       :columns => [
         link_to(asset.name, url_for_media_attachment(asset)),
-        asset.asset_type.name,
+        I18n.t("ubiquo.asset_type.names.#{asset.asset_type.key}"),
         Ubiquo::Config.context(:ubiquo_media).get(:force_visibility) ?
               nil : (asset.resource_is_public? ? t("ubiquo.media.public") : t("ubiquo.media.private")),
       ].compact,
