@@ -29,6 +29,8 @@ module UbiquoMedia
         [::Asset, ::AssetRelation].each do |klass|
           klass.instance_variable_set :@translatable, false
         end
+        ::AssetRelation.send :alias_method, :asset, :asset_without_shared_translations
+        ::AssetRelation.send :alias_method, :related_object, :related_object_without_shared_translations
       end
 
       module Asset
