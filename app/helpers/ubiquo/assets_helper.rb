@@ -15,7 +15,7 @@ module Ubiquo::AssetsHelper
         :collection => @asset_types,
         :model => :asset_types,
         :id_field => :id,
-        :name_field => :name)   
+        :name_field => :name)
     else
       nil
     end
@@ -37,7 +37,7 @@ module Ubiquo::AssetsHelper
       nil
     end
     extra_filters = uhook_asset_filters_info
-    
+
     build_filter_info(string_filter, asset_types_filter, asset_visibility_filter, date_filter, *extra_filters)
   end
 
@@ -54,10 +54,10 @@ module Ubiquo::AssetsHelper
         :caption => t('ubiquo.media.type'),
         :all_caption => t('ubiquo.media.all'),
         :field => :filter_type,
-        :collection =>  @asset_types.map{|lk| OpenStruct.new(:object_id => lk.id, :name => I18n.t("ubiquo.asset_type.names.#{lk.key}"))},
-        :id_field => :object_id,
+        :collection =>  @asset_types.map{|lk| OpenStruct.new(:key => lk.id, :name => I18n.t("ubiquo.asset_type.names.#{lk.key}"))},
+        :id_field => :key,
         :name_field => :name)
-    else 
+    else
       ''
     end
     asset_visibility_filter = if (
@@ -71,17 +71,17 @@ module Ubiquo::AssetsHelper
         :name_field => :name)
     else
       ''
-    end                            
+    end
     date_filter = if Ubiquo::Config.context(:ubiquo_media).get(:assets_date_filter_enabled)
       render_filter(:date, url_for_options,
         :caption => t('ubiquo.media.creation'),
-        :field => [:filter_created_start, :filter_created_end])      
+        :field => [:filter_created_start, :filter_created_end])
     else
       ''
     end
     extra_filters = uhook_asset_filters(url_for_options)
-    
+
     (string_filter + asset_types_filter + asset_visibility_filter + date_filter + extra_filters)
   end
-  
+
 end
