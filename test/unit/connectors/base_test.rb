@@ -3,7 +3,7 @@ require File.dirname(__FILE__) + "/../../test_helper"
 class UbiquoMedia::Connectors::BaseTest < ActiveSupport::TestCase
 
   Base = UbiquoMedia::Connectors::Base
-  
+
   test 'should_load_correct_modules' do
     ::Asset.expects(:include).with(Base::Asset)
     ::AssetRelation.expects(:include).with(Base::AssetRelation)
@@ -13,7 +13,7 @@ class UbiquoMedia::Connectors::BaseTest < ActiveSupport::TestCase
     Base.expects(:set_current_connector).with(Base)
     Base.load!
   end
-  
+
   test 'should_set_current_connector_on_load' do
     save_current_connector
     Base.load!
@@ -22,7 +22,7 @@ class UbiquoMedia::Connectors::BaseTest < ActiveSupport::TestCase
   end
 
   test_each_connector do
-    
+
     test "uhook_create_assets_table_should_create_table" do
       ActiveRecord::Migration.expects(:create_table).with(:assets, anything)
       ActiveRecord::Migration.uhook_create_assets_table {}
@@ -88,20 +88,11 @@ class UbiquoMedia::Connectors::BaseTest < ActiveSupport::TestCase
       assert_equal :value, Ubiquo::AssetsController.new.uhook_destroy_asset(Asset.new)
     end
 
-    test 'uhook_asset_filters_should_return_string' do
-      mock_helper
+    test 'uhook_asset_filters_exist' do
       Base.current_connector::UbiquoAssetsController::Helper.module_eval do
         module_function :uhook_asset_filters
       end
-      assert Base.current_connector::UbiquoAssetsController::Helper.uhook_asset_filters('').is_a?(String)
-    end
-
-    test 'uhook_asset_filters_info_should_return_array' do
-      mock_helper
-      Base.current_connector::UbiquoAssetsController::Helper.module_eval do
-        module_function :uhook_asset_filters_info
-      end
-      assert Base.current_connector::UbiquoAssetsController::Helper.uhook_asset_filters_info.is_a?(Array)
+      assert_respond_to Base.current_connector::UbiquoAssetsController::Helper, :uhook_asset_filters
     end
 
     test 'uhook_edit_asset_sidebar_should_return_string' do
@@ -144,9 +135,9 @@ class UbiquoMedia::Connectors::BaseTest < ActiveSupport::TestCase
         call == {:klass => AssetType, :field => :simple, :options => {}}
       }
     end
-    
+
   end
-  
+
   # Define module mocks for testing
   module Base::Asset; end
   module Base::AssetRelation; end
@@ -155,5 +146,5 @@ class UbiquoMedia::Connectors::BaseTest < ActiveSupport::TestCase
   module Base::ActiveRecord
     module Base; end
   end
-    
+
 end

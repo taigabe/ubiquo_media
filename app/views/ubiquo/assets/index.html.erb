@@ -2,7 +2,7 @@
 <h2><%= render :partial => 'submenu' %></h2>
 <%= render :partial => "shared/ubiquo/feedback" %>
 
-<%= asset_filters_info(params) %>
+<%= show_filter_info %>
 <%= render(:partial => "shared/ubiquo/lists/standard", :locals => {
   :name => 'asset',
   :headers => [:name, :asset_type_id, Ubiquo::Config.context(:ubiquo_media).get(:force_visibility) ? nil : "Visibilitat"].compact,
@@ -23,6 +23,6 @@
 }) %>
 
 <% content_for :sidebar do %>
-  <%= asset_filters %>
+  <%= show_filters %>
   <%= help_block_sidebar(t("ubiquo.helpmsg.media.assets.index")) %>
 <% end %>

@@ -1,12 +1,12 @@
 require File.dirname(__FILE__) + "/../../../../test/test_helper.rb"
 require 'mocha'
 
-def save_current_connector    
+def save_current_connector
   @old_connector = UbiquoMedia::Connectors::Base.current_connector
 end
 
 def reload_old_connector
-  @old_connector.load!    
+  @old_connector.load!
 end
 
 def mock_params params = nil
@@ -18,7 +18,7 @@ def mock_session session = nil
 end
 
 def mock_routes
-  Ubiquo::AssetsController.any_instance.expects(:ubiquo_assets_path).at_least(0).returns('')  
+  Ubiquo::AssetsController.any_instance.expects(:ubiquo_assets_path).at_least(0).returns('')
 end
 
 def mock_response
@@ -37,25 +37,24 @@ end
 def mock_helper
   # we stub well-known usable helper methods along with particular connector added methods
   stubs = {
-    :params => {}, :t => '', :filter_info => '',
-    :render_filter => '', :link_to => ''
+    :params => {}, :t => '', :link_to => ''
   }.merge(UbiquoMedia::Connectors::Base.current_connector.mock_helper_stubs || {})
-  
+
   stubs.each_pair do |method, retvalue|
     UbiquoMedia::Connectors::Base.current_connector::UbiquoAssetsController::Helper.stubs(method).returns(retvalue)
-  end  
+  end
 end
 
 
 # Improvement for Mocha's Mock: stub_everything with a default return value other than nil.
 class Mocha::Mock
-  
+
   def stub_default_value= value
     @everything_stubbed_default_value = value
   end
-  
+
   if !self.instance_methods.include?(:method_missing_with_stub_default_value.to_s)
-    
+
     def method_missing_with_stub_default_value(symbol, *arguments, &block)
       value = method_missing_without_stub_default_value(symbol, *arguments, &block)
       if !@expectations.match_allowing_invocation(symbol, *arguments) && !@expectations.match(symbol, *arguments) && @everything_stubbed
@@ -68,7 +67,7 @@ class Mocha::Mock
     alias_method_chain :method_missing, :stub_default_value
 
   end
-  
+
 end
 
 class AssetType # Using this model because is very simple and has no validations
