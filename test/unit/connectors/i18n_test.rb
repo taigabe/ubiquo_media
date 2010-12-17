@@ -7,13 +7,13 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
   if Ubiquo::Plugin.registered[:ubiquo_i18n]
 
     def setup
-      save_current_connector
+      save_current_connector(:ubiquo_media)
       I18n.load!
     end
 
     def teardown
       Locale.current = nil
-      reload_old_connector
+      reload_old_connector(:ubiquo_media)
     end
 
     test 'Asset classes should be translatable' do
@@ -54,7 +54,7 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
     end
 
     test 'uhook_index_filters_should_return_locale_filter' do
-      mock_params :filter_locale => 'ca'
+      mock_asset_params :filter_locale => 'ca'
       assert_equal({:locale => 'ca'}, Ubiquo::AssetsController.new.uhook_index_filters)
     end
 
@@ -67,7 +67,7 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
     end
 
     test 'uhook_new_asset_should_return_translated_asset' do
-      mock_params :from => 1
+      mock_asset_params :from => 1
       Ubiquo::AssetsController.any_instance.expects(:current_locale).returns('ca')
       AssetPublic.expects(:translate).with(1, 'ca', :copy_all => true)
       asset = Ubiquo::AssetsController.new.uhook_new_asset
@@ -87,7 +87,7 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
     end
 
     test 'uhook_create_asset_should_return_new_asset_with_current_locale' do
-      mock_params
+      mock_asset_params
       Ubiquo::AssetsController.any_instance.expects(:current_locale).at_least_once.returns('ca')
       %w{AssetPublic AssetPrivate}.each do |visibility|
         asset = Ubiquo::AssetsController.new.uhook_create_asset visibility.constantize
@@ -99,7 +99,7 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
 
     test 'uhook_create_asset with from parameter should reassign resource' do
       from_asset = AssetPublic.create(:resource => 'resource', :name => 'asset')
-      mock_params :from => from_asset.id
+      mock_asset_params :from => from_asset.id
       Ubiquo::AssetsController.any_instance.expects(:current_locale).at_least_once.returns('ca')
       %w{AssetPublic AssetPrivate}.each do |visibility|
         asset = Ubiquo::AssetsController.new.uhook_create_asset visibility.constantize
@@ -109,13 +109,13 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
 
     test 'uhook_destroy_asset_should_destroy_asset' do
       Asset.any_instance.expects(:destroy).returns(:value)
-      mock_params :destroy_content => false
+      mock_asset_params :destroy_content => false
       assert_equal :value, Ubiquo::AssetsController.new.uhook_destroy_asset(Asset.new)
     end
 
     test 'uhook_destroy_asset_should_destroy_asset_content' do
       Asset.any_instance.expects(:destroy_content).returns(:value)
-      mock_params :destroy_content => true
+      mock_asset_params :destroy_content => true
       assert_equal :value, Ubiquo::AssetsController.new.uhook_destroy_asset(Asset.new)
     end
 
@@ -131,7 +131,7 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
     end
 
     test 'uhook_edit_asset_sidebar_should_return_show_translations_links' do
-      mock_helper
+      mock_media_helper
       I18n::UbiquoAssetsController::Helper.expects(:show_translations).at_least_once.returns('links')
       I18n::UbiquoAssetsController::Helper.module_eval do
         module_function :uhook_edit_asset_sidebar
@@ -140,7 +140,7 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
     end
 
     test 'uhook_new_asset_sidebar should return show translations links' do
-      mock_helper
+      mock_media_helper
       I18n::UbiquoAssetsController::Helper.expects(:show_translations).at_least_once.returns('links')
       I18n::UbiquoAssetsController::Helper.module_eval do
         module_function :uhook_new_asset_sidebar
@@ -149,7 +149,7 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
     end
 
     test 'uhook_asset_index_actions should return translate and remove link if not current locale' do
-      mock_helper
+      mock_media_helper
       asset = Asset.new(:locale => 'ca')
       I18n::UbiquoAssetsController::Helper.expects(:current_locale).returns('en')
       I18n::UbiquoAssetsController::Helper.expects(:ubiquo_asset_path).with(asset, :destroy_content => true)
@@ -163,7 +163,7 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
     end
 
     test 'uhook_asset_index_actions should return removes and edit links if current locale' do
-      mock_helper
+      mock_media_helper
       asset = Asset.new(:locale => 'ca')
       I18n::UbiquoAssetsController::Helper.stubs(:current_locale).returns('ca')
       I18n::UbiquoAssetsController::Helper.expects(:ubiquo_asset_path).with(asset, :destroy_content => true)
@@ -179,7 +179,7 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
     end
 
     test 'uhook_asset_form should return content_id field' do
-      mock_helper
+      mock_media_helper
       f = stub_everything
       f.expects(:hidden_field).with(:content_id).returns('')
       I18n::UbiquoAssetsController::Helper.expects(:params).returns({:from => 100})

@@ -143,7 +143,7 @@ class MediaFileTest < ActiveSupport::TestCase
     assert_difference "::AssetRelation.count", 2 do
       AssetType.create :multiple_ids => ["", {"id" => a.id.to_s, "name" => "Test name"}, {"id" => b.id.to_s, "name" => "Test name 2"}]
     end
-    assert_equal AssetRelation.find(:first).position, 1
+    assert_equal AssetRelation.find(:first).position, 1 #FIXME this assert has failed sometimes
     assert_equal AssetRelation.find(:first, :offset => 1).position, 2
   end
 

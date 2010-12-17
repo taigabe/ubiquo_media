@@ -5,12 +5,12 @@ class UbiquoMedia::Connectors::StandardTest < ActiveSupport::TestCase
   Standard = UbiquoMedia::Connectors::Standard
 
   def setup
-    save_current_connector
+    save_current_connector(:ubiquo_media)
     Standard.load!
   end
 
   def teardown
-    reload_old_connector
+    reload_old_connector(:ubiquo_media)
   end
 
 
@@ -57,7 +57,7 @@ class UbiquoMedia::Connectors::StandardTest < ActiveSupport::TestCase
   end
 
   test 'uhook_create_asset_should_return_new_asset' do
-    mock_params
+    mock_asset_params
     %w{AssetPublic AssetPrivate}.each do |visibility|
       asset = Ubiquo::AssetsController.new.uhook_create_asset visibility.constantize
       assert_equal visibility, asset.class.to_s
@@ -79,7 +79,7 @@ class UbiquoMedia::Connectors::StandardTest < ActiveSupport::TestCase
   end
 
   test 'uhook_edit_asset_sidebar_should_return_empty_string' do
-    mock_helper
+    mock_media_helper
     Standard::UbiquoAssetsController::Helper.module_eval do
       module_function :uhook_edit_asset_sidebar
     end
@@ -87,7 +87,7 @@ class UbiquoMedia::Connectors::StandardTest < ActiveSupport::TestCase
   end
 
   test 'uhook_new_asset_sidebar should return empty string' do
-    mock_helper
+    mock_media_helper
     Standard::UbiquoAssetsController::Helper.module_eval do
       module_function :uhook_new_asset_sidebar
     end
@@ -95,7 +95,7 @@ class UbiquoMedia::Connectors::StandardTest < ActiveSupport::TestCase
   end
 
   test 'uhook_asset_index_actions should return array with edit and remove' do
-    mock_helper
+    mock_media_helper
     Standard::UbiquoAssetsController::Helper.module_eval do
       module_function :uhook_asset_index_actions
     end
@@ -110,7 +110,7 @@ class UbiquoMedia::Connectors::StandardTest < ActiveSupport::TestCase
   end
 
   test 'uhook_asset_form should return empty string' do
-    mock_helper
+    mock_media_helper
     f = stub_everything
     Standard::UbiquoAssetsController::Helper.module_eval do
       module_function :uhook_asset_form
