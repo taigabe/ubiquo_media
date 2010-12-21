@@ -4,30 +4,30 @@
   <%= tag(:input, :type => "hidden", :name => request_forgery_protection_token.to_s, :value =>  Rails.env.test? ? "" : form_authenticity_token) %>
   <%= tag(:input, :type => "hidden", :name => "counter", :value => counter) %>
   <%= tag(:input, :type => "hidden", :name => "field", :value => field) %>
-  <p>
+  <div class="form-item">
     <%= label :asset, :name, Asset.human_attribute_name("name") %>
     <%= text_field :asset, :name %>
-  </p>
+  </div>
 
-  <p>
+  <div class="form-item">
     <%= label :asset, :resource, Asset.human_attribute_name("resource") %>
     <%= file_field :asset, :resource %>
-  </p>
+  </div>
 
 
   <% if visibility.nil? -%>
-    <p>
+    <div class="form-item">
       <%= label :asset, :is_protected, Asset.human_attribute_name("is_protected") %>
       <%= check_box :asset, :is_protected %>
-    </p>
+    </div>
   <% else -%>
     <%= hidden_field :asset, :is_protected, :value => (visibility == "private").to_s %>
   <% end -%>
 
-  <p class="form_buttons">
-	<%= button_to_function t('ubiquo.save') do |page|
+  <div class="form-item-submit">
+	<%= button_to_function t('ubiquo.save'), :class => 'bt-submit' do |page|
           page << "$('new_#{counter}_loader').toggle();"
           page << "send_as_form('new_#{counter}_form', '#{ubiquo_assets_url(:format => :js)}', 'POST');"
         end %>
-  </p>
+  </div>
 </div>
