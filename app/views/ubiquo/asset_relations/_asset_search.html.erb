@@ -6,19 +6,25 @@
     :success => "Element.hide(\"search_spinner_#{counter}\")",
     :failure => "Element.hide(\"search_spinner_#{counter}\")",
     :with => "'field=#{field}&counter=#{counter}&asset_type_id=' + $('asset_type_id_#{counter}').value + '&text=' + $('asset_search_string_#{counter}').value + '&visibility=' + $('asset_visibility').value",
-  }      
+  }
+  searcher_field_id = "asset_search_string_#{counter}"
   %>
 
-<h4><%= t('ubiquo.media.search_asset') %>:</h4>
-<%= text_field_tag(:string, '', :id => "asset_search_string_#{counter}", :onkeypress => 'return (event.keyCode!=13);') %>
-<%= observe_field("asset_search_string_#{counter}", options.merge(:frequency => 0.5)) %>
-<%= hidden_field_tag :asset_visibility, visibility %>
+<div class="form-item">
+  <label for="<%= searcher_field_id %>"><%= t('ubiquo.media.search_asset') %>:</label>
+  <%= text_field_tag(:string, '', :id => searcher_field_id, :onkeypress => 'return (event.keyCode!=13);') %>
+  <%= observe_field("asset_search_string_#{counter}", options.merge(:frequency => 0.5)) %>
+  <%= hidden_field_tag :asset_visibility, visibility %>
+</div>
+
 <% if types.size == 1 %>
   <%= hidden_field_tag "asset_type_id_#{counter}".to_sym, types.first.id.to_s %>
 <% else %>
-  <%= label :asset, "asset_type_id_#{counter}".to_sym, Asset.human_attribute_name("asset_type_id") %>
-  <%= type_selector(counter, types) %>
-  <%= observe_field("asset_type_id_#{counter}", options) %>
+  <div class="form-item">
+    <%= label :asset, "asset_type_id_#{counter}".to_sym, Asset.human_attribute_name("asset_type_id") %>
+    <%= type_selector(counter, types) %>
+    <%= observe_field("asset_type_id_#{counter}", options) %>
+  </div>
 <% end %>
   <%= ubiquo_image_tag("ajax-loader.gif", :id => "search_spinner_#{counter}", :class=>"spinner" ) %>
   <div id="asset_search_results_<%= counter %>"></div>
