@@ -1,0 +1,36 @@
+/* Changes the default ubiquo layout to show only the #content */
+#header, #sidebar, #footer{
+    display:none;
+}
+#content{
+    width:100%;
+    background:none;
+    border:none;
+    -moz-border-radius: none;
+    border-radius: 0;
+    -moz-box-shadow: none;
+    box-shadow:none;
+}
+body{
+    background-color:white;
+}
+#inner-content{
+    padding: 0;
+    background:none;
+}
+.corner_tl, .corner_tr, .corner_bl, .corner_br{
+    display:none;
+}
+#central{
+    padding:0;
+}
+#crop-resize-container {
+    padding:0;
+}
+#crop-resize-container #resize-title h3 {
+    -moz-border-radius: 0;
+    border-radius: 0;
+}
+#crop-resize-container #resize-title p {
+    padding-right: 1em;
+}

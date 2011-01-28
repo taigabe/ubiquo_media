@@ -1,0 +1,62 @@
+<% content_for :head do %>
+<%= stylesheet_link_tag "ubiquo_media" %>
+<%= ubiquo_stylesheet_link_tag "media_cropresize" %>
+<% end %>
+<% if params[:target]
+content_for :head do  %>
+  <%= stylesheet_tag "ubiquo/bare_content.css", :cache => false %>
+<% end %>
+<%  else %>
+  <% content_for :head do %>
+  <style type="text/css">
+  #content{
+    width: 1038px;
+  }
+  </style>
+
+  <% end %>
+
+  <h1><%= render :partial => 'title' %></h1>
+  <h2>
+    <%= render :partial => "submenu" %>
+  </h2>
+<% end %>
+
+<div id="crop-resize-container">
+  <div id="resize-title">
+    <h3><%= t("ubiquo.media.crop_and_resize")%></h3>
+    <% if params[:target] %>
+      <p>
+        <a href="#" class="lightwindow_action close" onclick="window.parent.myLightWindow.deactivate();"><img src="/images/ubiquo/media/resize-close.png" alt="Tancar" /></a>
+      </p>
+    <% end %>
+  </div>
+   <div id="resize-content">
+
+    <%= render(:partial => "shared/ubiquo/feedback") %>
+    <% form_for(:asset, @asset, :url => advanced_update_ubiquo_asset_path(@asset),
+      :html => {:method => "put", :multipart => true, :id=>"advanced_edit_form"}) do |f| %>
+            <% if params[:target] %>
+              <%= hidden_field_tag "target", params[:target]  %>
+            <% end %>
+            <%= render :partial => 'advanced_form', :locals => {:f => f} %>
+
+    <% end %>
+    <% if params[:target] %>
+      <% javascript_tag do %>
+        // We update the target!
+        <%= render :partial => "update_target.rjs"%>
+      <% end %>
+    <% end %>
+    <div class="form-item-submit">
+      <% if params[:target] %>
+        <%= button_to_function t('ubiquo.media.back'), "if(window.parent){window.parent.myLightWindow.deactivate()}else{window.close();}" %>
+      <% else %>
+        <%= button_to_function t('ubiquo.back_to_list'), "document.location.href='#{ubiquo_assets_path}'" %>
+      <% end %>
+    </div>
+   </div>
+</div>
+<% content_for :sidebar do %>
+	<%= uhook_edit_asset_sidebar @asset %>
+<% end %>

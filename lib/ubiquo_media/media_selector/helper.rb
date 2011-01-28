@@ -51,7 +51,14 @@ module UbiquoMedia
         type_opts = [all_opt] + types.collect { |t| [t.name, t.id] } 
         select_tag "asset_type_id_#{counter}".to_sym, options_for_select(type_opts)
       end      
-      
+
+      # Returns the advanced edit path when the asset supports it, nil otherways
+      #
+      # More options are added to other assets, its told to the view here.
+      def advanced_asset_form_for( asset, options = nil)
+        advanced_edit_ubiquo_asset_path( asset, options ) if asset.is_resizeable?
+      end
+
     end
   end
 end

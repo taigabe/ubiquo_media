@@ -53,7 +53,8 @@
       <%= counter %>, 
       <%= thumbnail_url(asset).to_json %>,
       <%= view_asset_link(asset).to_json %>,
-      <%= asset.name.to_json %>
+      <%= asset.name.to_json %>,
+      <%= {:advanced_form => advanced_asset_form_for(asset)}.to_json %>
     );
   <% end %>
 </script>

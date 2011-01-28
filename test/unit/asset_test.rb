@@ -81,6 +81,28 @@ class AssetTest < ActiveSupport::TestCase
     end
   end
 
+  def test_should_destroy_asset_areas_on_destroy
+    Asset.destroy_all
+    AssetArea.destroy_all
+
+    asset = create_asset
+
+    assert_difference("AssetArea.count") do
+      AssetArea.create!(:asset => asset, :style => "original", :top => 1, :left => 1, :width => 1, :height => 1)
+    end
+    assert_difference("AssetArea.count", -1) do
+      asset.destroy
+    end
+  end
+
+  def test_is_resizeable
+    asset = create_asset
+    assert !asset.is_resizeable?
+
+    asset.asset_type = AssetType.find_by_key("image")
+    assert asset.is_resizeable?
+  end
+
   private
 
   def create_asset(options = {})

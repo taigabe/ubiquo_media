@@ -2,7 +2,7 @@ class Ubiquo::AssetsController < UbiquoAreaController
   ubiquo_config_call :assets_access_control, {:context => :ubiquo_media}
   before_filter :load_asset_visibilities
   before_filter :load_asset_types
-
+  
   # GET /assets
   # GET /assets.xml
   def index
@@ -72,7 +72,11 @@ class Ubiquo::AssetsController < UbiquoAreaController
                   :visibility => visibility 
                 })
               page.hide "add_#{counter}"
-              page << "media_fields.add_element('#{field}', #{@asset.id}, #{@asset.name.to_json}, #{counter}, #{thumbnail_url(@asset).to_json}, #{view_asset_link(@asset).to_json});"
+              page << "media_fields.add_element('#{field}',#{@asset.id},"+
+                "#{@asset.name.to_s.to_json}, #{counter}, "+
+                "#{thumbnail_url(@asset).to_json},"+
+                "#{view_asset_link(@asset).to_json},null,"+
+                "{advanced_form:#{advanced_asset_form_for(@asset).to_json}});"
             end
           end
         }
@@ -145,6 +149,112 @@ class Ubiquo::AssetsController < UbiquoAreaController
       uhook_index_search_subject.filtered_search({:text => @search_text, :type => params[:asset_type_id], :visibility => params[:visibility]})
     end
   end
+
+  # GET /assets/1/advanced_edit
+  def advanced_edit
+    @asset = Asset.find(params[:id])
+    if !@asset.is_resizeable?
+      flash[:error] = t('ubiquo.media.asset_not_resizeable')
+      redirect_to :action => "index"
+    end
+  end
+
+  # PUT /assets/1/advanced_update
+  def advanced_update
+    @asset = Asset.find(params[:id])
+    errors = !@asset.is_resizeable? || !params[:crop_resize]
+
+    unless params[:save_as_new].blank?
+      original_asset = @asset
+      @asset = @asset.clone
+      @asset.name = params[:asset_name] || @asset.name
+      @asset.save!
+    end
+
+    @asset.keep_backup = ( params[:asset][:keep_backup] rescue Ubiquo::Config.context(:ubiquo_media).get(:assets_default_keep_backup))
+    errors ||= !@asset.save
+
+    asset_area = nil
+    if params[:operation_type] != "original"
+      # Dont save original if crop is not on original, and viceversa
+      params[:crop_resize].delete(:original)
+      #Save asset_areas
+      params[:crop_resize].each do |style, values|
+        asset_area = @asset.asset_areas.find_by_style(style)
+        if asset_area
+          asset_area.update_attributes( values )
+        else
+          asset_area = @asset.asset_areas.new(
+            :style => style,
+            :width => values["width"],
+            :height => values["height"],
+            :top => values["top"],
+            :left => values["left"]
+          )
+          asset_area.save
+        end
+        if !asset_area.errors.empty?
+          errors = true
+          break
+        end
+      end unless errors
+      @asset.resource.reprocess! unless errors
+    else
+      if params[:crop_resize]["original"].find{|k,v|v.to_i > 0}
+        begin
+          AssetArea.original_crop! params[:crop_resize]["original"].merge(
+            :asset => @asset, :style => "original") unless errors
+        rescue ActiveRecord::RecordInvalid => e
+          @rescued_exception = e
+          errors = true
+        end
+      end
+    end
+
+    respond_to do |format|
+      if !errors && @asset.errors.empty? && @asset.resource.errors.empty?
+        flash[:notice] = t('ubiquo.media.asset_updated')
+
+        if params[:apply] || params[:save_as_new]
+          format.any{ redirect_to( advanced_edit_ubiquo_asset_path(@asset, :target => params[:target]) )}
+        elsif params[:target]
+          flash.delete :notice
+          format.any{ render "advanced_update_target", :layout => false }
+        else
+          format.html { redirect_to(ubiquo_assets_path) }
+          format.xml  { head :ok }
+        end
+      else
+        #Destroy cloned
+        if original_asset
+          @asset.destroy
+          @asset = original_asset
+        end
+
+        if @rescued_exception
+          flash[:error] = t('ubiquo.media.asset_original_crop_error') % @rescued_exception.record.errors.full_messages.join(" ")
+        else
+          flash[:error] = t('ubiquo.media.asset_update_error')
+        end
+        format.html {
+          render :action => "advanced_edit"
+        }
+        format.xml  { render :xml => @asset.errors, :status => :unprocessable_entity }
+      end
+    end
+  end
+
+  # POST /assets/1/restore
+  def restore
+    @asset = Asset.find(params[:id])
+    return if uhook_edit_asset(@asset) == false
+    if @asset.restore!
+      flash[:notice] = t('ubiquo.media.asset_updated')
+    else
+      flash[:error] = t('ubiquo.media.asset_update_error')
+    end
+  end
+
   
   private
   

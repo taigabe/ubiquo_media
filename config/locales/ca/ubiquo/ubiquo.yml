@@ -36,6 +36,9 @@ ca:
       assigned_text: "text assignat"
       change_text: "canviar text"
       save: "Guardar"
+      apply: "Aplicar"
+      back: "Tornar"
+      save_as_new: "Guardar com a nou element"
       selected_media_element: "Element multimèdia seleccionat"
       selected_media_elements: "Elements multimèdia seleccionats"
       footer_text: "El text assignat s'utiliza com a peu de la imatge o com títol per a documents"
@@ -51,6 +54,36 @@ ca:
       invalid_related_object_type: "Identificador invàlid pel tipus seleccionat: %{type} %{id}"
       invalid: "invàlid"
       type_filter: "Filtrar per tipus"
+      # Resize
+      crop_and_resize: "Redimensionar imatge"
+      advanced_edit: "Avançat"
+      advanced: "avançat"
+      asset_not_resizeable: "Tipus d'element no redimensionable."
+      crop: "Retallar"
+      formats: "Formats predeterminats"
+      available_styles: "Formats disponibles"
+      current_image: "Imatge actual"
+      asset_original_crop_error: "Error al retallar la imatge original: %s"
+      undo_changes: "Desfer els canvis"
+      restore: "Restaurar fitxer original"
+      confirm_asset_restore: "Estàs segur de voler restaurar aquest recurs?"
+      preview: "Previsualització"
+      preview_not_available: "Previsualització no disponible"
+      affects_all_related_elements: "Aquest canvi afectarà a tots els elements relacionats amb aquest recurs."
+      confirm_continue: "Vols continuar?"
+      shared_asset_warning: "Avís: els canvis que es realitzin afectaran als %{num} elements que estan associats a aquest recurs."
+      keep_backup: "Mantenir còpia prèvia als canvis"
+      image_details: "Editant la imatge:"
+      filename: "Fitxer"
+      geometry: "Mesures"
+      filesize: "Pes"
+      undo_buttons: "Versions anteriors"
+      new_image: "nova"
+      paperclip:
+        resize_and_crop:
+          error_no_style_matched: "Cap estil coincideix amb les opcions: %s"
+      tips:
+        main: Aquí podeu retallar la imatge original. Fes clic a la imatge i modifica les mesures de la capsa puntejada per obtenir una nova proporció.
     asset_type:
       names:
         flash: 'Flash'

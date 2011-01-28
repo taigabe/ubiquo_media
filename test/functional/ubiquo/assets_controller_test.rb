@@ -2,6 +2,15 @@ require File.dirname(__FILE__) + "/../../test_helper.rb"
 
 class Ubiquo::AssetsControllerTest < ActionController::TestCase
   use_ubiquo_fixtures
+
+  def setup
+    @created_assets = []
+  end
+
+  def teardown
+    @created_assets.map(&:destroy)
+  end
+  
   def test_should_get_index
     get :index
     assert_response :success
@@ -140,6 +149,99 @@ class Ubiquo::AssetsControllerTest < ActionController::TestCase
     assert_equal_set [asset1, asset2], assigns(:assets)
   end
   
+  def test_should_get_advanced_edit
+    asset = create_image_asset
+
+    get :advanced_edit, :id => asset.id
+    assert_response :success
+
+    no_resizeable_asset = create_asset
+
+    get :advanced_edit, :id => no_resizeable_asset.id
+    assert_response :redirect
+    assert !flash[:error].blank?
+  end
+
+  def test_should_advanced_update_asset_original
+    asset = create_image_asset
+
+    Ubiquo::Config.context(:ubiquo_media).get(:media_styles_list).merge!(
+      {:thumb => "100x100>",:base_to_crop => "320x200>"})
+    original_params = {
+      "left"=>"1",
+      "height"=>"10",
+      "top"=>"0",
+      "width"=>"10"}
+    AssetArea.expects(:original_crop!).once.returns(true).with( 
+      original_params.merge( "asset" => asset, "style" => "original" ) )
+    AssetArea.expects(:new).never
+    
+    put :advanced_update, :id => asset.id,
+      "operation_type"=>"original",
+      "asset" => {"keep_backup" => true},
+      "crop_resize" => {
+        "original"=> original_params,
+        "thumb"=>{
+          "left"=>"0",
+          "height"=>"20",
+          "top"=>"0",
+          "width"=>"30"},
+        } 
+    assert_redirected_to ubiquo_assets_path
+    assert_equal 0, assigns(:asset).asset_areas.count
+  end
+
+  def test_should_advanced_update_asset_formats
+    Ubiquo::Config.context(:ubiquo_media).get(:media_styles_list).merge!({
+        :thumb => "100x100>",
+        :base_to_crop => "320x200>",
+        :long => "30x180#" #Very vertical image
+      })
+
+    asset = create_image_asset
+
+    put :advanced_update, :id => asset.id,
+      "operation_type"=>"formats",
+      "asset" => {"keep_backup" => true},
+      "crop_resize" => {
+        "original"=>{
+          "left"=>"1",
+          "width"=>"10",
+          "top"=>"0",
+          "height"=>"10",
+          },
+        "thumb"=>{
+          "left"=>"2",
+          "width"=>"15",
+          "top"=>"3",
+          "height"=>"12",
+        },
+        "long"=>{
+          "left"=>"0",
+          "width"=>"20",
+          "top"=>"2",
+          "height"=>"60",
+          },
+        }
+
+    assert_nil assigns(:asset).asset_areas.find_by_style("original")
+    assert_nil assigns(:asset).asset_areas.find_by_style("base_to_crop")
+
+    thumb = assigns(:asset).asset_areas.find_by_style("thumb")
+    assert_equal 2, thumb.left
+    assert_equal 15, thumb.width
+    assert_equal 12, thumb.height
+    assert_equal 3, thumb.top
+
+    thumb = assigns(:asset).asset_areas.find_by_style("long")
+    assert_equal 0, thumb.left
+    assert_equal 20, thumb.width
+    assert_equal 60, thumb.height
+    assert_equal 2, thumb.top
+
+    assert_redirected_to ubiquo_assets_path
+  end
+
   private
 
   def create_asset(options = {})
@@ -151,7 +253,18 @@ class Ubiquo::AssetsControllerTest < ActionController::TestCase
       :is_protected => false,
     }
     
-    AssetPublic.create(default_options.merge(options))
+    asset = AssetPublic.create(default_options.merge(options))
+    # Save asset to destroy on teardown
+    @created_assets << asset
+    asset
+  end
+
+  def create_image_asset( options = {} )
+    default_options = {
+      :resource => File.open( File.join( File.dirname( __FILE__ ),
+          "../../fixtures/resources/sample.png"))
+    }
+    create_asset( default_options.merge( options ) )
   end
   
 end

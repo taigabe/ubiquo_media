@@ -165,17 +165,19 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
     test 'uhook_asset_index_actions should return removes and edit links if current locale' do
       mock_media_helper
       asset = Asset.new(:locale => 'ca')
+      asset.stubs(:is_resizeable?).returns(true)
       I18n::UbiquoAssetsController::Helper.stubs(:current_locale).returns('ca')
       I18n::UbiquoAssetsController::Helper.expects(:ubiquo_asset_path).with(asset, :destroy_content => true)
       I18n::UbiquoAssetsController::Helper.expects(:ubiquo_asset_path).with(asset)
       I18n::UbiquoAssetsController::Helper.expects(:edit_ubiquo_asset_path).with(asset)
-
+      I18n::UbiquoAssetsController::Helper.expects(:advanced_edit_ubiquo_asset_path).with(asset)
+      
       I18n::UbiquoAssetsController::Helper.module_eval do
         module_function :uhook_asset_index_actions
       end
       actions = I18n::UbiquoAssetsController::Helper.uhook_asset_index_actions asset
       assert actions.is_a?(Array)
-      assert_equal 3, actions.size
+      assert_equal 4, actions.size
     end
 
     test 'uhook_asset_form should return content_id field' do

@@ -5,11 +5,15 @@
 <ul class='assets_list'>
   <% assets.each do |asset| %>
       <li>
-    		<h4><%= asset.name %></h4>
+		<h4><%= h asset.name %></h4>
         <%= image_tag(thumbnail_url(asset)) %>
         <%= link_to(t('ubiquo.media.asset_open'), asset.resource.url, :class => 'view', :popup => true) %>
-        <%= link_to_function(t('ubiquo.media.asset_select'),
-				  "media_fields.add_element('#{field}', #{asset.id}, #{asset.name.to_json}, #{counter}, #{thumbnail_url(asset).to_json}, #{view_asset_link(asset).to_json});", :class=> 'select') %>
+        <%= link_to_function(t('ubiquo.media.asset_select'), 
+              "media_fields.add_element('#{field}', #{asset.id}, #{asset.name.to_json},"+
+                "#{counter}, #{thumbnail_url(asset).to_json},"+
+                "#{view_asset_link(asset).to_json},null,"+
+                "{advanced_form:#{advanced_asset_form_for(asset).to_json}});",
+              :class=> 'select') %>
       </li>
   <% end %>
 </ul>

@@ -21,6 +21,7 @@ Ubiquo::Plugin.register(:ubiquo_media, directory, config) do |config|
   config.add :assets_date_filter_enabled, true
   config.add :assets_default_order_field, 'assets.id'
   config.add :assets_default_sort_order, 'desc'
+  config.add :assets_default_keep_backup, true
   config.add :asset_types_icons, { :doc => "icon_doc.png",
                                    :video => "icon_video.png",
                                    :audio => "icon_audio.png",
@@ -31,14 +32,16 @@ Ubiquo::Plugin.register(:ubiquo_media, directory, config) do |config|
                             :doc => ["text"],
                             :audio => ["audio"],
                             :flash => ["swf", "x-shockwave-flash"] }
-  config.add :media_styles_list, { :thumb => "100x100>" }
-  config.add :media_processors_list, [:thumbnail]
+  config.add :media_styles_list, { :thumb => "100x100>", :base_to_crop => "590x442>" }
+  config.add :media_processors_list, [:resize_and_crop]
+  #The styles that belong to ubiquo and are part of the core
+  config.add :media_core_styles, [:thumb, :base_to_crop]
   
   config.add :force_visibility, "public" # set to public or protected to force it to the entire application
 
   # Connectors available in the application.
   # These connectors will be tested against the Base uhooks api
-  config.add :available_connectors, [:i18n, :standard]
+  config.add :available_connectors, [:standard]
 
   # Currently enabled connector
   config.add :connector, :standard

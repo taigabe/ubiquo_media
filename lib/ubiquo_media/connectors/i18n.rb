@@ -140,8 +140,12 @@ module UbiquoMedia
               )
             end
 
-            actions << link_to(t("ubiquo.remove"),
-              ubiquo_asset_path(asset, :destroy_content => true),
+            if asset.locale?(current_locale)
+              actions << link_to(t("ubiquo.media.advanced_edit"), advanced_edit_ubiquo_asset_path(asset)) if advanced_asset_form_for( asset )
+            end
+            
+            actions << link_to(t("ubiquo.remove"), 
+              ubiquo_asset_path(asset, :destroy_content => true), 
               :confirm => t("ubiquo.media.confirm_asset_removal"), :method => :delete
             )
 

@@ -1,0 +1,86 @@
+<%
+  form_scope = "crop_resize_for_#{f.object.id}"
+  hide_styles = media_styles_croppable_list.size == 0
+%>
+<div class="crop_resize_form">
+<%
+# The extended options are:
+#  * Crop and resize original, or crop and resize formats
+%>
+<% if f.object.resource && f.object.resource.original_filename %>
+ <%= stylesheet_link_tag "/javascripts/cropper/cropper.css"   %>
+ <%= javascript_include_tag "cropper/cropper.uncompressed.js" %>
+ <%= javascript_include_tag "/javascripts/ubiquo/plugins/ubiquo_media/crop_resize.js" %>
+
+    <%= hidden_field_tag("operation_type", "original") %>
+    <%= hidden_field_tag "asset_name", @asset.name %>
+    <div id="resize-actions">
+      <ul>
+        <li>
+          <a href="#" class="resize-highlighted-action" onclick="$('operation_type').value='original'; return false;" rel="#original_tab_contents_<%= form_scope %>"><%= t("ubiquo.media.crop") %></a>
+        </li>
+      <% unless hide_styles %>
+        <li >
+          <a href="#" onclick="$('operation_type').value='styles';return false;" rel="#styles_tab_content_<%= form_scope %>" ><%= t("ubiquo.media.formats") %></a>
+        </li>
+      <% end %>
+      </ul>
+    </div>
+    <div class="tab_content_container">
+      <div id="original_tab_contents_<%= form_scope %>" class="resize-box tab-content">
+        <div class="resize-box-info">
+          <p>
+            <%= t("ubiquo.media.tips.main") %>
+          </p>
+        </div>
+        <%= render :partial => "cropper_form", :locals => {:f => f, :style => "original", :format => "", :show_current => false, :preview => false} %>
+      </div>
+      <% unless hide_styles %>
+        <div id="styles_tab_content_<%= form_scope %>" class="tab-content crop-resize-toggle-tabbed-styles" style="display:none;">
+          <div class="resize-box" id="resize_style_wrapper_<%=  form_scope %>_">
+            <div class="resize-box-title">
+              <!-- ?????? <div class="resize-box-title resize-box-inactive"> --> <!-- S'ha d'utilitzar quan s'amaga el contingut d'una caixa -->
+              <h4>
+                <%= link_to( t("ubiquo.media.available_styles"), "#",
+                  :class => "resize-box-fold", :rel => "#resize_style_wrapper_#{form_scope}_ .resize-box-content") %>
+              </h4>
+            </div>
+            <div class="resize-box-content">
+              <div class="resize-box-content-list"> <!-- #ocultar per convertir la caixa en inactiva -->
+                <ul class="styles">
+                  <% media_styles_croppable_list.each do |style, format| %>
+                    <li>
+                        <% link_to( "#",:rel => "#resize_style_wrapper_#{form_scope}_#{style} .resize-box-content" ) do %>
+                      <div class="resize-box-detail-title">
+                        <strong><%= t("ubiquo.media.styles.#{style}.name", :default => style.to_s.humanize) %></strong>
+                        <span><%= [Paperclip::Geometry.parse(format)].map{|e|"#{e.width.to_i}x#{e.height.to_i}"}.first %></span>
+                      </div>
+                      <div class="resize-box-detail-image">
+                              <%=  image_tag(url_for_media_attachment(@asset, style.to_sym)) %>
+                      </div>
+                      <% end %>
+                    </li>
+                  <% end %>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <% media_styles_croppable_list.each do |style, format| %>
+            <div class="resize-box style_cropper" id="resize_style_wrapper_<%=  form_scope %>_<%= style %>">
+              <div class="resize-box-title">
+                <h4>
+                  <a href="#" class="resize-box-unfold" rel="#resize_style_wrapper_<%=  form_scope %>_<%= style %> .resize-box-content">Format seleccionat:
+                    <strong><%= t("ubiquo.media.styles.#{style}.name", :default => style.to_s.humanize) %></strong>
+                  </a>
+                </h4>
+                <!-- <h4><a href="#" class="resize-box-fold">Format seleccionat:</a> <strong>Avatar</strong></h4> --> <!-- #Per canviar la icona quan s'oculta o es mostra la caixa -->
+              </div>
+              <%= render :partial => "cropper_form", :locals => {:f => f, :style => style, :format => format, :hidden => true } %>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+      
+<% end %>
+</div>

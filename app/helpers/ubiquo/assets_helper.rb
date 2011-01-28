@@ -27,4 +27,26 @@ module Ubiquo::AssetsHelper
     end
   end
 
+  # Styles that can be cropped
+  def media_styles_croppable_list
+    list = Ubiquo::Config.context(:ubiquo_media).get(:media_styles_list)
+    # The main styles are not croppable as they belong to the core
+    Ubiquo::Config.context(:ubiquo_media).get(:media_core_styles).each do |s|
+      list.delete(s)
+    end
+    # Filter the formats that are not strings like "300x200#"
+    list.delete_if{|k,v| !v.respond_to?( :match )}
+    list
+  end
+
+  # Returns the size scale comparing base_to_crop with original
+  def resize_ratio_for asset
+    base_geo = Paperclip::Geometry.from_file( asset.resource.path(:base_to_crop) )
+    original_geo = Paperclip::Geometry.from_file( asset.resource.path )
+    # Returning the biggest size as the ratio will be more exact.
+    field = base_geo.width > base_geo.height ? :width : :height
+    #Ratio to original / base
+    original_geo.send(field).to_f / base_geo.send(field).to_f
+  end
+
 end
