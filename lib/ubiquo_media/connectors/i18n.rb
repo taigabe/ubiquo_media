@@ -140,7 +140,7 @@ module UbiquoMedia
               )
             end
 
-            if asset.locale?(current_locale)
+            if asset.in_locale?(current_locale)
               actions << link_to(t("ubiquo.media.advanced_edit"), advanced_edit_ubiquo_asset_path(asset)) if advanced_asset_form_for( asset )
             end
             
@@ -278,7 +278,8 @@ module UbiquoMedia
         add_mock_helper_stubs({
           :show_translations => '', :edit_ubiquo_asset_path => '',
           :new_ubiquo_asset_path => '', :ubiquo_asset_path => '',
-          :current_locale => '', :hidden_field_tag => '', :locale => Asset
+          :current_locale => '', :hidden_field_tag => '', :locale => Asset,
+          :advanced_asset_form_for => '/'
         })
       end
 
