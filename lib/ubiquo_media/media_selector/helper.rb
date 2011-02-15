@@ -59,6 +59,13 @@ module UbiquoMedia
         advanced_edit_ubiquo_asset_path( asset, options ) if asset.is_resizeable?
       end
 
+      # Parameters to append to a link that brings to advanced_edit form
+      def advanced_edit_link_attributes
+         {
+           :class => "lightwindow action",
+           :params => "lightwindow_type=page,lightwindow_width=1038,lightwindow_class=wide",
+         }
+      end
     end
   end
 end

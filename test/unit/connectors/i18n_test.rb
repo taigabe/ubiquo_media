@@ -171,6 +171,7 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
       I18n::UbiquoAssetsController::Helper.expects(:ubiquo_asset_path).with(asset)
       I18n::UbiquoAssetsController::Helper.expects(:edit_ubiquo_asset_path).with(asset)
       I18n::UbiquoAssetsController::Helper.expects(:advanced_edit_ubiquo_asset_path).with(asset)
+      I18n::UbiquoAssetsController::Helper.expects(:advanced_edit_link_attributes).returns({})
       
       I18n::UbiquoAssetsController::Helper.module_eval do
         module_function :uhook_asset_index_actions

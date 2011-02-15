@@ -28,8 +28,8 @@ if @is_media_included != true
           ( options.advanced_form ? '<a href ="'+ options.advanced_form +'" '+
             'target="_blank" '+
             'id="#\{field}_#\{counter}_ubiquo_media_advanced_edit_#\{id}" '+
-            'class="lightwindow action" '+
-            'params="lightwindow_type=external,lightwindow_width=1038,lightwindow_class=wide" >' +
+            'class="<%= advanced_edit_link_attributes[:class] %>" '+
+            'params="<%= advanced_edit_link_attributes[:params] %>" >' +
 <%= (h t('ubiquo.media.advanced')).to_json %> + "</a>" : "") +
           "#{content}"+
           "<dl class='assigned_text'>"+

@@ -37,7 +37,7 @@ en:
       change_text: "change text"
       save: "Save"
       apply: "Apply"
-      back: "Return to form"
+      back: "Return"
       save_as_new: "Save as new asset"
       selected_media_element: "Selected asset"
       selected_media_elements: "Selected assets"

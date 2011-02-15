@@ -156,6 +156,8 @@ class Ubiquo::AssetsController < UbiquoAreaController
     if !@asset.is_resizeable?
       flash[:error] = t('ubiquo.media.asset_not_resizeable')
       redirect_to :action => "index"
+    else
+      render :layout => false
     end
   end
 
@@ -237,7 +239,7 @@ class Ubiquo::AssetsController < UbiquoAreaController
           flash[:error] = t('ubiquo.media.asset_update_error')
         end
         format.html {
-          render :action => "advanced_edit"
+          render :action => "advanced_edit", :layout => false
         }
         format.xml  { render :xml => @asset.errors, :status => :unprocessable_entity }
       end
@@ -253,6 +255,7 @@ class Ubiquo::AssetsController < UbiquoAreaController
     else
       flash[:error] = t('ubiquo.media.asset_update_error')
     end
+    redirect_to advanced_edit_ubiquo_asset_path(@asset, :target => params[:target])
   end
 
   

@@ -24,7 +24,8 @@
   <div class="resize-box-content-left to_resize">
     <div class="resize-box-image-container">
       <%= image_tag(url_for_media_attachment(asset, :base_to_crop),
-       :id => "original_to_resize_#{style_scope}" ) %>
+       :id => "original_to_resize_#{style_scope}"
+     ) %>
     </div>
 
     <%= hidden_field_tag "crop_resize[#{style_scope}][top]", asset_area.top %>
@@ -32,6 +33,7 @@
     <%= hidden_field_tag "crop_resize[#{style_scope}][width]", asset_area.width %>
     <%= hidden_field_tag "crop_resize[#{style_scope}][height]", asset_area.height %>
     <% javascript_tag do %>
+    (function(){
       function saveCoords_<%= style_scope %>  (coords, dimensions)
       {
         //Transform values to original size
@@ -48,15 +50,15 @@
           $("undo_link_<%= style_scope %>").removeClassName("disabled");
         }
       }
-      var cropper_instance_<%= style_scope %> = null;
+      window.cropper_instance_<%= style_scope %> = null;
 
-      function serialize_crop_<%= style_scope %>(){
+      window.serialize_crop_<%= style_scope %> = function(){
           return ["_left","_top","_width","_height"].map(function(e){
               return $('crop_resize_<%= style_scope %>'+e).value;
           }).join("@");
       }
 
-      Event.observe(window, "load", function(){
+      window.cropper_instance_initializer_<%= style_scope %> = function(){
         cropper_instance_<%= style_scope %> = new Cropper.<%= previewable ? "ImgWithPreview":"Img" %>(
           'original_to_resize_<%= style_scope %>',
           {
@@ -100,7 +102,9 @@
           //Hack. Otherways a click NEAR the crop item gets the "undo" link shown
           cropper_instance_<%= style_scope %>.reset();
           $("undo_link_<%= style_scope %>").addClassName("disabled");
-      });
+      };
+      window.cropper_instance_initializer_<%= style_scope %>();
+      })();
 
 
     <% end %>
@@ -138,8 +142,10 @@
           <% if allow_restore && @asset.restorable? && params[:target].blank? %>
             <li>
             <%= link_to_function t('ubiquo.media.restore'),
-              remote_function( :url => restore_ubiquo_asset_path(@asset, :target => params[:target],:format => :js),
+              remote_function( :update => "lightwindow_contents",
+              :url => restore_ubiquo_asset_path(@asset, :target => params[:target]),
               :method => :post,
+              :allow_scripts => true,
               :confirm => shared_asset_msg.to_s + " "+ t('ubiquo.media.confirm_asset_restore')),
               :before => "this.replace('<img src=\"/images/ubiquo/ajax-loader.gif\">');"
           %>
@@ -185,15 +191,17 @@
               <fieldset>
                 <p>
                   <%= label_tag "name", Asset.human_attribute_name("name") %>
-                  <%= text_field_tag "asset_name_#{style}", @asset.name, :class => "resize-form-name"%>
+                  <%= text_field_tag "asset_name_#{style}", @asset.name, 
+                    :class => "resize-form-name" %>
                 </p>
                 <p class="buttons">
-                   <%= f.submit t('ubiquo.media.save_as_new'), :name => "save_as_new",
+                  <%= f.submit t('ubiquo.media.save_as_new'),
+                     :name => "save_as_new",
                      :type=>"image",
                      :src => "/images/ubiquo/media/resize-save-as-button-big.png",
-                     :title => t('ubiquo.media.save_as_new'),
-                     :onclick => "$('asset_name').value = $F('asset_name_#{style}');return true;"
-                   %>
+                     :onclick => "$('crop_resize_asset_name').value = $F('asset_name_#{style}');return true;",
+                     :title => t('ubiquo.media.save_as_new')
+                  %>
                 </p>
               </fieldset>
           </div>

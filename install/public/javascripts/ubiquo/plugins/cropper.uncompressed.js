@@ -295,10 +295,10 @@ Cropper.Img = Class.create({
 				 */
 				maxHeight: 0,
 				/**
-				 * @var boolean - default true
+				 * @var boolean - default false
 				 * Whether to automatically include the stylesheet (assumes it lives in the same location as the cropper JS file)
 				 */
-				autoIncludeCSS: true
+				autoIncludeCSS: false
 			}, 
 			options || {}
 		);				
@@ -426,7 +426,7 @@ Cropper.Img = Class.create({
 	onLoad: function( ) {
             	/*
 		 * Build the container and all related elements, will result in the following
-		 *
+                 *
 		 * <div class="imgCrop_wrap">
 		 *   <img ... this.img ... />
 		 *   <div class="imgCrop_dragArea">
@@ -1156,19 +1156,28 @@ Cropper.Img = Class.create({
 	 * @return obj x,y pixels of the cursor
 	 */
 	getCurPos: function( e ) {
-		// get the offsets for the wrapper within the document
-		// get the offsets for the wrapper within the document
-		var el = this.imgWrap, wrapOffsets = Element.cumulativeOffset( el );
-		// remove any scrolling that is applied to the wrapper (this may be buggy) - don't count the scroll on the body as that won't affect us
-		while( el.nodeName != 'BODY' ) {
-			wrapOffsets[1] -= el.scrollTop  || 0;
-			wrapOffsets[0] -= el.scrollLeft || 0;
-			el = el.parentNode;
-		}
-		return { 
-			x: Event.pointerX(e) - wrapOffsets[0],
-			y: Event.pointerY(e) - wrapOffsets[1]
-		};
+            // get the offsets for the wrapper within the document
+            var el = this.imgWrap;
+            var wrapOffsets = Element.cumulativeOffset( el );
+
+            //Substract the page scroll size to the event pointer.
+            var vpOffsets = document.viewport.getScrollOffsets();
+            if(vpOffsets){
+                wrapOffsets[0] += (vpOffsets[0]);
+                wrapOffsets[1] += (vpOffsets[1]);
+            }
+            // Fix positioning when we are inside a scrolled div
+            var cSO = Element.cumulativeScrollOffset(el);
+            if( cSO ){
+                wrapOffsets[0] -= (cSO[0] - vpOffsets[0]);
+                wrapOffsets[1] -= (cSO[1] - vpOffsets[1]);
+            }
+            var res = {
+                    x: (Event.pointerX(e) - wrapOffsets[0]),
+                    y: (Event.pointerY(e) - wrapOffsets[1])
+            };
+            
+            return res;
 	},
 	                               
 	/**                            
@@ -1252,7 +1261,11 @@ Cropper.Img = Class.create({
 	endCrop : function() {
 		this.dragging = false;
 		this.resizing = false;
-		
+
+                var x = {
+				width: this.calcW(),
+				height: this.calcH()
+			};
 		this.options.onEndCrop(
 			this.areaCoords,
 			{

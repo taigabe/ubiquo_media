@@ -141,7 +141,7 @@ module UbiquoMedia
             end
 
             if asset.in_locale?(current_locale)
-              actions << link_to(t("ubiquo.media.advanced_edit"), advanced_edit_ubiquo_asset_path(asset)) if advanced_asset_form_for( asset )
+              actions << link_to(t("ubiquo.media.advanced_edit"), advanced_edit_ubiquo_asset_path(asset), advanced_edit_link_attributes) if advanced_asset_form_for( asset )
             end
             
             actions << link_to(t("ubiquo.remove"), 

@@ -72,7 +72,7 @@ module UbiquoMedia
               link_to(t('ubiquo.edit'), edit_ubiquo_asset_path(asset)),
               link_to(t('ubiquo.remove'), ubiquo_asset_path(asset), :confirm => t('ubiquo.media.confirm_asset_removal'), :method => :delete),
             ]
-            actions << link_to(t('ubiquo.media.advanced_edit'), advanced_edit_ubiquo_asset_path(asset)) if asset.is_resizeable?
+            actions << link_to(t('ubiquo.media.advanced_edit'), advanced_edit_ubiquo_asset_path(asset),advanced_edit_link_attributes) if asset.is_resizeable?
             actions
           end
 

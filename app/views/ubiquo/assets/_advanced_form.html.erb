@@ -3,17 +3,13 @@
   hide_styles = media_styles_croppable_list.size == 0
 %>
 <div class="crop_resize_form">
-<%
-# The extended options are:
-#  * Crop and resize original, or crop and resize formats
-%>
 <% if f.object.resource && f.object.resource.original_filename %>
- <%= stylesheet_link_tag "/javascripts/cropper/cropper.css"   %>
- <%= javascript_include_tag "cropper/cropper.uncompressed.js" %>
- <%= javascript_include_tag "/javascripts/ubiquo/plugins/ubiquo_media/crop_resize.js" %>
-
+    <% if params[:target] %>
+      <%= hidden_field_tag "target", params[:target]  %>
+    <% end %>
+    <%= hidden_field_tag "save_as_new", "" %>
     <%= hidden_field_tag("operation_type", "original") %>
-    <%= hidden_field_tag "asset_name", @asset.name %>
+    <%= hidden_field_tag "asset_name", @asset.name, :id => "crop_resize_asset_name" %>
     <div id="resize-actions">
       <ul>
         <li>
@@ -81,6 +77,38 @@
         </div>
       <% end %>
     </div>
-      
+
+      <% javascript_tag do %>
+      (function(){
+        Ubiquo.Media.CropResize.InitTabs = function(){
+            Ubiquo.Media.CropResize.TabbedContent.init( {
+                parent: $$(".crop_resize_form").first(),
+                tab_selector: "#resize-actions li a",
+                content_selector: ".tab-content",
+                tab_activation_statuses: [null,"resize-highlighted-action"]
+            });
+
+            var parent = $$(".crop-resize-toggle-tabbed-styles").first()
+            if( parent ){
+              Ubiquo.Media.CropResize.TabbedContent.init({
+                  parent: parent,
+                  tab_selector: ".resize-box-title a",
+                  content_selector: ".resize-box-content",
+                  tab_activation_statuses: ["resize-box-unfold","resize-box-fold"],
+                  other_selectors: [".resize-box-content-list .styles a"],
+                  all_content_can_be_hidden: true,
+                  tab_activation_callback: function(tab, ctx ){
+                      if( ctx["activated_on"].identify() != tab.identify() ){
+                          Effect.ScrollTo(tab.up(".resize-box"),{
+                              duration:0.3
+                          });
+                      }
+                  }
+              });
+            }
+        }
+        Ubiquo.Media.CropResize.InitTabs();
+        })();
+    <% end %>
 <% end %>
 </div>
