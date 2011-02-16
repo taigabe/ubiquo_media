@@ -1,4 +1,3 @@
-<fieldset>
   <%= uhook_asset_form f %>
 	<div class="form-item">
       <%= f.label :name, Asset.human_attribute_name("name") %>
@@ -29,7 +28,6 @@
         <div>
       <% end %>
     </p>
-</fieldset>
 
 <% content_for :sidebar do%>
   <%= help_block_sidebar(t("ubiquo.helpmsg.media.assets.form")) %>
