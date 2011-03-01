@@ -43,6 +43,6 @@ Ubiquo::Plugin.register(:ubiquo_media, directory, config) do |config|
   # Currently enabled connector
   config.add :connector, :standard
   config.add :media_storage, :filesystem
-  config.add :progress_bar, true
+  config.add :progress_bar, false
 end
 
