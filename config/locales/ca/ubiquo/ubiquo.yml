@@ -4,6 +4,8 @@ ca:
       empty_list_title: "Llistat multimèdia"
       empty_list_message: "Des d'aquest apartat podeu gestionar el vostre catàleg d'elements multimèdia."
     media:
+      file_upload_in_progress: "Pujada de fitxer en progrés"
+      file_upload_complete: "Pujada completada. Processant fitxer..."
       media: "Multimèdia"
       media_title: "Anar a multimèdia"
       media_list: "Llistat multimedia"

@@ -4,6 +4,8 @@ es:
       empty_list_title: "Listado multimedia"
       empty_list_message: "Desde este apartado podéis gestionar vuestro catálogo de elementos multimedia."
     media:
+      file_upload_in_progress: "Subida de fichero en progreso"
+      file_upload_complete: "Subida completada. Procesando fichero..."
       media: "Multimedia"
       media_title: "Ir a multimedia"
       media_list: "Listado multimedia"

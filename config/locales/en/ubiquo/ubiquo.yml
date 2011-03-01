@@ -4,6 +4,8 @@ en:
       empty_list_title: "Multimedia list"
       empty_list_message: "In this section you can manage your assets catalog."
     media:
+      file_upload_in_progress: "File upload in progress"
+      file_upload_complete: "Upload complete. Processing file..."
       media: "Multimedia"
       media_title: "Go to multimedia"
       media_list: "Multimedia list"
