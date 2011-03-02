@@ -28,7 +28,7 @@ Ubiquo::Plugin.register(:ubiquo_media, directory, config) do |config|
                                    :other => "icon_other.png" }
   config.add :mime_types, { :image => ["image"],
                             :video => ["video"],
-                            :doc => ["text"],
+                            :doc => ["text", "pdf", "msword"],
                             :audio => ["audio"],
                             :flash => ["swf", "x-shockwave-flash"] }
   config.add :media_styles_list, { :thumb => "100x100>" }
