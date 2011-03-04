@@ -22,9 +22,10 @@ module Paperclip
     # Overwritting the thumb methods
     def transformation_command
       return super if as_parent
+
       # We get the super and add methods to them
       trans = ""
-      trans << " -crop \"#{@crop_to}\"" if @crop_to
+      trans << " -crop \"#{@crop_to}\" +repage " if @crop_to
       trans
     end
 

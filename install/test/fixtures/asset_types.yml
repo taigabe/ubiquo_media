@@ -29,3 +29,9 @@ asset_types_004:
   id: "2"
   created_at: 2008-04-14 08:49:21.318909
   key: image
+asset_types_006:
+  name: Flash
+  updated_at: 2008-04-14 08:49:21.318909
+  id: "6"
+  created_at: 2008-04-14 08:49:21.318909
+  key: flash

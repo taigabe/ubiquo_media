@@ -150,12 +150,16 @@
           <% if allow_restore && @asset.restorable? && params[:target].blank? %>
             <li>
             <%= link_to_function t('ubiquo.media.restore'),
-              remote_function( :update => "lightwindow_contents",
-              :url => restore_ubiquo_asset_path(@asset, :target => params[:target]),
-              :method => :post,
-              :allow_scripts => true,
-              :confirm => shared_asset_msg.to_s + " "+ t('ubiquo.media.confirm_asset_restore')),
-              :before => "this.replace('<img src=\"/images/ubiquo/ajax-loader.gif\">');"
+              remote_function(
+                :update => "' + $('crop-resize-container').up().identify() +'",
+                :before => "myLightWindow.innerLoadingStart();",
+                :after => "myLightWindow.innerLoadingEnd();",
+                :type => :synchronous,
+                :url => restore_ubiquo_asset_path(@asset, :target => params[:target]),
+                :method => :post,
+                :allow_scripts => true,
+                :confirm => shared_asset_msg.to_s + " "+ t('ubiquo.media.confirm_asset_restore')
+              )
           %>
             </li>
           <% end %>
