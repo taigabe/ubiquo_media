@@ -7,7 +7,7 @@
     <% if params[:target] %>
       <%= hidden_field_tag "target", params[:target]  %>
     <% end %>
-    <%= hidden_field_tag "save_as_new", "" %>
+    <%= hidden_field_tag "crop_resize_save_as_new", "" %>
     <%= hidden_field_tag("operation_type", "original") %>
     <%= hidden_field_tag "asset_name", @asset.name, :id => "crop_resize_asset_name" %>
     <div id="resize-actions">

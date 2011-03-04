@@ -5,11 +5,14 @@
         <a href="#" class="lightwindow_action close" rel="deactivate"><img src="/images/ubiquo/media/resize-close.png" alt="Tancar" /></a>
       </p>
   </div>
-   <div id="resize-content">
-
+  <div id="resize-content">
     <%= render(:partial => "shared/ubiquo/feedback") %>
     <% remote_form_for(:asset, @asset, :url => advanced_update_ubiquo_asset_path(@asset),
-      :update => "lightwindow_contents",
+      # We want to update ourselves and as we dont know who is our father, we do an #up on ourselves.
+      :update => "' + $('crop-resize-container').up().identify() +'",
+      :before => "myLightWindow.innerLoadingStart();",
+      :after => "myLightWindow.innerLoadingEnd();",
+      :type => :synchronous,
       :html => {:id=>"advanced_edit_form", :method => "put", :multipart => true}) do |f| %>
             <%= render :partial => 'advanced_form', :locals => {:f => f} %>
 
@@ -23,11 +26,11 @@
     <div class="form-item-submit">
       <%= button_to_function t('ubiquo.media.back'), "if(window.myLightWindow){window.myLightWindow.deactivate()}else{window.close();}" %>
     </div>
-   </div>
+  </div>
 </div>
 <% javascript_tag do %>
   //Load inner actions when an ajax reload is done
-  window.myLightWindow.reprocessInnerLinks();
+  window.myLightWindow._setupActions();
 <% end %>
 <% content_for :sidebar do %>
 	<%= uhook_edit_asset_sidebar @asset %>

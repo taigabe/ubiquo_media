@@ -3,7 +3,6 @@ thumb_url = thumbnail_url(@asset) + "?"+Time.now.to_i.to_s
 page << "var sourceWindow= window;"
 page << " var elem = sourceWindow.$(#{params[:target].to_json}); "
 page << "elem.up('.element').down(\"img\").src = #{(thumb_url).to_json};"
-
 page << "var params = "+ {
   :id => @asset.id,
   :thumbnail_url => thumb_url ,
@@ -11,12 +10,5 @@ page << "var params = "+ {
   :asset_name => @asset.name,
   :options => { :advanced_form => advanced_asset_form_for(@asset) }
 }.to_json
-page << "params.options.update_target_callback = function(t){
-        //redirect changing the target
-        if(t != #{params[:target].to_json} ){
-            myLightWindow.deactivate();
-            myLightWindow.activate(null, $(t));
-        }
-    };"
 
 page << "sourceWindow.#{params[:target]+"_replace"}(params);"

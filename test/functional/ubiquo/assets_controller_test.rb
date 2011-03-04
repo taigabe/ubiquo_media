@@ -155,7 +155,11 @@ class Ubiquo::AssetsControllerTest < ActionController::TestCase
     get :advanced_edit, :id => asset.id
     assert_response :success
 
-    no_resizeable_asset = create_asset
+    no_resizeable_asset = create_asset(
+      :file_extension => "txt",
+      :file_contents => "content",
+      :asset_type_id => AssetType.find_by_key("audio").id
+    )
 
     get :advanced_edit, :id => no_resizeable_asset.id
     assert_response :redirect
@@ -192,16 +196,33 @@ class Ubiquo::AssetsControllerTest < ActionController::TestCase
   end
 
   def test_should_advanced_update_asset_formats
+    update_asset_formats_test
+  end
+
+  # A version of test_should_advanced_update_asset_formats but saving as new
+  def test_should_advanced_update_asset_formats_and_save_as_new
+    data = update_asset_formats_test( :request => {
+        :crop_resize_save_as_new => "1",
+        :asset_name => "saved_as_new"
+      })
+
+    assert_equal "saved_as_new", assigns(:asset).name
+    assert_not_equal assigns(:asset).id, data[:asset].id
+  end
+
+  private
+
+  def update_asset_formats_test( options = {} )
     Ubiquo::Config.context(:ubiquo_media).get(:media_styles_list).merge!({
         :thumb => "100x100>",
         :base_to_crop => "320x200>",
         :long => "30x180#" #Very vertical image
       })
-
+    
     asset = create_image_asset
 
-    put :advanced_update, :id => asset.id,
-      "operation_type"=>"formats",
+    put( :advanced_update, ({ :id => asset.id,
+       "operation_type"=>"formats",
       "asset" => {"keep_backup" => true},
       "crop_resize" => {
         "original"=>{
@@ -223,6 +244,8 @@ class Ubiquo::AssetsControllerTest < ActionController::TestCase
           "height"=>"60",
           },
         }
+      }).merge( options[:request] || {} )
+    )
 
     assert_nil assigns(:asset).asset_areas.find_by_style("original")
     assert_nil assigns(:asset).asset_areas.find_by_style("base_to_crop")
@@ -240,16 +263,19 @@ class Ubiquo::AssetsControllerTest < ActionController::TestCase
     assert_equal 2, thumb.top
 
     assert_redirected_to ubiquo_assets_path
+
+    #Return data
+    {:asset => asset}
   end
 
-  private
-
   def create_asset(options = {})
+    file_ext = options.delete(:file_extension) || "png"
+    file_contents = options.delete(:file_contents) || sample_file.read
     default_options = {
       :name => "Created asset", 
       :description => "Description", 
       :asset_type_id => AssetType.find(:first).id,
-      :resource => test_file,
+      :resource => test_file(file_contents, file_ext ),
       :is_protected => false,
     }
     
@@ -259,12 +285,28 @@ class Ubiquo::AssetsControllerTest < ActionController::TestCase
     asset
   end
 
+  def sample_file
+    File.open( File.join( File.dirname( __FILE__ ),
+          "../../fixtures/resources/sample.png") )
+  end
+
   def create_image_asset( options = {} )
     default_options = {
-      :resource => File.open( File.join( File.dirname( __FILE__ ),
-          "../../fixtures/resources/sample.png"))
+      :resource => sample_file
     }
     create_asset( default_options.merge( options ) )
+  end
+
+  # Nasty thigns to configure assets as expected
+  def reload_asset_classes
+    list = [:Asset, :AssetPublic, :AssetPrivate]
+    list.each do |sym|
+      Object.send(:remove_const, sym)
+    end
+    list.each do |sym|
+      Object.send(:load, sym.to_s.underscore)
+    end
+
   end
   
 end

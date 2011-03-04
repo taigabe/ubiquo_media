@@ -166,7 +166,7 @@ class Ubiquo::AssetsController < UbiquoAreaController
     @asset = Asset.find(params[:id])
     errors = !@asset.is_resizeable? || !params[:crop_resize]
 
-    unless params[:save_as_new].blank?
+    unless params[:crop_resize_save_as_new].blank?
       original_asset = @asset
       @asset = @asset.clone
       @asset.name = params[:asset_name] || @asset.name

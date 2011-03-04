@@ -2,8 +2,8 @@ require File.dirname(__FILE__) + "/../../../../test/test_helper.rb"
 require 'mocha'
 
 # Create a test file for tests
-def test_file(contents = "contents")
-  f = Tempfile.new("test.txt")
+def test_file(contents = "contents", ext = "txt")
+  f = Tempfile.new("test." + ext)
   f.write contents
   f.flush
   f.close

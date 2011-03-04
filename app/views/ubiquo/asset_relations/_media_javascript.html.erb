@@ -6,7 +6,13 @@ if @is_media_included != true
   <script type="text/javascript">
     var Media = Class.create({
       initialize: function(){
+        this.unique_counter = 0;
         this.fields = [];
+      },
+      //Returns a string that is unique between all fields.
+      generate_identifier: function(){
+        this.unique_counter++;
+        return ""+this.unique_counter;
       },
       // Limit = 0 -> no limit
       add_field: function(counter, field, limit, name){
@@ -16,18 +22,19 @@ if @is_media_included != true
       add_element: function(field, id, name, counter, thumbnail_url, view_link, asset_name, options){
         options = options || {};
         if (asset_name == undefined) asset_name = name;
+        var unique_id = (options && options.unique_id ) || this.generate_identifier();
         var templ = new Template(
-        "<li class='element element_#{id}'>"+
-          "<input type='hidden' name='#{field_name}[#{field}_ids][#{rand}][id]' value='#{id}' />"+
-          "<input type='hidden' name='#{field_name}[#{field}_ids][#{rand}][position]' value='' />"+
+        "<li class='element element_#{unique_id}'>"+
+          "<input type='hidden' name='#{field_name}[#{field}_ids][#{unique_id}][id]' value='#{id}' />"+
+          "<input type='hidden' name='#{field_name}[#{field}_ids][#{unique_id}][position]' value='' />"+
           "<a class='handle'>handle</a>"+
           "<h4>#{asset_name}</h4>" +
           "<img src='#{thumb}' alt='#{asset_name}'/>" +
           "#{view_link}" +
-          "<a onclick='media_fields.delete_element(\"#{field}\",\"#{counter}\", #{id}); return false;' href='#' class='delete'><%= t('ubiquo.media.remove') %></a>" +
+          "<a onclick='media_fields.delete_element(\"#{field}\",\"#{counter}\", #{unique_id}); return false;' href='#' class='delete'><%= t('ubiquo.media.remove') %></a>" +
           ( options.advanced_form ? '<a href ="'+ options.advanced_form +'" '+
             'target="_blank" '+
-            'id="#\{field}_#\{counter}_ubiquo_media_advanced_edit_#\{id}" '+
+            'id="#\{field}_#\{counter}_ubiquo_media_advanced_edit_#\{unique_id}" '+
             'class="<%= advanced_edit_link_attributes[:class] %>" '+
             'params="<%= advanced_edit_link_attributes[:params] %>" >' +
 <%= (h t('ubiquo.media.advanced')).to_json %> + "</a>" : "") +
@@ -36,11 +43,11 @@ if @is_media_included != true
           "<dt><%= t('ubiquo.media.assigned_text') %>:</dt>"+
           "<dd class='name'>"+
           "<span>#{name}</span>"+
-          "<a class='change' href='#' onclick='media_fields.change_name(\"#{counter}\", \"#{id}\");return false;'><%= t('ubiquo.media.change_text') %></a>"+
+          "<a class='change' href='#' onclick='media_fields.change_name(\"#{counter}\", \"#{unique_id}\");return false;'><%= t('ubiquo.media.change_text') %></a>"+
           "</dd>"+
           "<dd class='field' style='display:none'>"+
-          "<input type='text' class='short' onkeypress='if(event.keyCode==13){media_fields.change_name(\"#{counter}\", \"#{id}\");return false;}' name='#{field_name}[#{field}_ids][#{rand}][name]' value='#{name}'/>"+
-          "<a class='change' href='#' onclick='media_fields.change_name(\"#{counter}\", \"#{id}\");return false;'><%= t('ubiquo.media.save') %></a>"+
+          "<input type='text' class='short' onkeypress='if(event.keyCode==13){media_fields.change_name(\"#{counter}\", \"#{unique_id}\");return false;}' name='#{field_name}[#{field}_ids][#{unique_id}][name]' value='#{name}'/>"+
+          "<a class='change' href='#' onclick='media_fields.change_name(\"#{counter}\", \"#{unique_id}\");return false;'><%= t('ubiquo.media.save') %></a>"+
           "</dd>"+
           "</dl>"+
           "</li>")
@@ -48,7 +55,7 @@ if @is_media_included != true
           counter: counter,
           field: field,
           id: id,
-          rand: '' + Math.random(),
+          unique_id: unique_id,
           view_link: view_link,
           thumb: thumbnail_url,
           name: name.gsub('"', "&quot;").gsub("'","&#39;"),
@@ -72,24 +79,29 @@ if @is_media_included != true
         this.reload(field, counter);
 
         if( options.advanced_form ){
-          var target = "" + field + "_"  + counter + "_ubiquo_media_advanced_edit_"+id;
+          var target = "" + field + "_"  + counter + "_ubiquo_media_advanced_edit_"+unique_id;
           var advanced_link = $(target);
-          if( advanced_link.href.indexOf("?") < 0)
+          if( advanced_link.href.indexOf("?") < 0){
             advanced_link.href += "?";
+          }
           advanced_link.href += "target="+ target;
-          if( window["myLightWindow"] ) myLightWindow._processLink( advanced_link );
+          if( window["myLightWindow"] ){
+            myLightWindow._processLink( advanced_link );
+          }
           //Set a global func to replace current element
-          window["" + field + "_"  + counter + "_ubiquo_media_advanced_edit_"+id+"_replace"] = function( params ){
-            media_fields.delete_element(field, counter, id);
+          window[ target +"_replace"] = function( params ){
+            media_fields.delete_element(field, counter, unique_id);
+            params["options"] = params["options"] || {};
+            params.options.unique_id = params.options.unique_id || unique_id;
             media_fields.add_element(field, params["id"], params["asset_name"], counter, params["thumbnail_url"], params["view_link"], params["asset_name"],params["options"]);
           }
-          if( options["update_target_callback"] ){ options.update_target_callback( target ); }
+          if( Object.isFunction( options["update_target_callback"] ) ){ options.update_target_callback( target ); }
         }
 
       },
 
-      change_name: function(counter, id){
-        var parent = $('media_selector_'+ counter).select(".element_"+id).first()
+      change_name: function(counter, unique_id){
+        var parent = $('media_selector_'+ counter).select(".element_"+unique_id).first()
         parent.select('.name span').first().innerHTML = parent.select('.field input').first().value;
         parent.select('.name').first().toggle();
         parent.select('.field').first().toggle();
@@ -103,8 +115,8 @@ if @is_media_included != true
       },
 
       //Deletes a selected element from a media field
-      delete_element: function(field, counter, id){
-        var parent = $('media_selector_'+ counter).select(".element_"+id).first();
+      delete_element: function(field, counter, unique_id){
+        var parent = $('media_selector_'+ counter).select(".element_"+unique_id).first();
         parent.remove();
         this.fields[counter]['size']--;
         this.reload(field, counter);

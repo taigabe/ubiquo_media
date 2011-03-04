@@ -36,25 +36,32 @@
     (function(){
       function saveCoords_<%= style_scope %>  (coords, dimensions)
       {
-        //Transform values to original size
-        var initial= serialize_crop_<%= style_scope %>();
+        if( $( 'crop_resize_<%= style_scope %>_left') ){
+          //Transform values to original size
+          var initial= serialize_crop_<%= style_scope %>();
 
-        var ratio = <%= ratio.to_json %>;
-        $( 'crop_resize_<%= style_scope %>_left').value = Math.round(coords.x1 * ratio);
-        $( 'crop_resize_<%= style_scope %>_top').value = Math.round(coords.y1 * ratio);
-        $( 'crop_resize_<%= style_scope %>_width' ).value = Math.round(dimensions.width * ratio);
-        $( 'crop_resize_<%= style_scope %>_height' ).value = Math.round(dimensions.height * ratio);
+          var ratio = <%= ratio.to_json %>;
+          $( 'crop_resize_<%= style_scope %>_left').value = Math.round(coords.x1 * ratio);
+          $( 'crop_resize_<%= style_scope %>_top').value = Math.round(coords.y1 * ratio);
+          $( 'crop_resize_<%= style_scope %>_width' ).value = Math.round(dimensions.width * ratio);
+          $( 'crop_resize_<%= style_scope %>_height' ).value = Math.round(dimensions.height * ratio);
 
 
-        if( initial != serialize_crop_<%= style_scope %>()){
-          $("undo_link_<%= style_scope %>").removeClassName("disabled");
+          if( initial != serialize_crop_<%= style_scope %>()){
+            $("undo_link_<%= style_scope %>").removeClassName("disabled");
+          }
         }
       }
       window.cropper_instance_<%= style_scope %> = null;
 
       window.serialize_crop_<%= style_scope %> = function(){
           return ["_left","_top","_width","_height"].map(function(e){
-              return $('crop_resize_<%= style_scope %>'+e).value;
+              var el = $('crop_resize_<%= style_scope %>'+e);
+              if( el ){
+                return el.value;
+              }else{
+                return "NOTFOUND";
+                }
           }).join("@");
       }
 
@@ -121,9 +128,10 @@
           <dt><%= t('ubiquo.media.filename')%>:</dt>
           <dd><%= @asset.resource_file_name %></dd>
           <dt><%= t('ubiquo.media.geometry') %>:</dt>
-          <dd><%= Paperclip::Geometry.from_file( @asset.resource.path ).to_s %></dd>
+          <dd>
+            <%= Paperclip::Geometry.from_file( @asset.resource.path(style) ).to_s rescue "" %></dd>
           <dt><%= t('ubiquo.media.filesize') %>:</dt>
-          <dd><%= number_to_human_size(@asset.resource_file_size.to_i, :locale => "en") %></dd>
+          <dd><%= number_to_human_size(File.new( @asset.resource.path(style) ).size, :locale => "en") rescue "" %></dd>
         </dl>
       </div>
     </div>
@@ -196,10 +204,10 @@
                 </p>
                 <p class="buttons">
                   <%= f.submit t('ubiquo.media.save_as_new'),
-                     :name => "save_as_new",
+                     :name => "save_as_new_button_#{style}",
                      :type=>"image",
                      :src => "/images/ubiquo/media/resize-save-as-button-big.png",
-                     :onclick => "$('crop_resize_asset_name').value = $F('asset_name_#{style}');return true;",
+                     :onclick => "$('crop_resize_asset_name').value = $F('asset_name_#{style}');$('crop_resize_save_as_new').value='1';return true;",
                      :title => t('ubiquo.media.save_as_new')
                   %>
                 </p>
