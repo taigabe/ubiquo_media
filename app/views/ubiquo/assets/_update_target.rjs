@@ -1,4 +1,4 @@
-thumb_url = thumbnail_url(@asset) + "?"+Time.now.to_i.to_s
+thumb_url = thumbnail_url(@asset)
 
 page << "var sourceWindow= window;"
 page << " var elem = sourceWindow.$(#{params[:target].to_json}); "
