@@ -1,4 +1,4 @@
-thumb_url = thumbnail_url(@asset)
+thumb_url = url_for_media_attachment(@asset,:thumb)
 
 page << "var sourceWindow= window;"
 page << " var elem = sourceWindow.$(#{params[:target].to_json}); "
