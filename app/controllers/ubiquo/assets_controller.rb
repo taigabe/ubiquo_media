@@ -1,4 +1,4 @@
-class Ubiquo::AssetsController < UbiquoAreaController
+class Ubiquo::AssetsController < UbiquoController
   ubiquo_config_call :assets_access_control, {:context => :ubiquo_media}
   before_filter :load_asset_visibilities
   before_filter :load_asset_types
