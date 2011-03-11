@@ -57,7 +57,7 @@ es:
       invalid: "invalido"
       type_filter: "Filtrar por tipo"
       # Resize
-      crop_and_resize: "Redimensionar imágen"
+      crop_and_resize: "Redimensionar imagen"
       advanced_edit: "Avanzado"
       advanced: "avanzado"
       asset_not_resizeable: "Tipo de elemento no redimensionable."
