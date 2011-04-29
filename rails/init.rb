@@ -2,6 +2,8 @@ require 'ubiquo_media'
 
 config.after_initialize do
   UbiquoMedia::Connectors.load!
+  Ubiquo::Helpers::UbiquoFormBuilder.initialize_method("media_selector",
+  Ubiquo::Config.context(:ubiquo_media).get(:ubiquo_form_builder_media_selector_tag_options).dup)
 end
 
 Ubiquo::Plugin.register(:ubiquo_media, directory, config) do |config|
@@ -12,7 +14,7 @@ Ubiquo::Plugin.register(:ubiquo_media, directory, config) do |config|
     access_control :DEFAULT => 'media_management'
   }
   config.add :assets_permit, lambda{
-   permit?('media_management')
+    permit?('media_management')
   }
   config.add :assets_string_filter_enabled, true
   config.add :assets_tags_filter_enabled, true
@@ -47,5 +49,10 @@ Ubiquo::Plugin.register(:ubiquo_media, directory, config) do |config|
   config.add :connector, :standard
   config.add :media_storage, :filesystem
   config.add :progress_bar, false
+
+  config.add(:ubiquo_form_builder_media_selector_tag_options,
+    { :group => {:type => :fieldset},
+      :label_as_legend => true
+    })
 end
 

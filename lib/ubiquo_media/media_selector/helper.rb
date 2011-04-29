@@ -74,3 +74,14 @@ module UbiquoMedia
     end
   end
 end
+
+# Helper method for form builders
+module ActionView
+  module Helpers
+    class FormBuilder
+      def media_selector(key, options = {})
+        @template.media_selector(self, key, options)
+      end
+    end
+  end
+end
