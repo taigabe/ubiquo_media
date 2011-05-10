@@ -130,7 +130,7 @@ module UbiquoMedia
           def uhook_asset_index_actions asset
             actions = []
             if asset.in_locale?(current_locale)
-              actions << link_to(t("ubiquo.edit"), edit_ubiquo_asset_path(asset))
+              actions << link_to(t("ubiquo.edit"), edit_ubiquo_asset_path(asset), :class => "btn-edit")
             end
 
             unless asset.in_locale?(current_locale)
@@ -146,7 +146,8 @@ module UbiquoMedia
             
             actions << link_to(t("ubiquo.remove"), 
               ubiquo_asset_path(asset, :destroy_content => true), 
-              :confirm => t("ubiquo.media.confirm_asset_removal"), :method => :delete
+              :confirm => t("ubiquo.media.confirm_asset_removal"), :method => :delete,
+              :class => "btn-delete"
             )
 
             if asset.in_locale?(current_locale, :skip_any => true)
