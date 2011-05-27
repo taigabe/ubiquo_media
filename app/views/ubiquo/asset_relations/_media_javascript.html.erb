@@ -26,7 +26,7 @@ if @is_media_included != true
         var templ = new Template(
         "<li class='element element_#{unique_id}'>"+
           "<input type='hidden' name='#{field_name}[#{field}_ids][#{unique_id}][id]' value='#{id}' />"+
-          "<input type='hidden' name='#{field_name}[#{field}_ids][#{unique_id}][position]' value='' />"+
+          "<input type='hidden' class='position' name='#{field_name}[#{field}_ids][#{unique_id}][position]' value='' />"+
           "<a class='handle'>handle</a>"+
           "<h4>#{asset_name}</h4>" +
           "<img src='#{thumb}' alt='#{asset_name}'/>" +
@@ -51,7 +51,7 @@ if @is_media_included != true
           "</dd>"+
           "</dl>"+
           "</li>")
-        $('media_selector_'+ counter).select(".relations_list").first().insert(templ.evaluate({
+        var elem = templ.evaluate({
           counter: counter,
           field: field,
           id: id,
@@ -61,7 +61,21 @@ if @is_media_included != true
           name: name.gsub('"', "&quot;").gsub("'","&#39;"),
           asset_name: asset_name,
           field_name: this.fields[counter]['name']
-        }));
+        });
+        var inserted = false;
+        if( options["position"] ){
+          //Insert the element in the position given
+          //Notice that position is allways > 0
+          var elems = $('media_selector_'+ counter).select(".relations_list .element");
+          if(elems.length > 0 && options.position > 0 && options.position < elems.length + 1){
+            elems[options.position-1].insert({before:elem});
+            inserted = true;
+          }
+        }
+        
+        if( !inserted )
+          $('media_selector_'+ counter).select(".relations_list").first().insert(elem);
+        
         var set_positions = function() {
           $$('#media_selector_'+counter+' li.element').each(function(el, i) {
             el.select('input[name*="][position]"]').first().value = i+1;
@@ -90,11 +104,12 @@ if @is_media_included != true
           }
           //Set a global func to replace current element
           window[ target +"_replace"] = function( params ){
-            media_fields.delete_element(field, counter, unique_id);
+            var position = media_fields.delete_element(field, counter, unique_id);
             params["options"] = params["options"] || {};
             params.options.unique_id = params.options.unique_id || unique_id;
+            if( position > 0 ) params.options.position = position;
             media_fields.add_element(field, params["id"], params["asset_name"], counter, params["thumbnail_url"], params["view_link"], params["asset_name"],params["options"]);
-          }
+          };
           if( Object.isFunction( options["update_target_callback"] ) ){ options.update_target_callback( target ); }
         }
 
@@ -115,11 +130,14 @@ if @is_media_included != true
       },
 
       //Deletes a selected element from a media field
+      //and returns current position before removing it
       delete_element: function(field, counter, unique_id){
         var parent = $('media_selector_'+ counter).select(".element_"+unique_id).first();
+        var position = parent.select(".position").first().value;
         parent.remove();
         this.fields[counter]['size']--;
         this.reload(field, counter);
+        return position;
       },
 
       //Hides or show 'add' and 'search' links (and inner content)
