@@ -63,6 +63,7 @@ en:
       asset_not_resizeable: "Asset type not resizable."
       crop: "Crop"
       formats: "Predefined formats"
+      selected_format: "Selected format:"
       available_styles: "Available formats"
       current_image: "Current image"
       asset_original_crop_error: "Error occurred when cropping original image: %s"

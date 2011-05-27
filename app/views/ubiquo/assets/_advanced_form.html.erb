@@ -35,7 +35,6 @@
         <div id="styles_tab_content_<%= form_scope %>" class="tab-content crop-resize-toggle-tabbed-styles" style="display:none;">
           <div class="resize-box" id="resize_style_wrapper_<%=  form_scope %>_">
             <div class="resize-box-title">
-              <!-- ?????? <div class="resize-box-title resize-box-inactive"> --> <!-- S'ha d'utilitzar quan s'amaga el contingut d'una caixa -->
               <h4>
                 <%= link_to( t("ubiquo.media.available_styles"), "#",
                   :class => "resize-box-fold", :rel => "#resize_style_wrapper_#{form_scope}_ .resize-box-content") %>
@@ -65,11 +64,11 @@
             <div class="resize-box style_cropper" id="resize_style_wrapper_<%=  form_scope %>_<%= style %>">
               <div class="resize-box-title">
                 <h4>
-                  <a href="#" class="resize-box-unfold" rel="#resize_style_wrapper_<%=  form_scope %>_<%= style %> .resize-box-content">Format seleccionat:
+                  <a href="#" class="resize-box-unfold" rel="#resize_style_wrapper_<%=  form_scope %>_<%= style %> .resize-box-content">
+                    <%= t("ubiquo.media.selected_format") %>
                     <strong><%= t("ubiquo.media.styles.#{style}.name", :default => style.to_s.humanize) %></strong>
                   </a>
                 </h4>
-                <!-- <h4><a href="#" class="resize-box-fold">Format seleccionat:</a> <strong>Avatar</strong></h4> --> <!-- #Per canviar la icona quan s'oculta o es mostra la caixa -->
               </div>
               <%= render :partial => "cropper_form", :locals => {:f => f, :style => style, :format => format, :hidden => true } %>
             </div>

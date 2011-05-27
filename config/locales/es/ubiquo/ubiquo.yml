@@ -63,6 +63,7 @@ es:
       asset_not_resizeable: "Tipo de elemento no redimensionable."
       crop: "Recortar"
       formats: "Formatos predeterminados"
+      selected_format: "Formato seleccionado:"
       available_styles: "Formatos disponibles"
       current_image: "Imagen actual"
       asset_original_crop_error: "Error al recortar la imagen original: %s"

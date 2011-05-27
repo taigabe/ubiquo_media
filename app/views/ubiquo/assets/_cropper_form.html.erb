@@ -2,7 +2,11 @@
   show_current = true unless show_current === false
   hidden= false unless hidden
   preview = true unless preview == false
-  allow_restore = style.to_s == "original"
+  allow_restore = style.to_s == "original" && 
+    ( Ubiquo::Config.context(:ubiquo_media).get(:advanced_edit_allow_restore_from_media_selector) || 
+    params[:target].blank? )
+  allow_save_as = ( style.to_s == "original" ||
+    Ubiquo::Config.context(:ubiquo_media).get(:advanced_edit_allow_save_as_for_all_styles) )
   style_scope = "#{style}"
   asset = f.object
   ratio = resize_ratio_for( asset )
@@ -13,8 +17,10 @@
   previewable = ( ( ratio == 1.0 ) && format_geometry.modifier == "#" rescue false )
   previewable = previewable && format_geometry.width <= original_geometry.width && format_geometry.height <= original_geometry.height
 
-  shared_asset_msg = ( @asset.asset_relations.count > 0 ?
-    t("ubiquo.media.affects_all_related_elements") : nil )
+  shared_asset_msg = if @asset.asset_relations.count > 0 &&
+      Ubiquo::Config.context(:ubiquo_media).get(:advanced_edit_warn_user_when_changing_asset_in_use)
+    t("ubiquo.media.affects_all_related_elements")
+  end
 
 -%>
 <% if asset.resource.original_filename -%>
@@ -147,7 +153,7 @@
                "cropper_instance_#{style_scope}.reset();this.addClassName('disabled');",
                :id => "undo_link_#{style_scope}", :class=>"reset_form disabled" %>
           </li>
-          <% if allow_restore && @asset.restorable? && params[:target].blank? %>
+          <% if allow_restore && @asset.restorable? %>
             <li>
             <%= link_to_function t('ubiquo.media.restore'),
               remote_function(
@@ -196,6 +202,7 @@
           <%= f.submit t('ubiquo.media.save'), :name => "apply", :class => "resize-save-button",
         :confirm => ( shared_asset_msg ? (shared_asset_msg +" " + t("ubiquo.media.confirm_continue")) : nil )  %>
         </li>
+        <% if allow_save_as %>
         <li class="resize-save-as"> <!-- #ocultar per convertir la caixa en inactiva -->
           <!-- <li class="resize-save-as resize-open-fold"> --> <!-- #Mostra la caixa següent -->
           <a href="#" onclick="this.up('li').addClassName('resize-open-fold');return false;"><span><%= t('ubiquo.media.save_as_new') %></span></a>
@@ -218,6 +225,7 @@
               </fieldset>
           </div>
         </li>
+        <% end %>
       </ul>
     </div>
 </div>

@@ -63,6 +63,7 @@ ca:
       asset_not_resizeable: "Tipus d'element no redimensionable."
       crop: "Retallar"
       formats: "Formats predeterminats"
+      selected_format: "Format seleccionat:"
       available_styles: "Formats disponibles"
       current_image: "Imatge actual"
       asset_original_crop_error: "Error al retallar la imatge original: %s"

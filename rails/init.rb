@@ -23,7 +23,6 @@ Ubiquo::Plugin.register(:ubiquo_media, directory, config) do |config|
   config.add :assets_date_filter_enabled, true
   config.add :assets_default_order_field, 'assets.id'
   config.add :assets_default_sort_order, 'desc'
-  config.add :assets_default_keep_backup, true
   config.add :asset_types_icons, { :doc => "icon_doc.png",
                                    :video => "icon_video.png",
                                    :audio => "icon_audio.png",
@@ -38,6 +37,15 @@ Ubiquo::Plugin.register(:ubiquo_media, directory, config) do |config|
   config.add :media_processors_list, [:resize_and_crop]
   #The styles that belong to ubiquo and are part of the core
   config.add :media_core_styles, [:thumb, :base_to_crop]
+  # Advanced edit options (aka Crop&resize)
+  config.add :assets_default_keep_backup, true
+  # Warn the user when updating an asset that is related to an instance
+  config.add :advanced_edit_warn_user_when_changing_asset_in_use, false
+  # When editing advanced from a media selector, allow to restore to uploaded asset.
+  config.add :advanced_edit_allow_restore_from_media_selector, true
+  # When false, we'll show "save as" option only on the crop tab and not on the formats.
+  config.add :advanced_edit_allow_save_as_for_all_styles, false
+
   
   config.add :force_visibility, "public" # set to public or protected to force it to the entire application
 
