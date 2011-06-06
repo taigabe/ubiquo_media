@@ -23,6 +23,10 @@ module UbiquoMedia
           # This can be useful to handle the asset special attribute :resource
           def uhook_after_update
           end
+
+          # Prepare the instance after being cloned, and still not saved
+          def uhook_cloned_object( obj )
+          end
         end
 
       end

@@ -119,6 +119,7 @@ class Asset < ActiveRecord::Base
     obj = super
     obj.resource = File.new(self.resource.path)
     obj.cloned_from = self
+    uhook_cloned_object( obj )
     obj
   end
 

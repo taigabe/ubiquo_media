@@ -76,6 +76,11 @@ module UbiquoMedia
               end
             end
           end
+
+          # Prepare the instance after being cloned, and still not saved
+          def uhook_cloned_object( obj )
+            obj.content_id = nil
+          end
         end
 
       end

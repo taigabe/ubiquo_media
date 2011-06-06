@@ -275,6 +275,17 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
       # translation untouched
       assert_equal original_name, AssetRelation.first(:conditions => {:related_object_id => asset.id}).name
     end
+    
+    test "asset_clone does not keep the content_id" do
+      a = AssetPublic.create({
+        :name => "Created asset",
+        :description => "Description",
+        :resource => test_file,
+      })
+
+      a = a.clone
+      assert_nil( a.content_id )
+    end
 
   elsif !Ubiquo::Plugin.registered[:ubiquo_i18n]
     puts 'ubiquo_i18n not found, omitting UbiquoMedia::Connectors::I18n tests'
