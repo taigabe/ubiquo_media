@@ -2,9 +2,9 @@ require "fileutils"
 
 # An AssetArea is the area that is used to crop/resize a style of an asset
 class AssetArea < ActiveRecord::Base
-  
+
   belongs_to :asset
-  
+
   validates_presence_of :asset_id, :top, :left, :width, :height, :style
   validates_numericality_of :top,:left,:width,:height,
     :only_integer => false, :greater_than => -1
@@ -21,9 +21,9 @@ class AssetArea < ActiveRecord::Base
 
   # This method must be used only for :original image before calling the
   # Paperclip::Attachment#reprocess!
-  
+
   def original_geometry
-    Geometry.from_file( asset.resource.path )
+    asset.geometry
   end
 
   # Creates the special AssetArea to do the crop of the original image
@@ -59,10 +59,10 @@ class AssetArea < ActiveRecord::Base
       obj.top = [0, (orig_geo.height - obj.height)/2].max
       obj.left = [0, (orig_geo.width - obj.width)/2].max
     end
-    
+
     obj
   end
-  
+
   protected
   # Applies the params of itself to
   def apply_original_crop!
@@ -71,15 +71,21 @@ class AssetArea < ActiveRecord::Base
     self.asset.asset_areas.destroy_all
 
     img = Paperclip::ResizeAndCrop.new(
-        File.open(self.asset.resource.path),
-          {:convert_options => "", :geometry => resize_to, :crop_to => crop_to },
+      self.asset.resource_file,
+      { :convert_options => "", :geometry => resize_to, :crop_to => crop_to },
       self.asset.resource
     ).make
-    
+
     # keep original to be able to recover it
     self.asset.backup
+
+    # keep original name for the file
+    resource_original_name = File.join(File.dirname(img.path),
+                                       self.asset.resource_file_name)
+    File.rename(img.path, resource_original_name)
+
     #Replace with current original
-    FileUtils.mv(img.path, self.asset.resource.path,:force => true )
+    self.asset.resource = File.open(resource_original_name)
 
     # Now we execute the regeneration of the styles again
     self.asset.resource.reprocess!

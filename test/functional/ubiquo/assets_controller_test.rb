@@ -84,32 +84,30 @@ class Ubiquo::AssetsControllerTest < ActionController::TestCase
 
   def test_should_filter_by_text_and_ubiquo_user_paginated
     Asset.destroy_all
+    Ubiquo::Config.context(:ubiquo_media).set(:media_selector_list_size, 1)
     list_size = Ubiquo::Config.context(:ubiquo_media).get(:media_selector_list_size)
-    ((list_size * 3) - 1).times do
+    ((list_size * 2) ).times do
       create_asset(
-                   :asset_type_id => asset_types(:asset_types_004).id,
+                   :asset_type_id => asset_types(:image).id,
                    :name => "MyName"
                    )
     end
     get :search, :field => 'image', :text => 'MyName', :page => 1
     assert_response :success
-    assert_equal assigns(:assets).size, 3
+    assert_equal assigns(:assets).size, list_size
     assert_equal assigns(:assets_pages), {:previous => nil, :next => 2}
     get :search, :field => 'image', :text => 'MyName', :page => 2
     assert_response :success
-    assert_equal assigns(:assets).size, 3
-    assert_equal assigns(:assets_pages), {:previous => 1, :next => 3}
-    get :search, :field => 'image', :text => 'MyName', :page => 3
-    # 2 assets fixtures + 6 create = 8. Page 3 should have 2 assets
-    assert_response :success
-    assert_equal assigns(:assets).size, 2
-    assert_equal assigns(:assets_pages), {:previous => 2, :next => nil}    
+    assert_equal assigns(:assets).size, list_size 
+    assert_equal assigns(:assets_pages), {:previous => 1, :next => nil}
+  ensure
+    Ubiquo::Config.context(:ubiquo_media).set(:media_selector_list_size, 3)
   end
 
   def test_should_filter_by_text_and_ubiquo_user_paginated_view
     (Ubiquo::Config.context(:ubiquo_media).get(:assets_elements_per_page) * 2).times do
       create_asset(
-                   :asset_type_id => asset_types(:asset_types_004).id, 
+                   :asset_type_id => asset_types(:image).id, 
                    :name => "MyName" 
                    ) 
     end

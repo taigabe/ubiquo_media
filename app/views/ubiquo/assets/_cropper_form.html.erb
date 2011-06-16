@@ -11,8 +11,8 @@
   asset = f.object
   ratio = resize_ratio_for( asset )
   format_geometry = Paperclip::Geometry.parse(format)
-  original_geometry = Paperclip::Geometry.from_file( asset.resource.path )
-  base_to_crop_geometry = Paperclip::Geometry.from_file( asset.resource.path(:base_to_crop) )
+  original_geometry = asset.geometry
+  base_to_crop_geometry = asset.geometry(:base_to_crop)
   # Decide if its previewable or not
   previewable = ( ( ratio == 1.0 ) && format_geometry.modifier == "#" rescue false )
   previewable = previewable && format_geometry.width <= original_geometry.width && format_geometry.height <= original_geometry.height
@@ -134,10 +134,11 @@
           <dt><%= t('ubiquo.media.filename')%>:</dt>
           <dd><%= @asset.resource_file_name %></dd>
           <dt><%= t('ubiquo.media.geometry') %>:</dt>
-          <dd>
-            <%= Paperclip::Geometry.from_file( @asset.resource.path(style) ).to_s rescue "" %></dd>
+          <dd><%= @asset.geometry(style).to_s rescue "" %></dd>
+	  <% if @asset.resource.options[:storage] == :filesystem %>
           <dt><%= t('ubiquo.media.filesize') %>:</dt>
-          <dd><%= number_to_human_size(File.new( @asset.resource.path(style) ).size, :locale => "en") rescue "" %></dd>
+          <dd><%= number_to_human_size(@asset.resource_file(style).size, :locale => "en") rescue "" %></dd>
+          <% end %>
         </dl>
       </div>
     </div>

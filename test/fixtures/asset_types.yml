@@ -23,7 +23,7 @@ asset_types_002:
   id: "5"
   created_at: 2008-04-14 08:49:53.855915
   key: other
-asset_types_004: 
+image: 
   name: Imatge
   updated_at: 2008-04-14 08:49:21.318909
   id: "2"

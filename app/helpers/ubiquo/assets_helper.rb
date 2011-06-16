@@ -41,8 +41,8 @@ module Ubiquo::AssetsHelper
 
   # Returns the size scale comparing base_to_crop with original
   def resize_ratio_for asset
-    base_geo = Paperclip::Geometry.from_file( asset.resource.path(:base_to_crop) )
-    original_geo = Paperclip::Geometry.from_file( asset.resource.path )
+    base_geo = asset.geometry(:base_to_crop)
+    original_geo = asset.geometry
     # Returning the biggest size as the ratio will be more exact.
     field = base_geo.width > base_geo.height ? :width : :height
     #Ratio to original / base

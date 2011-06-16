@@ -21,7 +21,7 @@ module UbiquoMedia
         }
         render :partial => 'ubiquo/asset_relations/media_selector.html.erb', :locals => locals
       end
-      
+
       # Returns an <a> element linking to the given asset in a popup
       def view_asset_link(asset)
         link_to(t('ubiquo.media.asset_view'), url_for_media_attachment(asset), :class => 'view', :popup => true)
@@ -29,33 +29,38 @@ module UbiquoMedia
 
       # Returns a url where the given asset is accessible
       def url_for_media_attachment(asset, style = nil)
-        updated_at = (
-            asset.resource.options[:storage] == :filesystem &&
-            asset.resource.path(style) &&
-            File.mtime(asset.resource.path(style)) rescue false
-        ) || asset.updated_at || Time.now
+        if asset.resource.options[:storage] == :filesystem
+          updated_at = (
+              asset.resource.path(style) &&
+              File.mtime(asset.resource.path(style)) rescue false
+          ) || asset.updated_at || Time.now
+        else
+          updated_at = (
+              File.mtime(asset.resource_file(style)) rescue false
+          ) || Time.now
+        end
         url_for_file_attachment(asset, :resource, style) + "?" + ( updated_at ).to_i.to_s
       end
-      
+
       # Return a selector containing all allowed types for a media_attachment field
       #
       # Example:
-      # 
+      #
       # types = ["image", "doc"].map { |key| AssetType.find_by_key(key) }
       # type_selector("images", types)
-      # 
-      # Returns:   
+      #
+      # Returns:
       #
       # "<select id="asset_type_id_images" name="asset_type_id_images">
       #   <option value="1,2">-- All --</option>
       #   <option value="1">Image</option>
       #    <option value="2">Document</option>
-      #  </select>"      
+      #  </select>"
       def type_selector(counter, types)
-        all_opt = [t('ubiquo.media.all'), types.collect(&:id).join(",")]  
-        type_opts = [all_opt] + types.collect { |t| [t.name, t.id] } 
+        all_opt = [t('ubiquo.media.all'), types.collect(&:id).join(",")]
+        type_opts = [all_opt] + types.collect { |t| [t.name, t.id] }
         select_tag "asset_type_id_#{counter}".to_sym, options_for_select(type_opts)
-      end      
+      end
 
       # Returns the advanced edit path when the asset supports it, nil otherways
       #

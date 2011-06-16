@@ -11,6 +11,11 @@ def test_file(contents = "contents", ext = "txt")
   open(f.path)
 end
 
+def sample_image
+  File.open(File.join( File.dirname(__FILE__),
+            "/fixtures/resources/sample.png"))
+end
+
 def mock_asset_params params = {}
   mock_params(params, Ubiquo::AssetsController)
 end

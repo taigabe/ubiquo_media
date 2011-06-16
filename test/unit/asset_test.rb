@@ -1,5 +1,20 @@
 require File.dirname(__FILE__) + "/../test_helper.rb"
 
+# Asset for tests
+class AssetMock < Asset
+  file_attachment :resource,
+                  :visibility => "public",
+                  :styles     => self.correct_styles({ :test => "20x20#",
+                                                       :test2 => "15x15#" }),
+                  :processors => [:resize_and_crop],
+                  :storage    => :filesystem
+
+  validates_attachment_presence :resource
+
+  before_post_process :clean_tmp_files
+  after_resource_post_process :generate_geometries
+end
+
 class AssetTest < ActiveSupport::TestCase
   use_ubiquo_fixtures
   def test_should_create_asset
@@ -103,15 +118,94 @@ class AssetTest < ActiveSupport::TestCase
     assert asset.is_resizeable?
   end
 
+  def test_should_generate_all_geometries_after_process_resource
+    Asset.destroy_all
+    AssetGeometry.destroy_all
+
+    asset = create_asset(:resource   => sample_image,
+                         :asset_type => AssetType.find_by_key("image"))
+
+    # should add original style to style list
+    assert_equal asset.resource.styles.count + 1, asset.asset_geometries.count
+  end
+
+  def test_should_get_geometries_by_style
+    Asset.destroy_all
+    AssetGeometry.destroy_all
+
+    asset = create_asset(:resource   => sample_image,
+                         :asset_type => AssetType.find_by_key("image"))
+    asset.resource.styles.map { |s| s.first }.each do |style|
+      assert_instance_of Paperclip::Geometry, asset.geometry(style)
+    end
+    assert_instance_of Paperclip::Geometry, asset.geometry # original case
+  end
+
+  def test_should_generate_geometry_if_dont_exist
+    Asset.destroy_all
+    AssetGeometry.destroy_all
+
+    asset = create_asset(:resource   => sample_image,
+                         :asset_type => AssetType.find_by_key("image"))
+
+    AssetGeometry.destroy_all
+    assert_instance_of Paperclip::Geometry, asset.geometry # original case
+    assert_equal 1, asset.asset_geometries.count
+  end
+
+  def test_should_get_resource_file
+    asset = create_asset(:resource => sample_image)
+
+    assert File.identical?(asset.resource.to_file, asset.resource_file)
+    assert File.identical?(asset.resource.to_file(:thumb), asset.resource_file(:thumb))
+  end
+
+  def test_should_change_styles_with_asset_areas
+    Asset.destroy_all
+    AssetArea.destroy_all
+
+    asset = create_mock_asset(:resource => sample_image)
+    assert_equal "20x20", Paperclip::Geometry.from_file(asset.resource_file(:test)).to_s
+    assert_equal "15x15", Paperclip::Geometry.from_file(asset.resource_file(:test2)).to_s
+
+    asset.asset_areas << AssetArea.new(:top    => 0,
+                                       :left   => 0,
+                                       :width  => 10,
+                                       :height => 10,
+                                       :style  => "test")
+    asset.resource.reprocess!
+    # the geometry shouldn't change
+    assert_equal "20x20", Paperclip::Geometry.from_file(asset.resource_file(:test)).to_s
+    assert_equal "15x15", Paperclip::Geometry.from_file(asset.resource_file(:test2)).to_s
+
+    asset.asset_areas.find_by_style("test").update_attributes(:top    => 2,
+                                                              :left   => 2,
+                                                              :width  => 7,
+                                                              :height => 7)
+    asset.resource.reprocess!
+    # the geometry shouldn't change
+    assert_equal "20x20", Paperclip::Geometry.from_file(asset.resource_file(:test)).to_s
+    assert_equal "15x15", Paperclip::Geometry.from_file(asset.resource_file(:test2)).to_s
+  end
+
   private
 
   def create_asset(options = {})
     default_options = {
-      :name => "Created asset",
+      :name        => "Created asset",
       :description => "Description",
-      :resource => test_file,
+      :resource    => test_file,
     }
     a = AssetPublic.create(default_options.merge(options))
+  end
+
+  def create_mock_asset(options = {})
+    default_options = {
+      :name        => "Created asset",
+      :description => "Description",
+      :resource    => test_file,
+    }
+    a = AssetMock.create(default_options.merge(options))
   end
 
 end
