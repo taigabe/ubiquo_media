@@ -8,7 +8,7 @@ ca:
       file_upload_complete: "Pujada completada. Processant fitxer..."
       media: "Multimèdia"
       media_title: "Anar a multimèdia"
-      media_list: "Llistat multimedia"
+      media_list: "Llistat multimèdia"
       asset_new: "Nou recurs"
       confirm_asset_removal: "Estàs segur de voler eliminar aquest recurs?"
       current_file: "Fitxer actual"
