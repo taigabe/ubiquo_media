@@ -200,7 +200,10 @@ class Ubiquo::AssetsController < UbiquoController
           break
         end
       end unless errors
-      @asset.resource.reprocess! unless errors
+      unless errors
+        @asset.resource.reprocess!
+        @asset.touch
+      end
     else
       if params[:crop_resize]["original"].find{|k,v|v.to_i > 0}
         begin

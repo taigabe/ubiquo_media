@@ -89,6 +89,7 @@ class AssetArea < ActiveRecord::Base
 
     # Now we execute the regeneration of the styles again
     self.asset.resource.reprocess!
+    self.asset.touch
   end
 
 

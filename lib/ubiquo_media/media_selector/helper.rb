@@ -29,16 +29,7 @@ module UbiquoMedia
 
       # Returns a url where the given asset is accessible
       def url_for_media_attachment(asset, style = nil)
-        if asset.resource.options[:storage] == :filesystem
-          updated_at = (
-              asset.resource.path(style) &&
-              File.mtime(asset.resource.path(style)) rescue false
-          ) || asset.updated_at || Time.now
-        else
-          updated_at = (
-              File.mtime(asset.resource_file(style)) rescue false
-          ) || Time.now
-        end
+        updated_at = asset.updated_at || Time.now
         url_for_file_attachment(asset, :resource, style) + "?" + ( updated_at ).to_i.to_s
       end
 
