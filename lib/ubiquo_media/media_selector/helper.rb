@@ -29,8 +29,7 @@ module UbiquoMedia
 
       # Returns a url where the given asset is accessible
       def url_for_media_attachment(asset, style = nil)
-        updated_at = asset.updated_at || Time.now
-        url_for_file_attachment(asset, :resource, style) + "?" + ( updated_at ).to_i.to_s
+        url_for_file_attachment(asset, :resource, style)
       end
 
       # Return a selector containing all allowed types for a media_attachment field
