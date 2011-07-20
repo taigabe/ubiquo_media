@@ -45,6 +45,9 @@ class AssetGeometryTest < ActiveSupport::TestCase
       asset_geometry = create_asset_geometry(:style    => 'unique',
                                              :asset_id => first_geometry.asset_id)
       assert asset_geometry.errors.on(:style)
+      asset_geometry = create_asset_geometry(:style    => 'UNIQUE',
+                                             :asset_id => first_geometry.asset_id)
+      assert asset_geometry.errors.on(:style)
     end
 
     assert_difference "AssetGeometry.count" do

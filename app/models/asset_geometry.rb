@@ -7,7 +7,7 @@ class AssetGeometry < ActiveRecord::Base
   validates_numericality_of :width, :height,
                             :only_integer => false,
                             :greater_than => 0
-  validates_uniqueness_of :style, :scope => :asset_id
+  validates_uniqueness_of :style, :scope => :asset_id, :case_sensitive => false
 
   def self.from_file(file, style = :original)
     if file
