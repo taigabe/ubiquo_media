@@ -129,10 +129,12 @@ class Asset < ActiveRecord::Base
 
   # clone the asset (not the related models) and the resource
   def clone
-    obj = super
-    obj.resource = File.new(self.resource.path)
-    obj.cloned_from = self
+    obj                    = super
+    obj.resource           = self.resource_file
+    obj.resource_file_name = self.resource_file_name
+    obj.cloned_from        = self
     uhook_cloned_object( obj )
+
     obj
   end
 

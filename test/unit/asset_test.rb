@@ -188,6 +188,16 @@ class AssetTest < ActiveSupport::TestCase
     assert_equal "15x15", Paperclip::Geometry.from_file(asset.resource_file(:test2)).to_s
   end
 
+  test "should clone the asset resource" do
+    a = create_mock_asset(:resource => sample_image)
+    b = a.clone
+    assert b.save, b.errors.full_messages.to_sentence
+    assert_equal a.resource_file_name, b.resource_file_name
+    assert_equal a.resource_file_size, b.resource_file_size
+    assert_equal a.resource_content_type, b.resource_content_type
+    assert_equal a.resource_file.read, b.resource_file.read
+  end
+
   private
 
   def create_asset(options = {})
