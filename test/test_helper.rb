@@ -3,12 +3,10 @@ require 'mocha'
 
 # Create a test file for tests
 def test_file(contents = "contents", ext = "txt")
-  f = Tempfile.new("test." + ext)
-  f.write contents
-  f.flush
-  f.close
-  @test_file_path = f.path
-  open(f.path)
+  Tempfile.new("test." + ext).tap do |file|
+    file.write contents
+    file.flush
+  end
 end
 
 def sample_image
