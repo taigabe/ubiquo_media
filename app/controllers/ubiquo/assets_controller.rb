@@ -63,20 +63,23 @@ class Ubiquo::AssetsController < UbiquoController
         format.js {
           responds_to_parent do 
             render :update do |page|
+              page << "media_fields.add_element('#{field}',#{@asset.id},"+
+                "#{@asset.name.to_s.to_json}, #{counter}, "+
+                "#{thumbnail_url(@asset).to_json},"+
+                "#{view_asset_link(@asset).to_json},null,"+
+                "{advanced_form:#{advanced_asset_form_for(@asset).to_json}});"
+              # Here we set @asset to be a new asset, to render the partial form with empty values
+              saved_asset = @asset
+              @asset = asset_visibility.new
               page.replace_html(
                 "add_#{counter}", 
                 :partial => "ubiquo/asset_relations/asset_form",
                 :locals => { 
                   :counter => counter, 
                   :field => field,
-                  :visibility => visibility 
+                  :visibility => visibility
                 })
-              page.hide "add_#{counter}"
-              page << "media_fields.add_element('#{field}',#{@asset.id},"+
-                "#{@asset.name.to_s.to_json}, #{counter}, "+
-                "#{thumbnail_url(@asset).to_json},"+
-                "#{view_asset_link(@asset).to_json},null,"+
-                "{advanced_form:#{advanced_asset_form_for(@asset).to_json}});"
+              @asset = saved_asset
             end
           end
         }

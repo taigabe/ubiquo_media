@@ -161,9 +161,9 @@ if @is_media_included != true
         if(f['size'] == 0){
           e.innerHTML="<input type='hidden' name='"+this.fields[counter]['name']+"["+field+"_ids][]' />";
         } else if(f['size'] == 1){
-          e.innerHTML="<h4><%= t('ubiquo.media.selected_media_element') %>:</h4><p><%= t('ubiquo.media.footer_text') %></p>";
+          e.innerHTML= <%= "<h4>#{t('ubiquo.media.selected_media_element')}:</h4><p>#{t('ubiquo.media.footer_text')}</p>".to_json %>;
         } else{
-          e.innerHTML="<h4><%= t('ubiquo.media.selected_media_elements') %>:</h4><p><%= t('ubiquo.media.footer_text') %></p>";
+          e.innerHTML= <%= "<h4>#{t('ubiquo.media.selected_media_elements')}:</h4><p>#{t('ubiquo.media.footer_text')}</p>".to_json %>;
         }
         action(selector.select(".actions").first());
       }

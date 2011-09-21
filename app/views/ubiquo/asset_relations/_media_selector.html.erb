@@ -9,8 +9,7 @@
   </ul>
   <div class="actions">
     <fieldset>
-      <legend><%= link_to_function( t('ubiquo.media.media_item_new'), 
-	            "blind_toggle('add_#{counter}', 'search_#{counter}')") %></legend>
+      <legend><%= t('ubiquo.media.media_item_new') %></legend>
 
       <div class="add" id="add_<%= counter%>">
 	<%= render :partial => 'ubiquo/asset_relations/asset_form.html.erb', 
@@ -23,8 +22,7 @@
 
     </fieldset>
     <fieldset>  
-      <legend><%= link_to_function( t('ubiquo.media.select_existing_media_item'), 
-	            "blind_toggle('search_#{counter}', 'add_#{counter}')") %></legend>
+      <legend><%= t('ubiquo.media.select_existing_media_item') %></legend>
 
       <div class="search" id="search_<%= counter%>">
 	<%= render :partial => 'ubiquo/asset_relations/asset_search.html.erb', 
@@ -39,10 +37,7 @@
 </div>
 
 
-<script type="text/javascript">
-  $('media_selector_<%= counter %>').select('.add').first().hide();
-  $('media_selector_<%= counter %>').select('.search').first().hide(); 
-  
+<% javascript_tag do %>
   media_fields.add_field('<%= counter %>', '<%= field %>', <%= assets.options[:size].to_i %>, '<%= object_name %>');
 
   <% assets.each do |asset| %>
@@ -57,4 +52,8 @@
       <%= {:advanced_form => advanced_asset_form_for(asset)}.to_json %>
     );
   <% end %>
-</script>
+
+  document.observe("dom:loaded", function() {
+    Ubiquo.Forms.createTabs('#media_selector_<%= counter %> .actions','legend');
+  });
+<% end %>
