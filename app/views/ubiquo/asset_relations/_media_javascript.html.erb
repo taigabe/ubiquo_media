@@ -104,20 +104,26 @@ if @is_media_included != true
           }
           //Set a global func to replace current element
           window[ target +"_replace"] = function( params ){
+            var name = media_fields.get_name(counter, unique_id);
             var position = media_fields.delete_element(field, counter, unique_id);
             params["options"] = params["options"] || {};
             params.options.unique_id = params.options.unique_id || unique_id;
             if( position > 0 ) params.options.position = position;
-            media_fields.add_element(field, params["id"], params["asset_name"], counter, params["thumbnail_url"], params["view_link"], params["asset_name"],params["options"]);
+            media_fields.add_element(field, params["id"], name, counter, params["thumbnail_url"], params["view_link"], params["asset_name"],params["options"]);
           };
           if( Object.isFunction( options["update_target_callback"] ) ){ options.update_target_callback( target ); }
         }
 
       },
 
+      get_name: function( counter, unique_id ) {
+        var wrapper = $( 'media_selector_' + counter ).select( '.element_' + unique_id ).first();
+        return wrapper.select( '.field input' ).first().value;
+      },
+
       change_name: function(counter, unique_id){
-        var parent = $('media_selector_'+ counter).select(".element_"+unique_id).first()
-        parent.select('.name span').first().innerHTML = parent.select('.field input').first().value;
+        var parent = $('media_selector_' + counter).select('.element_' + unique_id).first();
+        parent.select('.name span').first().innerHTML = this.get_name(counter, unique_id);
         parent.select('.name').first().toggle();
         parent.select('.field').first().toggle();
         try{
