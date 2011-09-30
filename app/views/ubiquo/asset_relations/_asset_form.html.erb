@@ -9,12 +9,6 @@
     <%= text_field :asset, :name %>
   </div>
 
-  <div class="form-item">
-    <%= label :asset, :resource, Asset.human_attribute_name("resource") %>
-    <%= file_field :asset, :resource %>
-  </div>
-
-
   <% if visibility.nil? -%>
     <div class="form-item">
       <%= label :asset, :is_protected, Asset.human_attribute_name("is_protected") %>
@@ -24,8 +18,10 @@
     <%= hidden_field :asset, :is_protected, :value => (visibility == "private").to_s %>
   <% end -%>
 
-  <div class="form-item-submit">
-	<%= button_to_function t('ubiquo.save'), :class => 'bt-submit' do |page|
+  <div class="form-item asset-upload-form-item">
+    <%= label :asset, :resource, Asset.human_attribute_name("resource") %>
+    <%= file_field :asset, :resource %>
+    <%= link_to_function t('ubiquo.save'), :class => 'bt-upload' do |page|
           page << "$('new_#{counter}_loader').toggle();"
           page << "send_as_form('new_#{counter}_form', '#{ubiquo_assets_url(:format => :js)}', 'POST');"
         end %>

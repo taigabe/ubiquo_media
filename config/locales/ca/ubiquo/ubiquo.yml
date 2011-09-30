@@ -43,6 +43,7 @@ ca:
       save_as_new: "Guardar com a nou element"
       selected_media_element: "Element multimèdia seleccionat"
       selected_media_elements: "Elements multimèdia seleccionats"
+      search_results: "Resultats de la cerca"
       footer_text: "El text assignat s'utiliza com a peu de la imatge o com títol per a documents"
       media_item_new: "Afegir nou element multimèdia"
       select_existing_media_item: "Selecciona un element multimèdia existent"

@@ -9,7 +9,7 @@ end
 Ubiquo::Plugin.register(:ubiquo_media, directory, config) do |config|
   config.add :assets_elements_per_page
   config.add_inheritance :assets_elements_per_page, :elements_per_page
-  config.add :media_selector_list_size, 3
+  config.add :media_selector_list_size, 6
   config.add :assets_access_control, lambda{
     access_control :DEFAULT => 'media_management'
   }
@@ -22,12 +22,7 @@ Ubiquo::Plugin.register(:ubiquo_media, directory, config) do |config|
   config.add :assets_asset_visibility_filter_enabled, true
   config.add :assets_date_filter_enabled, true
   config.add :assets_default_order_field, 'assets.id'
-  config.add :assets_default_sort_order, 'desc'
-  config.add :asset_types_icons, { :doc => "icon_doc.png",
-                                   :video => "icon_video.png",
-                                   :audio => "icon_audio.png",
-                                   :flash => "icon_flash.png",
-                                   :other => "icon_other.png" }
+  config.add :assets_default_sort_order, 'asc'
   config.add :mime_types, { :image => ["image"],
                             :video => ["video"],
                             :doc => ["text", "pdf", "msword"],
@@ -59,7 +54,7 @@ Ubiquo::Plugin.register(:ubiquo_media, directory, config) do |config|
   config.add :progress_bar, false
 
   config.add(:ubiquo_form_builder_media_selector_tag_options,
-    { :group => {:type => :fieldset},
+    { :group => {:type => :fieldset, :class => "group-related-assets"},
       :label_as_legend => true
     })
 end

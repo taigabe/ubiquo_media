@@ -43,6 +43,7 @@ en:
       save_as_new: "Save as new asset"
       selected_media_element: "Selected asset"
       selected_media_elements: "Selected assets"
+      search_results: "Search results"
       footer_text: "Assigned text is used as a footer for the image or as a title for documents"
       media_item_new: "Add new asset"
       select_existing_media_item: "Select existing asset"

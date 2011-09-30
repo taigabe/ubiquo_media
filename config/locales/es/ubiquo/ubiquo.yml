@@ -43,6 +43,7 @@ es:
       save_as_new: "Guardar como nuevo elemento"
       selected_media_element: "Elemento multimedia seleccionado"
       selected_media_elements: "Elementos multimedia seleccionados"
+      search_results: "Resultados de la búsqueda"
       footer_text: "El texto asignado se utiliza como pie de la imagen o como titulo para documentos"
       media_item_new: "Añadir nuevo elemento multimedia"
       select_existing_media_item: "Selecciona un elemento multimedia existente"

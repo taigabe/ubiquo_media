@@ -17,8 +17,7 @@ module UbiquoMedia
         if asset.asset_type.key == "image"
           asset.resource.url(:thumb)
         else
-          types_icons = Ubiquo::Config.context(:ubiquo_media).get(:asset_types_icons)
-          "/images/ubiquo/#{types_icons[asset.asset_type.key.to_sym]}"
+          "/images/ubiquo/media/ico-#{asset.asset_type.key}.png"
         end
       end
 

@@ -2,7 +2,7 @@ thumb_url = url_for_media_attachment(@asset,:thumb)
 
 page << "var sourceWindow= window;"
 page << " var elem = sourceWindow.$(#{params[:target].to_json}); "
-page << "elem.up('.element').down(\"img\").src = #{(thumb_url).to_json};"
+page << "elem.up('.item').down(\"img\").src = #{(thumb_url).to_json};"
 page << "var params = "+ {
   :id => @asset.id,
   :thumbnail_url => thumb_url ,
