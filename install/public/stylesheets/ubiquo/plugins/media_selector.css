@@ -139,6 +139,7 @@
               text-align: center;
               line-height: 10em;
             }
+            .group-related-assets .selected-assets .items-list li.item div.img-wrapper img,
             .select-assets .search-results .items-list li.item img {
               display: inline;
               vertical-align: middle;
