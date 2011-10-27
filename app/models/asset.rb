@@ -91,13 +91,12 @@ class Asset < ActiveRecord::Base
   # Correct parameters to the resize_and_crop processor.
   # If the processor is other, the extra params will be ignored
   def self.correct_styles(styles_list = {})
-    final_styles = {}
-    styles_list.each do |style, value|
-      final_styles[style] = { :geometry   => value,
-                              :style_name => style }
-    end
+    global_options = Ubiquo::Config.context(:ubiquo_media).get(:media_styles_options)
 
-    final_styles
+    styles_list.map do |style, value|
+      extra_options = global_options.is_a?(Proc) ? global_options.call(style, value) : global_options
+      [style, {:geometry => value, :style_name => style}.merge(extra_options)]
+    end.to_hash
   end
 
   def is_resizeable?
