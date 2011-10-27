@@ -29,6 +29,8 @@ Ubiquo::Plugin.register(:ubiquo_media, directory, config) do |config|
                             :audio => ["audio"],
                             :flash => ["swf", "x-shockwave-flash"] }
   config.add :media_styles_list, { :thumb => "100x100>", :base_to_crop => "590x442>" }
+  # a hash or a proc (receives the style name and value) containing options that apply to all styles
+  config.add :media_styles_options, {}
   config.add :media_processors_list, [:resize_and_crop]
   #The styles that belong to ubiquo and are part of the core
   config.add :media_core_styles, [:thumb, :base_to_crop]
@@ -41,7 +43,7 @@ Ubiquo::Plugin.register(:ubiquo_media, directory, config) do |config|
   # When false, we'll show "save as" option only on the crop tab and not on the formats.
   config.add :advanced_edit_allow_save_as_for_all_styles, false
 
-  
+
   config.add :force_visibility, "public" # set to public or protected to force it to the entire application
 
   # Connectors available in the application.
