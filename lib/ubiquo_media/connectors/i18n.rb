@@ -27,7 +27,8 @@ module UbiquoMedia
 
       def self.unload!
         [::Asset, ::AssetRelation].each do |klass|
-          klass.instance_variable_set :@translatable, false
+          klass.instance_variable_set :@translatable, nil
+          klass.clear_locale_uniqueness_per_entity_validation if klass.respond_to?(:clear_locale_uniqueness_per_entity_validation)
         end
         ::AssetRelation.send :alias_method, :asset, :asset_without_shared_translations
         ::AssetRelation.send :alias_method, :related_object, :related_object_without_shared_translations
