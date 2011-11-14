@@ -20,6 +20,9 @@ if @is_media_included != true
       },
       //Adds a new element to a media field
       add_element: function(field, relation_id, asset_id, name, counter, thumbnail_url, view_link, asset_name, options){
+        if (this.asset_added(counter, asset_id)) {
+          return;
+        }
         options = options || {};
         if (asset_name == undefined) asset_name = name;
         var unique_id = (options && options.unique_id ) || this.generate_identifier();
@@ -107,7 +110,7 @@ if @is_media_included != true
           }
           //Set a global func to replace current element
           window[ target +"_replace"] = function( params ){
-            var rel_id = media_fields.get_rel_id(counter);
+            var rel_id = media_fields.get_rel_id(counter, unique_id);
             var name = media_fields.get_name(counter, unique_id);
             var position = media_fields.delete_element(field, counter, unique_id);
             params["options"] = params["options"] || {};
@@ -125,9 +128,14 @@ if @is_media_included != true
         return wrapper.select( '.field input' ).first().value;
       },
 
-      get_rel_id: function( counter ) {
-        var id_field = $( 'media_selector_' + counter ).select( "input[name$='[id]']"  ).first();
+      get_rel_id: function( counter, unique_id ) {
+        var id_field = $( 'media_selector_' + counter ).select( '.element_' + unique_id + " input[name$='[id]']" ).first();
         return (id_field ? id_field.value : null);
+      },
+
+      // Returns false or null if this asset has not already been added to the selector
+      asset_added: function(counter, asset_id) {
+        return $( 'media_selector_' + counter ).select( "input[name$='[asset_id]'][value="+asset_id+"]"  ).first();
       },
 
       change_name: function(counter, unique_id){
