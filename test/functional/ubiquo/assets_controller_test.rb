@@ -10,7 +10,7 @@ class Ubiquo::AssetsControllerTest < ActionController::TestCase
   def teardown
     @created_assets.map(&:destroy)
   end
-  
+
   def test_should_get_index
     get :index
     assert_response :success
@@ -37,9 +37,9 @@ class Ubiquo::AssetsControllerTest < ActionController::TestCase
 
   def test_should_create_asset
     assert_difference('Asset.count') do
-      post :create, :asset => { :name => "new asset", 
-                                :resource => test_file, 
-                                :asset_type_id => AssetType.find(:first).id}, 
+      post :create, :asset => { :name => "new asset",
+                                :resource => test_file,
+                                :asset_type_id => AssetType.find(:first).id},
                                 :is_protected => false
     end
     assert_redirected_to ubiquo_assets_path
@@ -57,8 +57,8 @@ class Ubiquo::AssetsControllerTest < ActionController::TestCase
   end
 
   def test_should_update_asset
-    put :update, :id => assets(:video).id, 
-        :asset => { :name => "new asset", 
+    put :update, :id => assets(:video).id,
+        :asset => { :name => "new asset",
                     :resource => test_file,
                     :is_protected => false }
     assert_redirected_to ubiquo_assets_path
@@ -75,7 +75,7 @@ class Ubiquo::AssetsControllerTest < ActionController::TestCase
   def test_should_filter_by_text_ubiquo_user_and_asset_type
     get :search, :field => 'image', :text => 'MyName', :asset_type_id => 1
     assert_response :success
-    assert assigns(:field), 'image'  
+    assert assigns(:field), 'image'
     assert assigns(:search_text), 'MyName'
     assert assigns(:page), 1
     assert assigns(:assets).size, 1
@@ -98,7 +98,7 @@ class Ubiquo::AssetsControllerTest < ActionController::TestCase
     assert_equal assigns(:assets_pages), {:previous => nil, :next => 2}
     get :search, :field => 'image', :text => 'MyName', :page => 2
     assert_response :success
-    assert_equal assigns(:assets).size, list_size 
+    assert_equal assigns(:assets).size, list_size
     assert_equal assigns(:assets_pages), {:previous => 1, :next => nil}
   ensure
     Ubiquo::Config.context(:ubiquo_media).set(:media_selector_list_size, 3)
@@ -107,14 +107,14 @@ class Ubiquo::AssetsControllerTest < ActionController::TestCase
   def test_should_filter_by_text_and_ubiquo_user_paginated_view
     (Ubiquo::Config.context(:ubiquo_media).get(:assets_elements_per_page) * 2).times do
       create_asset(
-                   :asset_type_id => asset_types(:image).id, 
-                   :name => "MyName" 
-                   ) 
+                   :asset_type_id => asset_types(:image).id,
+                   :name => "MyName"
+                   )
     end
     get :search, :field => 'image', :text => 'MyName', :page => 2, :counter => 1
     assert_response :success
     assert_select_rjs "asset_search_results_1" do
-      assert_select "ul" do 
+      assert_select "ul" do
         assert_select "li", 3
       end
     end
@@ -132,6 +132,14 @@ class Ubiquo::AssetsControllerTest < ActionController::TestCase
     assert_equal_set [asset2], assigns(:assets)
   end
 
+  def test_should_search_assets_ordered_by_id_desc
+    Asset.delete_all
+    asset1 = create_asset(:name => 'name1', :description => 'description1')
+    asset2 = create_asset(:name => 'name2', :description => 'description2')
+    get :search, :filter_text => 'name'
+    assert_equal [asset2, asset1], assigns(:assets)
+  end
+
   def test_filter_by_creation_date
     Asset.delete_all
     asset1 = create_asset(:created_at => 3.days.ago)
@@ -146,7 +154,7 @@ class Ubiquo::AssetsControllerTest < ActionController::TestCase
     get :index, :filter_created_start =>  I18n.localize(5.days.ago.to_date), :filter_created_end => I18n.localize(1.days.from_now.to_date)
     assert_equal_set [asset1, asset2], assigns(:assets)
   end
-  
+
   def test_should_get_advanced_edit
     asset = create_image_asset
 
@@ -174,10 +182,10 @@ class Ubiquo::AssetsControllerTest < ActionController::TestCase
       "height"=>"10",
       "top"=>"0",
       "width"=>"10"}
-    AssetArea.expects(:original_crop!).once.returns(true).with( 
+    AssetArea.expects(:original_crop!).once.returns(true).with(
       original_params.merge( "asset" => asset, "style" => "original" ) )
     AssetArea.expects(:new).never
-    
+
     put :advanced_update, :id => asset.id,
       "operation_type"=>"original",
       "asset" => {"keep_backup" => true},
@@ -188,7 +196,7 @@ class Ubiquo::AssetsControllerTest < ActionController::TestCase
           "height"=>"20",
           "top"=>"0",
           "width"=>"30"},
-        } 
+        }
     assert_redirected_to ubiquo_assets_path
     assert_equal 0, assigns(:asset).asset_areas.count
   end
@@ -216,7 +224,7 @@ class Ubiquo::AssetsControllerTest < ActionController::TestCase
         :base_to_crop => "320x200>",
         :long => "30x180#" #Very vertical image
       })
-    
+
     asset = create_image_asset
 
     put( :advanced_update, ({ :id => asset.id,
@@ -270,13 +278,13 @@ class Ubiquo::AssetsControllerTest < ActionController::TestCase
     file_ext = options.delete(:file_extension) || "png"
     file_contents = options.delete(:file_contents) || sample_file.read
     default_options = {
-      :name => "Created asset", 
-      :description => "Description", 
+      :name => "Created asset",
+      :description => "Description",
       :asset_type_id => AssetType.find(:first).id,
       :resource => test_file(file_contents, file_ext ),
       :is_protected => false,
     }
-    
+
     asset = AssetPublic.create(default_options.merge(options))
     # Save asset to destroy on teardown
     @created_assets << asset
@@ -306,5 +314,5 @@ class Ubiquo::AssetsControllerTest < ActionController::TestCase
     end
 
   end
-  
+
 end

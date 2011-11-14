@@ -18,7 +18,7 @@ class Ubiquo::AssetsController < UbiquoController
     }.merge(uhook_index_filters)
 
     per_page = Ubiquo::Config.context(:ubiquo_media).get(:assets_elements_per_page)
-    @assets_pages, @assets = Asset.paginate(:page => params[:page], :per_page => per_page) do
+    @assets_pages, @assets = Asset.ubiquo_paginate(:page => params[:page], :per_page => per_page) do
       uhook_index_search_subject.filtered_search(filters, :order => params[:order_by] + " " + params[:sort_order])
     end
 
@@ -148,8 +148,8 @@ class Ubiquo::AssetsController < UbiquoController
     @counter = params[:counter]
     @search_text = params[:text]
     @page = params[:page] || 1
-    @assets_pages, @assets = Asset.paginate(:page => @page, :per_page => Ubiquo::Config.context(:ubiquo_media).get(:media_selector_list_size)) do
-      uhook_index_search_subject.filtered_search({:text => @search_text, :type => params[:asset_type_id], :visibility => params[:visibility]})
+    @assets_pages, @assets = Asset.ubiquo_paginate(:page => @page, :per_page => Ubiquo::Config.context(:ubiquo_media).get(:media_selector_list_size)) do
+      uhook_index_search_subject.filtered_search({:text => @search_text, :type => params[:asset_type_id], :visibility => params[:visibility]}, {:order => "#{Asset.table_name}.id desc"})
     end
   end
 
