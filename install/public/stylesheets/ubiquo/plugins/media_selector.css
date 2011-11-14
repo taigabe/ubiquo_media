@@ -75,14 +75,14 @@
         				background: url(../../../images/ubiquo/bg-button.png) no-repeat left bottom;
         				cursor: pointer;
               }
-              
+
     .group-related-assets .select-assets {}
       .asset-upload-form-item {}
         .asset-upload-form-item .bt-upload {
           font-size: .9em;
           float: left;
         }
-      
+
       /* search block */
       .search-block {
         margin: 0 0 1em;
@@ -143,6 +143,7 @@
             .select-assets .search-results .items-list li.item img {
               display: inline;
               vertical-align: middle;
+              cursor: pointer;
             }
             .select-assets .search-results .items-list li.item .actions {
               text-align: center;
@@ -160,6 +161,6 @@
 .group-related-assets .selected-assets .items-list li.item:after,
 .search-block:after,
 .select-assets .search-results .items-list:after
-{ 
+{
 	content: "."; display: block; height: 0; clear: both; visibility: hidden;
 }

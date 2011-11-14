@@ -172,7 +172,7 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
       I18n::UbiquoAssetsController::Helper.expects(:edit_ubiquo_asset_path).with(asset)
       I18n::UbiquoAssetsController::Helper.expects(:advanced_edit_ubiquo_asset_path).with(asset)
       I18n::UbiquoAssetsController::Helper.expects(:advanced_edit_link_attributes).returns({})
-      
+
       I18n::UbiquoAssetsController::Helper.module_eval do
         module_function :uhook_asset_index_actions
       end
@@ -267,15 +267,19 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
       original_name = AssetRelation.name_for_asset :photo, translated_asset.reload.photo.first, translated_asset
 
       Locale.current = 'en'
-      asset.photo_ids = [{"id" => original_photo.id, "name" => 'newname'}]
-      asset.save
+      translated_asset.photo_attributes = [{
+        "id" => translated_asset.photo_asset_relations.first.id,
+        "asset_id" => original_photo.id,
+        "name" => 'newname'
+      }]
+      translated_asset.save
 
       # name successfully changed
       assert_equal 'newname', AssetRelation.first(:conditions => {:related_object_id => translated_asset.id}).name
       # translation untouched
       assert_equal original_name, AssetRelation.first(:conditions => {:related_object_id => asset.id}).name
     end
-    
+
     test "asset_clone does not keep the content_id" do
       a = AssetPublic.create({
         :name => "Created asset",
@@ -287,9 +291,7 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
       assert_nil( a.content_id )
     end
 
-  elsif !Ubiquo::Plugin.registered[:ubiquo_i18n]
-    puts 'ubiquo_i18n not found, omitting UbiquoMedia::Connectors::I18n tests'
   else
-    puts 'The i18n connector needs to be loaded to run UbiquoMedia::Connectors::I18n tests'
+    puts 'ubiquo_i18n not found, omitting UbiquoMedia::Connectors::I18n tests'
   end
 end

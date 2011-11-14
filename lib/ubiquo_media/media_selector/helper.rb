@@ -12,8 +12,9 @@ module UbiquoMedia
         @counter ||= 0
         @counter += 1
         locals = {
-          :assets => form.object.send(field),
+          :asset_relations => form.object.send("#{field}_asset_relations"),
           :field => field,
+          :field_options => form.object.send("#{field}").options,
           :object => form.object,
           :object_name =>  options[:object_name] || form.object_name.to_s,
           :visibility => Ubiquo::Config.context(:ubiquo_media).get(:force_visibility) || options[:visibility],

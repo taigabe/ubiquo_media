@@ -2,26 +2,26 @@ class Ubiquo::AssetsController < UbiquoController
   ubiquo_config_call :assets_access_control, {:context => :ubiquo_media}
   before_filter :load_asset_visibilities
   before_filter :load_asset_types
-  
+
   # GET /assets
   # GET /assets.xml
   def index
     params[:order_by] = params[:order_by] || Ubiquo::Config.context(:ubiquo_media).get(:assets_default_order_field)
     params[:sort_order] = params[:sort_order] || Ubiquo::Config.context(:ubiquo_media).get(:assets_default_sort_order)
-    
+
     filters = {
-      :type => params[:filter_type], 
+      :type => params[:filter_type],
       :text => params[:filter_text],
       :visibility => params[:filter_visibility],
       :created_start => parse_date(params[:filter_created_start]),
-      :created_end => parse_date(params[:filter_created_end], :time_offset => 1.day),         
+      :created_end => parse_date(params[:filter_created_end], :time_offset => 1.day),
     }.merge(uhook_index_filters)
-    
+
     per_page = Ubiquo::Config.context(:ubiquo_media).get(:assets_elements_per_page)
     @assets_pages, @assets = Asset.paginate(:page => params[:page], :per_page => per_page) do
       uhook_index_search_subject.filtered_search(filters, :order => params[:order_by] + " " + params[:sort_order])
     end
-    
+
     respond_to do |format|
       format.html{ } # index.html.erb
       format.xml{
@@ -61,9 +61,9 @@ class Ubiquo::AssetsController < UbiquoController
         format.html { redirect_to(ubiquo_assets_path) }
         format.xml  { render :xml => @asset, :status => :created, :location => @asset }
         format.js {
-          responds_to_parent do 
+          responds_to_parent do
             render :update do |page|
-              page << "media_fields.add_element('#{field}',#{@asset.id},"+
+              page << "media_fields.add_element('#{field}',null,#{@asset.id},"+
                 "#{@asset.name.to_s.to_json}, #{counter}, "+
                 "#{thumbnail_url(@asset).to_json},"+
                 "#{view_asset_link(@asset).to_json},null,"+
@@ -72,10 +72,10 @@ class Ubiquo::AssetsController < UbiquoController
               saved_asset = @asset
               @asset = asset_visibility.new
               page.replace_html(
-                "add_#{counter}", 
+                "add_#{counter}",
                 :partial => "ubiquo/asset_relations/asset_form",
-                :locals => { 
-                  :counter => counter, 
+                :locals => {
+                  :counter => counter,
                   :field => field,
                   :visibility => visibility
                 })
@@ -90,15 +90,15 @@ class Ubiquo::AssetsController < UbiquoController
         }
         format.xml  { render :xml => @asset.errors, :status => :unprocessable_entity }
         format.js {
-          responds_to_parent do 
+          responds_to_parent do
             render :update do |page|
               page.replace_html(
-                "add_#{counter}", 
-                :partial => "ubiquo/asset_relations/asset_form", 
+                "add_#{counter}",
+                :partial => "ubiquo/asset_relations/asset_form",
                 :locals => {
                   :field => field,
-                  :counter => counter, 
-                  :visibility => visibility 
+                  :counter => counter,
+                  :visibility => visibility
                 })
             end
           end
@@ -141,11 +141,11 @@ class Ubiquo::AssetsController < UbiquoController
       format.xml  { head :ok }
     end
   end
-  
-  # GET /assets  
+
+  # GET /assets
   def search
-    @field = params[:field] 
-    @counter = params[:counter] 
+    @field = params[:field]
+    @counter = params[:counter]
     @search_text = params[:text]
     @page = params[:page] || 1
     @assets_pages, @assets = Asset.paginate(:page => @page, :per_page => Ubiquo::Config.context(:ubiquo_media).get(:media_selector_list_size)) do
@@ -264,9 +264,9 @@ class Ubiquo::AssetsController < UbiquoController
     redirect_to advanced_edit_ubiquo_asset_path(@asset, :target => params[:target])
   end
 
-  
+
   private
-  
+
   def load_asset_visibilities
     @asset_visibilities = [
                            OpenStruct.new(:key => 'public', :name => t('ubiquo.media.public')),
@@ -277,7 +277,7 @@ class Ubiquo::AssetsController < UbiquoController
   def load_asset_types
     @asset_types = AssetType.find :all
   end
-  
+
   def get_visibility(params)
     if (forced_vis = Ubiquo::Config.context(:ubiquo_media).get(:force_visibility))
       return forced_vis

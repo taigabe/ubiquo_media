@@ -19,14 +19,17 @@ if @is_media_included != true
         this.fields[counter] = {field: field, size: 0, max: limit, name: name};
       },
       //Adds a new element to a media field
-      add_element: function(field, id, name, counter, thumbnail_url, view_link, asset_name, options){
+      add_element: function(field, relation_id, asset_id, name, counter, thumbnail_url, view_link, asset_name, options){
         options = options || {};
         if (asset_name == undefined) asset_name = name;
         var unique_id = (options && options.unique_id ) || this.generate_identifier();
+        // +id+ should only be sent when the relation already exists
+        var id_field_templ = "<input type='hidden' name='#{field_name}[#{field}_attributes][#{unique_id}][id]' value='#{rel_id}' />"
         var templ = new Template(
         "<li class='item element_#{unique_id}'>"+
-          "<input type='hidden' name='#{field_name}[#{field}_ids][#{unique_id}][id]' value='#{id}' />"+
-          "<input type='hidden' class='position' name='#{field_name}[#{field}_ids][#{unique_id}][position]' value='' />"+
+          (relation_id ? id_field_templ : '') +
+          "<input type='hidden' name='#{field_name}[#{field}_attributes][#{unique_id}][asset_id]' value='#{asset_id}' />"+
+          "<input type='hidden' class='position' name='#{field_name}[#{field}_attributes][#{unique_id}][position]' value='' />"+
           "<a class='handle'>handle</a>"+
           "<div class='img-wrapper'><img src='#{thumb}' alt='#{asset_name}'/></div>" +
           "<div class='text-info'>"+
@@ -35,11 +38,11 @@ if @is_media_included != true
           "<span class='name'> #{name}</span> "+
           "<a class='bt-edit' href='#' onclick='media_fields.change_name(\"#{counter}\", \"#{unique_id}\");return false;'><%= t('ubiquo.media.change_text') %></a>"+
           "<span class='field' style='display:none'>"+
-          "<input type='text' onkeypress='if(event.keyCode==13){media_fields.change_name(\"#{counter}\", \"#{unique_id}\");return false;}' name='#{field_name}[#{field}_ids][#{unique_id}][name]' value='#{name}'/>"+
+          "<input type='text' onkeypress='if(event.keyCode==13){media_fields.change_name(\"#{counter}\", \"#{unique_id}\");return false;}' name='#{field_name}[#{field}_attributes][#{unique_id}][name]' value='#{name}'/>"+
           "<a class='change' href='#' onclick='media_fields.change_name(\"#{counter}\", \"#{unique_id}\");return false;'><%= t('ubiquo.media.save') %></a>"+
           "</span>"+
           "</div>"+
-          "<ul class='actions'>" + 
+          "<ul class='actions'>" +
           "<li>#{view_link}</li>" +
           "<li><a onclick='media_fields.delete_element(\"#{field}\",\"#{counter}\", #{unique_id}); return false;' href='#' class='bt-delete'><%= t('ubiquo.media.remove') %></a></li>" +
           (options.advanced_form ? '<li><a href ="'+ options.advanced_form +'" '+
@@ -53,7 +56,8 @@ if @is_media_included != true
         var elem = templ.evaluate({
           counter: counter,
           field: field,
-          id: id,
+          rel_id: relation_id,
+          asset_id: asset_id,
           unique_id: unique_id,
           view_link: view_link,
           thumb: thumbnail_url,
@@ -64,17 +68,17 @@ if @is_media_included != true
         var inserted = false;
         if( options["position"] ){
           //Insert the element in the position given
-          //Notice that position is allways > 0
+          //Notice that position is always > 0
           var elems = $('media_selector_'+ counter).select(".items-list .element");
           if(elems.length > 0 && options.position > 0 && options.position < elems.length + 1){
             elems[options.position-1].insert({before:elem});
             inserted = true;
           }
         }
-        
+
         if( !inserted )
           $('media_selector_'+ counter).select(".items-list").first().insert(elem);
-        
+
         var set_positions = function() {
           $$('#media_selector_'+counter+' .selected-assets li.item').each(function(el, i) {
             el.select('input[name*="][position]"]').first().value = i+1;
@@ -103,12 +107,13 @@ if @is_media_included != true
           }
           //Set a global func to replace current element
           window[ target +"_replace"] = function( params ){
+            var rel_id = media_fields.get_rel_id(counter);
             var name = media_fields.get_name(counter, unique_id);
             var position = media_fields.delete_element(field, counter, unique_id);
             params["options"] = params["options"] || {};
             params.options.unique_id = params.options.unique_id || unique_id;
             if( position > 0 ) params.options.position = position;
-            media_fields.add_element(field, params["id"], name, counter, params["thumbnail_url"], params["view_link"], params["asset_name"],params["options"]);
+            media_fields.add_element(field, rel_id, params["asset_id"], name, counter, params["thumbnail_url"], params["view_link"], params["asset_name"],params["options"]);
           };
           if( Object.isFunction( options["update_target_callback"] ) ){ options.update_target_callback( target ); }
         }
@@ -118,6 +123,11 @@ if @is_media_included != true
       get_name: function( counter, unique_id ) {
         var wrapper = $( 'media_selector_' + counter ).select( '.element_' + unique_id ).first();
         return wrapper.select( '.field input' ).first().value;
+      },
+
+      get_rel_id: function( counter ) {
+        var id_field = $( 'media_selector_' + counter ).select( "input[name$='[id]']"  ).first();
+        return (id_field ? id_field.value : null);
       },
 
       change_name: function(counter, unique_id){
@@ -164,7 +174,7 @@ if @is_media_included != true
         });
         var e = selector.select(".list_caption").first();
         if(f['size'] == 0){
-          e.innerHTML="<input type='hidden' name='"+this.fields[counter]['name']+"["+field+"_ids][]' />";
+          e.innerHTML="<input type='hidden' name='"+this.fields[counter]['name']+"["+field+"_attributes][][asset_id]' />";
         } else if(f['size'] == 1){
           e.innerHTML= <%= "<h4>#{t('ubiquo.media.selected_media_element')}:</h4><p>#{t('ubiquo.media.footer_text')}</p>".to_json %>;
         } else{

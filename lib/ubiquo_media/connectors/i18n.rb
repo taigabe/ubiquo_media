@@ -148,9 +148,9 @@ module UbiquoMedia
             if asset.in_locale?(current_locale)
               actions << link_to(t("ubiquo.media.advanced_edit"), advanced_edit_ubiquo_asset_path(asset), advanced_edit_link_attributes) if advanced_asset_form_for( asset )
             end
-            
-            actions << link_to(t("ubiquo.remove"), 
-              ubiquo_asset_path(asset, :destroy_content => true), 
+
+            actions << link_to(t("ubiquo.remove"),
+              ubiquo_asset_path(asset, :destroy_content => true),
               :confirm => t("ubiquo.media.confirm_asset_removal"), :method => :delete,
               :class => "btn-delete"
             )
@@ -272,7 +272,8 @@ module UbiquoMedia
 
             def uhook_media_attachment_process_call parameters
               if parameters[:options][:translation_shared]
-                parameters[:klass].share_translations_for parameters[:field], :asset_relations
+                field = parameters[:field]
+                parameters[:klass].share_translations_for field, :"#{field}_asset_relations"
               end
             end
           end

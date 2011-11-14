@@ -2,16 +2,9 @@ class AssetRelation < ActiveRecord::Base
   belongs_to :asset, :class_name => "Asset"
   belongs_to :related_object, :polymorphic => true
 
-  validates_presence_of :asset, :related_object
+  validates_presence_of :asset
 
-  # Create a scope so as to position attribute is autoincremented on creation     
-  def self.scoped_creation(field, name)
-    last_order = self.maximum("asset_relations.position", :conditions => {:field_name => field.to_s})
-    last_order ||= 0
-    self.with_scope(:create => {:field_name => field.to_s, :name => name.to_s, :position => (last_order+1)}) do
-      yield
-    end
-  end
+  before_create :set_position_and_name
 
   # Return the name (used for foot-text of images, for example) for a given asset and field
   def self.name_for_asset(field, asset, related_object)
@@ -22,14 +15,27 @@ class AssetRelation < ActiveRecord::Base
   end
 
   private
-    
-  # Validate that related object (related_object_type + related_object_id) exist
-  def validate
-    begin
-      raise NameError if related_object_type.constantize.find_by_id(related_object_id).nil?
-    rescue NameError
-      errors.add(:related_object, I18n.t("ubiquo.media.invalid_related_object_type", :type => related_object_type, :id => related_object_id))
+
+  # Ensures the position and name fields is filled
+  def set_position_and_name
+    if related_object
+      set_asset_name     unless self.name
+      set_lower_position unless self.position
+    else
+      # related_object is validated here due to how nested_attributes work
+      errors.add(:related_object, :blank)
+      false
     end
   end
-  
+
+  # sets the name of the relation to the asset name
+  def set_asset_name
+    write_attribute :name, asset.name
+  end
+
+  # sets the max position to this element
+  def set_lower_position
+    write_attribute :position, related_object.send("#{field_name}_asset_relations").map(&:position).compact.max.to_i + 1
+  end
+
 end

@@ -42,14 +42,14 @@
 #Generate url for your media columns with _url_for_media_attachment_ and the magick _version_ parameter:
 #
 #  <%= link_to("a link to first thumbnail image", url_for_media_attachment(object.thumbnail.first, :thumb)) %>
-#  
+#
 # You can also specify paperclip styles to store different versions of the asset
 #
 
 module UbiquoMedia
   module MediaSelector
     module ActiveRecord
-      
+
       def self.append_features(base)
         super
         base.extend(ClassMethods)
@@ -81,53 +81,29 @@ module UbiquoMedia
           options.reverse_merge!(DEFAULT_OPTIONS)
 
           self.has_many(:asset_relations, {
-                          :as => :related_object,
-                          :class_name => "::AssetRelation",
-                          :dependent => :destroy,
-                          :order => "asset_relations.position ASC"
-                        }) unless self.respond_to?(:asset_relations)
+              :as => :related_object,
+              :class_name => "::AssetRelation",
+              :dependent => :destroy,
+              :order => "asset_relations.position ASC"
+          }) unless self.respond_to?(:asset_relations)
 
           proc = Proc.new do
-            define_method('<<') do |assets|
-              assets = case assets
-                       when Array
-                         assets
-                       else
-                         [assets]
-                       end
-              assets.each do |asset|
-                next if self.is_full?
-                name = nil
-                asset = case asset
-                        when String, Fixnum
-                          Asset.gfind(asset.to_i)
-                        when Hash
-                          name = asset["name"]
-                          Asset.gfind(asset["id"].to_i)
-                        when Asset
-                          Asset.gfind(asset)
-                        else
-                          raise "Not acceptable type"
-                        end
-                next if asset.nil?
-                next unless self.accepts?(asset)
-                AssetRelation.scoped_creation(field, (name || asset.name)) do
-                  self.concat(asset)
-                end
-              end
-            end
-            define_method('is_full?') do
+
+            def is_full?
               return false if self.options[:size].to_sym == :many
               self.size >= self.options[:size]
             end
-            define_method('accepts?') do |asset|
-              refresh_types if options[:asset_types].nil?
-              options[:asset_types].include?(asset.asset_type)
+
+            def accepts? asset
+              refresh_types if self.options[:asset_types].nil?
+              self.options[:asset_types].include?(asset.asset_type)
             end
+
             define_method('options') do
               refresh_types if options[:asset_types].nil?
               options
             end
+
             define_method('refresh_types') do
               options[:types] = [options[:types]].flatten.map(&:to_sym)
               if(options[:types].include?(:ALL))
@@ -136,60 +112,96 @@ module UbiquoMedia
                 options[:asset_types] = options[:types].map{|o|AssetType.gfind(o)}
               end
             end
-            
+
+            define_method('reset_positions') do |assets|
+              assets.each_with_index do |asset, i|
+                relation = proxy_owner.send("#{field}_asset_relations").select do |ar|
+                  ar.asset == asset
+                end.first
+                relation.update_attribute :position, i+1 if relation
+              end
+            end
+
             # Automatically set the required attr_name when creating through the through
             define_method 'construct_owner_attributes' do |reflection|
               super.merge(:field_name => field.to_s)
             end
           end
 
-
           self.has_many(field, {
-                          :through => :asset_relations,
-                          :class_name => "::Asset",
-                          :source => :asset,
-                          :conditions => ["asset_relations.field_name = ?", field.to_s],
-                          :order => "asset_relations.position ASC"
-                        },&proc)
+            :through => :asset_relations,
+            :class_name => "::Asset",
+            :source => :asset,
+            :conditions => {'asset_relations.field_name' => field.to_s},
+            :order => "asset_relations.position ASC"
+          },&proc)
 
           define_method("name_for_asset") do |asset_field, asset|
             return "" if asset_field.to_s.blank? || asset.nil?
             AssetRelation.name_for_asset(asset_field, asset, self)
           end
-          
-          define_method("#{field}_ids=") do |values|
-            # Sometimes +values+ comes grouped in a hash due a prototype issue
-            values = values.values if values.is_a? Hash
-            instance_variable_set("@#{field}_values_ids", values.reject(&:blank?))
-          end
 
-          define_method("#{field}_ids") do
-            ids=instance_variable_get("@#{field}_values_ids")
-            ids || send(field).map(&:id)
-          end
 
-          after_save "#{field}_after_save"
+          self.has_many(:"#{field}_asset_relations",
+            :class_name => "::AssetRelation",
+            :as => :related_object,
+            :conditions => {:field_name => field.to_s},
+            :order => "asset_relations.position ASC"
+          )
+          accepts_nested_attributes_for :"#{field}_asset_relations", :reject_if => :all_blank, :allow_destroy => true
 
-          define_method("#{field}_after_save") do
-            if new_assets = instance_variable_get("@#{field}_values_ids")
-              old_assets = send(field).dup
-              new_assets.each_with_index { |a, i| (a["position"] ||= i + 1) if a.is_a?(Hash) }
-              old_assets.each do |old_asset|
-                if new_asset = new_assets.detect{|asset_info| asset_info["id"].to_i == old_asset.id}
-                  relation = self.asset_relations.first(:conditions => {:asset_id => old_asset.id, :field_name => field.to_s})
-                  relation.update_attributes({ :name => new_asset["name"], :position => new_asset["position"] })
-                else
-                  send(field).delete(old_asset)
-                end
-              end
-              # ensure they are ordered by position if they have the field
-              new_assets = new_assets.sort_by{|a| (a.is_a?(Hash) && a['position']) || '' }
-              send(field) << new_assets.reject{|asset| old_assets.map(&:id).include?(asset["id"].to_i)}
-              instance_variable_set "@#{field}_values_ids", nil
+          validate "required_amount_of_assets_in_#{field}"
+
+          define_method "required_amount_of_assets_in_#{field}" do
+            required_amount = case options[:required]
+            when TrueClass
+              options[:size] == :many ? 1 : options[:size]
+            when Fixnum
+              options[:required]
             end
-            true
+            # Note that the field to watch depends on how relations have been assigned.
+            # Usually, in the controller flow, will be _field_asset_relations_, but if it's
+            # empty, we'll take a look to _field_ and if there is something, we assume
+            # that this field is being used, for example in a migration or in console.
+            # This is a far from perfect approach and could be a bug in some situations,
+            # but it's the best way we've found to correctly perform this validation
+            # in the usual use cases without monkeypatching.
+            current_amount = send("#{field}_asset_relations").present? ?
+              send("#{field}_asset_relations").reject(&:marked_for_destruction?).size :
+              send(field).size
+
+            invalid = required_amount &&  current_amount < required_amount
+            errors.add(field, :not_enough_assets) if invalid
           end
-          
+
+          # Like Rails' nested_attributes (uses it), but it's a hard-assign,
+          # any non-present relation will be destroyed.
+          define_method "#{field}_attributes=" do |attrs|
+            attrs_as_array = if attrs.is_a?(Hash)
+              # this is to fit assign_nested_attributes_for_collection_association
+              attrs.sort_by { |index, _| index.to_i }.map { |_, attributes| attributes }
+            else
+              ## already an array, or it will break anyway
+              attrs
+            end
+
+            current_ids = send("#{field}_asset_relations").map(&:id).map(&:to_s)
+            new_ids = attrs_as_array.map{|attr| attr[:id] || attr['id']}.compact.map(&:to_s)
+            missing_ids = current_ids - new_ids
+            destroyable = missing_ids.map{ |id| {'id' => id, '_destroy' => true} }
+
+            send("#{field}_asset_relations_attributes=", attrs_as_array + destroyable)
+          end
+
+          # Rails tries to be lazy when replacing a collection, but we want to
+          # redefine the position of each asset, so we need to postprocess +assets+
+          define_method "#{field}_with_position=" do |assets|
+            send("#{field}_without_position=", assets)
+            send(field).reset_positions(assets)
+          end
+
+          alias_method_chain "#{field}=", :position
+
           uhook_media_attachment field, options
         end
       end

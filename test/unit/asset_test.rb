@@ -89,7 +89,7 @@ class AssetTest < ActiveSupport::TestCase
     asset = create_asset
 
     assert_difference("AssetRelation.count") do
-      AssetRelation.create(:asset => asset, :related_object => UbiquoUser.first)
+      AssetRelation.create(:asset => asset, :related_object => AssetType.first, :field_name => 'simple')
     end
     assert_difference("AssetRelation.count", -1) do
       asset.destroy
