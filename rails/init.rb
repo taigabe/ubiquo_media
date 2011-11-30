@@ -23,11 +23,26 @@ Ubiquo::Plugin.register(:ubiquo_media, directory, config) do |config|
   config.add :assets_date_filter_enabled, true
   config.add :assets_default_order_field, 'assets.id'
   config.add :assets_default_sort_order, 'asc'
-  config.add :mime_types, { :image => ["image"],
-                            :video => ["video"],
-                            :doc => ["text", "pdf", "msword"],
-                            :audio => ["audio"],
-                            :flash => ["swf", "x-shockwave-flash"] }
+  config.add :mime_types, {
+    :image => ["image"],
+    :video => ["video"],
+    :doc   => ["text",
+               "pdf",
+               "vnd.oasis.opendocument.text",
+               "oasis.opendocument.text",
+               "word",
+               "application/msword",
+               "vnd.ms-word",
+               "vnd.ms-powerpoint",
+               "vnd.ms-excel",
+               "vnd.ms-excel",
+               "vnd.ms-powerpoint",
+               "vnd.ms-word",
+               "vnd.openxmlformats-officedocument.wordprocessingml.document",
+               "openxmlformats-officedocument"],
+    :audio => ["audio"],
+    :flash => ["swf", "flash", "x-shockwave-flash"]
+  }
   config.add :media_styles_list, { :thumb => "100x100>", :base_to_crop => "590x442>" }
   # a hash or a proc (receives the style name and value) containing options that apply to all styles
   config.add :media_styles_options, {}
