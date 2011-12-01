@@ -14,6 +14,12 @@ class AssetRelation < ActiveRecord::Base
     ar.name
   end
 
+  # Allows to define default values to be used when asset relations are created
+  # automatically (by assigning assets to an instance)
+  def self.default_values owner, reflection
+    uhook_default_values owner, reflection
+  end
+
   private
 
   # Ensures the position and name fields is filled

@@ -9,22 +9,11 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
     def setup
       save_current_connector(:ubiquo_media)
       I18n.load!
+      define_translatable_test_model
     end
 
     def teardown
-      Locale.current = nil
       reload_old_connector(:ubiquo_media)
-    end
-
-    test 'Asset classes should be translatable' do
-      [Asset, AssetPublic, AssetPrivate, AssetRelation].each do |klass|
-        assert klass.is_translatable?, "#{klass} is not translatable"
-      end
-    end
-
-    test 'uhook_create_assets_table_should_create_table_with_i18n_info' do
-      ActiveRecord::Migration.expects(:create_table).with(:assets, :translatable => true)
-      ActiveRecord::Migration.uhook_create_assets_table {}
     end
 
     test 'uhook_create_asset_relations_table_should_create_table' do
@@ -32,165 +21,19 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
       ActiveRecord::Migration.uhook_create_asset_relations_table {}
     end
 
-    test 'uhook_filtered_search_in_asset_should_yield_with_locale_filter' do
-      Asset.expects(:all)
-      Asset.expects(:with_scope).with(:find => {:conditions => ["assets.locale <= ?", 'ca']}).yields
-      Asset.uhook_filtered_search({:locale => 'ca'}) { Asset.all }
+    test 'uhook_default_values_in_asset_relations_should_the_locale_if_related_object_is_translatable' do
+      object = UbiquoMedia::TestModel.new :locale => 'jp'
+      assert_equal({:locale => 'jp'}, AssetRelation.uhook_default_values(object, nil))
     end
 
-    test 'uhook_after_update in asset should update resource in translations' do
-      asset_1 = AssetPublic.new(:locale => 'ca', :resource => 'one')
-      asset_2 = AssetPublic.new(:locale => 'en')
-      asset_1.expects(:translations).returns([asset_2])
-      asset_2.expects(:resource=)
-      asset_2.expects(:save)
-      asset_1.uhook_after_update
+    test 'uhook_default_values_in_asset_relations_should_empty_hash_if_related_object_is_not_translatable' do
+      assert_equal({}, AssetRelation.uhook_default_values(Asset.new, nil))
     end
 
     test 'uhook_filtered_search_in_asset_relations_should_yield_with_locale_filter' do
       AssetRelation.expects(:all)
       AssetRelation.expects(:with_scope).with(:find => {:conditions => ["asset_relations.locale <= ?", 'ca']}).yields
       AssetRelation.uhook_filtered_search({:locale => 'ca'}) { AssetRelation.all }
-    end
-
-    test 'uhook_index_filters_should_return_locale_filter' do
-      mock_asset_params :filter_locale => 'ca'
-      assert_equal({:locale => 'ca'}, Ubiquo::AssetsController.new.uhook_index_filters)
-    end
-
-    test 'uhook_index_search_subject should return locale filtered assets' do
-      Ubiquo::AssetsController.any_instance.expects(:current_locale).at_least_once.returns('ca')
-      Asset.expects(:locale).with('ca', :all).returns(Asset)
-      assert_nothing_raised do
-        Ubiquo::AssetsController.new.uhook_index_search_subject.filtered_search
-      end
-    end
-
-    test 'uhook_new_asset_should_return_translated_asset' do
-      mock_asset_params :from => 1
-      Ubiquo::AssetsController.any_instance.expects(:current_locale).returns('ca')
-      AssetPublic.expects(:translate).with(1, 'ca', :copy_all => true)
-      asset = Ubiquo::AssetsController.new.uhook_new_asset
-    end
-
-    test 'uhook_edit_asset should not return false if current locale' do
-      Ubiquo::AssetsController.any_instance.expects(:current_locale).at_least_once.returns('ca')
-      assert_not_equal false, Ubiquo::AssetsController.new.uhook_edit_asset(Asset.new(:locale => 'ca'))
-    end
-
-    test 'uhook_edit_asset should redirect if not current locale' do
-      Ubiquo::AssetsController.any_instance.expects(:current_locale).at_least_once.returns('ca')
-      Ubiquo::AssetsController.any_instance.expects(:ubiquo_assets_path).at_least_once.returns('')
-      Ubiquo::AssetsController.any_instance.expects(:redirect_to).at_least_once
-      Ubiquo::AssetsController.new.uhook_edit_asset Asset.new(:locale => 'en')
-      assert_equal false, Ubiquo::AssetsController.new.uhook_edit_asset(Asset.new(:locale => 'en'))
-    end
-
-    test 'uhook_create_asset_should_return_new_asset_with_current_locale' do
-      mock_asset_params
-      Ubiquo::AssetsController.any_instance.expects(:current_locale).at_least_once.returns('ca')
-      %w{AssetPublic AssetPrivate}.each do |visibility|
-        asset = Ubiquo::AssetsController.new.uhook_create_asset visibility.constantize
-        assert_equal visibility, asset.class.to_s
-        assert_equal 'ca', asset.locale
-        assert asset.new_record?
-      end
-    end
-
-    test 'uhook_create_asset with from parameter should reassign resource' do
-      from_asset = AssetPublic.create(:resource => 'resource', :name => 'asset')
-      mock_asset_params :from => from_asset.id
-      Ubiquo::AssetsController.any_instance.expects(:current_locale).at_least_once.returns('ca')
-      %w{AssetPublic AssetPrivate}.each do |visibility|
-        asset = Ubiquo::AssetsController.new.uhook_create_asset visibility.constantize
-        assert_equal from_asset.resource_file_name, asset.resource_file_name
-      end
-    end
-
-    test 'uhook_destroy_asset_should_destroy_asset' do
-      Asset.any_instance.expects(:destroy).returns(:value)
-      mock_asset_params :destroy_content => false
-      assert_equal :value, Ubiquo::AssetsController.new.uhook_destroy_asset(Asset.new)
-    end
-
-    test 'uhook_destroy_asset_should_destroy_asset_content' do
-      Asset.any_instance.expects(:destroy_content).returns(:value)
-      mock_asset_params :destroy_content => true
-      assert_equal :value, Ubiquo::AssetsController.new.uhook_destroy_asset(Asset.new)
-    end
-
-    test 'uhook_asset_filters_should_add_a_locale_filter' do
-      filter_set = mock()
-      filter_set.expects(:locale).returns(true)
-
-      I18n::UbiquoAssetsController::Helper.module_eval do
-        module_function :uhook_asset_filters
-      end
-
-      assert I18n::UbiquoAssetsController::Helper.uhook_asset_filters(filter_set)
-    end
-
-    test 'uhook_edit_asset_sidebar_should_return_show_translations_links' do
-      mock_media_helper
-      I18n::UbiquoAssetsController::Helper.expects(:show_translations).at_least_once.returns('links')
-      I18n::UbiquoAssetsController::Helper.module_eval do
-        module_function :uhook_edit_asset_sidebar
-      end
-      assert_equal 'links', I18n::UbiquoAssetsController::Helper.uhook_edit_asset_sidebar(Asset.new)
-    end
-
-    test 'uhook_new_asset_sidebar should return show translations links' do
-      mock_media_helper
-      I18n::UbiquoAssetsController::Helper.expects(:show_translations).at_least_once.returns('links')
-      I18n::UbiquoAssetsController::Helper.module_eval do
-        module_function :uhook_new_asset_sidebar
-      end
-      assert_equal 'links', I18n::UbiquoAssetsController::Helper.uhook_new_asset_sidebar(Asset.new)
-    end
-
-    test 'uhook_asset_index_actions should return translate and remove link if not current locale' do
-      mock_media_helper
-      asset = Asset.new(:locale => 'ca')
-      I18n::UbiquoAssetsController::Helper.expects(:current_locale).returns('en')
-      I18n::UbiquoAssetsController::Helper.expects(:ubiquo_asset_path).with(asset, :destroy_content => true)
-      I18n::UbiquoAssetsController::Helper.expects(:new_ubiquo_asset_path).with(:from => asset.content_id)
-      I18n::UbiquoAssetsController::Helper.module_eval do
-        module_function :uhook_asset_index_actions
-      end
-      actions = I18n::UbiquoAssetsController::Helper.uhook_asset_index_actions asset
-      assert actions.is_a?(Array)
-      assert_equal 2, actions.size
-    end
-
-    test 'uhook_asset_index_actions should return removes and edit links if current locale' do
-      mock_media_helper
-      asset = Asset.new(:locale => 'ca')
-      asset.stubs(:is_resizeable?).returns(true)
-      I18n::UbiquoAssetsController::Helper.stubs(:current_locale).returns('ca')
-      I18n::UbiquoAssetsController::Helper.expects(:ubiquo_asset_path).with(asset, :destroy_content => true)
-      I18n::UbiquoAssetsController::Helper.expects(:ubiquo_asset_path).with(asset)
-      I18n::UbiquoAssetsController::Helper.expects(:edit_ubiquo_asset_path).with(asset)
-      I18n::UbiquoAssetsController::Helper.expects(:advanced_edit_ubiquo_asset_path).with(asset)
-      I18n::UbiquoAssetsController::Helper.expects(:advanced_edit_link_attributes).returns({})
-
-      I18n::UbiquoAssetsController::Helper.module_eval do
-        module_function :uhook_asset_index_actions
-      end
-      actions = I18n::UbiquoAssetsController::Helper.uhook_asset_index_actions asset
-      assert actions.is_a?(Array)
-      assert_equal 4, actions.size
-    end
-
-    test 'uhook_asset_form should return content_id field' do
-      mock_media_helper
-      f = stub_everything
-      f.expects(:hidden_field).with(:content_id).returns('')
-      I18n::UbiquoAssetsController::Helper.expects(:params).returns({:from => 100})
-      I18n::UbiquoAssetsController::Helper.expects(:hidden_field_tag).with(:from, 100).returns('')
-      I18n::UbiquoAssetsController::Helper.module_eval do
-        module_function :uhook_asset_form
-      end
-      I18n::UbiquoAssetsController::Helper.uhook_asset_form(f)
     end
 
     test 'uhook_media_attachment should add translation_shared option if set' do
@@ -209,86 +52,120 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
       assert !Asset.reflections[:simple].options[:translation_shared]
     end
 
-    test 'should not share attachments between translations' do
-      AssetPublic.class_eval do
-        media_attachment :photo
+    test 'should not share attachments between translations if not defined' do
+      UbiquoMedia::TestModel.class_eval do
+        unshare_translations_for :photo
+        media_attachment :photo, :translation_shared => false
       end
 
-      asset = AssetPublic.create :locale => 'ca', :resource => Tempfile.new('tmp'), :name => 'asset'
-      translated_asset = asset.translate('en', :copy_all => true)
-      translated_asset.save
+      instance = UbiquoMedia::TestModel.create :locale => 'ca'
+      translated_instance = instance.translate('en')
+      translated_instance.save
 
-      AssetRelation.create
-
-      asset.photo << AssetPublic.create(:locale => 'ca', :resource => Tempfile.new('tmp'), :name => 'photo')
-      assert_equal 0, translated_asset.reload.photo.size
+      instance.photo << AssetPublic.create(:resource => Tempfile.new('tmp'), :name => 'photo')
+      assert_equal 0, translated_instance.reload.photo.size
     end
 
-    test 'should share attachments between translations' do
-      AssetPublic.class_eval do
+    test 'should share attachments between translations when defined' do
+      UbiquoMedia::TestModel.class_eval do
         media_attachment :photo, :translation_shared => true
       end
 
-      asset = AssetPublic.create :locale => 'ca', :resource => Tempfile.new('tmp'), :name => 'asset'
-      translated_asset = asset.translate('en', :copy_all => true)
-      translated_asset.save
+      instance = UbiquoMedia::TestModel.create :locale => 'ca'
+      translated_instance = instance.translate('en')
+      translated_instance.save
 
-      asset.photo << AssetPublic.create(:locale => 'ca', :resource => Tempfile.new('tmp'), :name => 'photo')
-      assert_equal 1, translated_asset.reload.photo.size
-      assert_equal 'ca', translated_asset.photo.first.locale
+      instance.photo << AssetPublic.create(:resource => Tempfile.new('tmp'), :name => 'photo')
+      assert_equal 1, translated_instance.reload.photo.size
     end
 
     test 'should share attachments between translations when assignating' do
-      AssetPublic.class_eval do
+      UbiquoMedia::TestModel.class_eval do
         media_attachment :photo, :translation_shared => true
       end
 
-      asset = AssetPublic.create :locale => 'ca', :resource => Tempfile.new('tmp'), :name => 'asset'
-      translated_asset = asset.translate('en', :copy_all => true)
-      translated_asset.save
+      instance = UbiquoMedia::TestModel.create :locale => 'ca'
+      translated_instance = instance.translate('en')
+      translated_instance.save
 
-      asset.photo = [AssetPublic.create(:locale => 'ca', :resource => Tempfile.new('tmp'), :name => 'photo')]
-      assert_equal 1, translated_asset.reload.photo.size
-      assert_equal 'ca', translated_asset.photo.first.locale
+      instance.photo = [AssetPublic.create(:resource => Tempfile.new('tmp'), :name => 'photo')]
+      assert_equal 1, translated_instance.reload.photo.size
     end
 
     test 'should only update asset relation name in one translation' do
-      AssetPublic.class_eval do
+      UbiquoMedia::TestModel.class_eval do
         media_attachment :photo, :translation_shared => true
       end
 
       Locale.current = 'ca'
-      asset = AssetPublic.create :locale => 'ca', :resource => Tempfile.new('tmp'), :name => 'asset'
-      translated_asset = asset.translate('en', :copy_all => true)
-      translated_asset.save
-      asset.photo << original_photo = AssetPublic.create(:locale => 'ca', :resource => Tempfile.new('tmp'), :name => 'photo')
+      instance = UbiquoMedia::TestModel.create :locale => 'ca'
+      translated_instance = instance.translate('en')
+      translated_instance.save
+      instance.photo << photo = AssetPublic.create(:resource => Tempfile.new('tmp'), :name => 'photo')
 
       # save the original name in the translation and then update it
-      original_name = AssetRelation.name_for_asset :photo, translated_asset.reload.photo.first, translated_asset
+      original_name = AssetRelation.name_for_asset :photo, translated_instance.reload.photo.first, translated_instance
 
       Locale.current = 'en'
-      translated_asset.photo_attributes = [{
-        "id" => translated_asset.photo_asset_relations.first.id,
-        "asset_id" => original_photo.id,
+      translated_instance.photo_attributes = [{
+        "id" => translated_instance.photo_asset_relations.first.id.to_s,
+        "asset_id" => photo.id.to_s,
         "name" => 'newname'
       }]
-      translated_asset.save
+      translated_instance.save
 
       # name successfully changed
-      assert_equal 'newname', AssetRelation.first(:conditions => {:related_object_id => translated_asset.id}).name
+      assert_equal 'newname', translated_instance.name_for_asset(:photo, photo)
       # translation untouched
-      assert_equal original_name, AssetRelation.first(:conditions => {:related_object_id => asset.id}).name
+      assert_equal original_name, instance.name_for_asset(:photo, photo)
     end
 
-    test "asset_clone does not keep the content_id" do
-      a = AssetPublic.create({
-        :name => "Created asset",
-        :description => "Description",
-        :resource => test_file,
-      })
+    test 'should create a translated asset relation when the object is really new' do
+      # it might happen in a controller that asset relations are assigned before
+      # the content_id, so this situation must be under control
+      UbiquoMedia::TestModel.class_eval do
+        media_attachment :photo, :translation_shared => true
+      end
 
-      a = a.clone
-      assert_nil( a.content_id )
+      Locale.current = 'ca'
+      instance = UbiquoMedia::TestModel.create :locale => 'ca'
+      instance.photo << photo = AssetPublic.create(:resource => Tempfile.new('tmp'), :name => 'photo')
+      translated_instance = instance.translate('en')
+      translated_instance.content_id = nil
+
+      # save the original name in the translation and then update it
+      original_name = AssetRelation.name_for_asset :photo, photo, translated_instance
+
+      Locale.current = 'en'
+      translated_instance.photo_attributes = [{
+        "id" => instance.photo_asset_relations.first.id.to_s,
+        "asset_id" => photo.id.to_s,
+        "name" => 'newname'
+      }]
+      translated_instance.content_id = instance.content_id
+      translated_instance.save
+
+      # name successfully changed
+      assert_equal 'newname', translated_instance.name_for_asset(:photo, photo)
+      # translation untouched
+      assert_equal original_name, instance.name_for_asset(:photo, photo)
+    end
+
+
+    private
+
+    def define_translatable_test_model
+      unless defined? UbiquoMedia::TestModel
+        model = Class.new(ActiveRecord::Base)
+        UbiquoMedia.const_set(:TestModel, model)
+      end
+      UbiquoMedia::TestModel.class_eval do
+        set_table_name 'ubiquo_media_test_models'
+      end
+      unless UbiquoMedia::TestModel.table_exists?
+        ActiveRecord::Base.connection.create_table(:ubiquo_media_test_models, :translatable => true) {}
+      end
+      UbiquoMedia::TestModel.translatable
     end
 
   else

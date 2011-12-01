@@ -124,7 +124,7 @@ module UbiquoMedia
 
             # Automatically set the required attr_name when creating through the through
             define_method 'construct_owner_attributes' do |reflection|
-              super.merge(:field_name => field.to_s)
+              super.merge(:field_name => field.to_s).merge(AssetRelation.default_values(proxy_owner, reflection))
             end
           end
 
@@ -181,7 +181,7 @@ module UbiquoMedia
               # this is to fit assign_nested_attributes_for_collection_association
               attrs.sort_by { |index, _| index.to_i }.map { |_, attributes| attributes }
             else
-              ## already an array, or it will break anyway
+              # already an array, or it will break anyway
               attrs
             end
 
@@ -189,8 +189,10 @@ module UbiquoMedia
             new_ids = attrs_as_array.map{|attr| attr[:id] || attr['id']}.compact.map(&:to_s)
             missing_ids = current_ids - new_ids
             destroyable = missing_ids.map{ |id| {'id' => id, '_destroy' => true} }
+            attrs_to_set = attrs_as_array + destroyable
+            uhook_media_attachment_set_attributes!(field, attrs_to_set)
 
-            send("#{field}_asset_relations_attributes=", attrs_as_array + destroyable)
+            send("#{field}_asset_relations_attributes=", attrs_to_set)
           end
 
           # Rails tries to be lazy when replacing a collection, but we want to

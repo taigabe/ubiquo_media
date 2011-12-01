@@ -2,7 +2,7 @@ require File.dirname(__FILE__) + "/../test_helper.rb"
 
 class AssetRelationTest < ActiveSupport::TestCase
   use_ubiquo_fixtures
-  
+
   def test_should_create_asset_relation
     assert_difference "AssetRelation.count" do
       asset_relation = create_asset_relation
@@ -47,7 +47,12 @@ class AssetRelationTest < ActiveSupport::TestCase
       assert asset_relation.errors.on(:related_object)
     end
   end
-  
+
+  def test_should_return_default_values
+    AssetRelation.expects(:uhook_default_values).returns('myvalue').with('owner', 'reflection')
+    assert_equal 'myvalue', AssetRelation.default_values('owner', 'reflection')
+  end
+
   private
 
   def create_asset_relation(options = {})

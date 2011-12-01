@@ -24,11 +24,6 @@ class UbiquoMedia::Connectors::StandardTest < ActiveSupport::TestCase
     ActiveRecord::Migration.uhook_create_asset_relations_table {}
   end
 
-  test 'uhook_filtered_search_in_asset_should_yield' do
-    Asset.expects(:all)
-    Asset.uhook_filtered_search { Asset.all }
-  end
-
   test 'uhook_after_update in asset should continue' do
     assert_not_equal false, Asset.new.uhook_after_update
   end
@@ -36,6 +31,10 @@ class UbiquoMedia::Connectors::StandardTest < ActiveSupport::TestCase
   test 'uhook_filtered_search_in_asset_relations_should_yield' do
     AssetRelation.expects(:all)
     AssetRelation.uhook_filtered_search { AssetRelation.all }
+  end
+
+  test 'uhook_default_values_in_asset_relations_should_return_empty_hash' do
+    assert_equal({}, AssetRelation.uhook_default_values(nil, nil))
   end
 
   test 'uhook_index_filters_should_return_empty_hash' do

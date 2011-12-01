@@ -6,16 +6,8 @@ module UbiquoMedia
       module Asset
 
         def self.included(klass)
-          klass.send(:extend, ClassMethods)
           klass.send(:include, InstanceMethods)
-          Standard.register_uhooks klass, ClassMethods, InstanceMethods
-        end
-
-        module ClassMethods
-          # Applies any required extra scope to the filtered_search method
-          def uhook_filtered_search filters = {}
-            yield
-          end
+          Standard.register_uhooks klass, InstanceMethods
         end
 
         module InstanceMethods
@@ -42,6 +34,11 @@ module UbiquoMedia
           # Applies any required extra scope to the filtered_search method
           def uhook_filtered_search filters = {}
             yield
+          end
+
+          # Returns default values for automatically created Asset Relations
+          def uhook_default_values owner, reflection
+            {}
           end
         end
 
@@ -149,7 +146,8 @@ module UbiquoMedia
 
           def self.included(klass)
             klass.send(:extend, ClassMethods)
-            Standard.register_uhooks klass, ClassMethods
+            klass.send(:include, InstanceMethods)
+            Standard.register_uhooks klass, ClassMethods, InstanceMethods
           end
 
           module ClassMethods
@@ -158,6 +156,13 @@ module UbiquoMedia
               parameters = {:klass => self, :field => field, :options => options}
               Standard.register_uhook_call parameters
             end
+          end
+
+          module InstanceMethods
+            # Called when setting the +attributes+ of a media_attachment, before
+            # passing them to the nested_attributes handler. The +attributes+ object
+            # is the one that will be used, so any changes you do to it will remain
+            def uhook_media_attachment_set_attributes! field, attributes; end
           end
 
         end

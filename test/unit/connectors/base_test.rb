@@ -33,11 +33,6 @@ class UbiquoMedia::Connectors::BaseTest < ActiveSupport::TestCase
       ActiveRecord::Migration.uhook_create_asset_relations_table {}
     end
 
-    test 'uhook_filtered_search_in_asset_should_yield' do
-      Asset.expects(:all)
-      Asset.uhook_filtered_search { Asset.all }
-    end
-
     test 'uhook_after_update in asset should continue' do
       assert_not_equal false, AssetPublic.new.uhook_after_update
     end

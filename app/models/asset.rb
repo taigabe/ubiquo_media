@@ -67,15 +67,13 @@ class Asset < ActiveRecord::Base
     else {}
     end
 
-    uhook_filtered_search(filters) do
-      with_scope(filter_text) do
-        with_scope(filter_type) do
-          with_scope(filter_visibility) do
-            with_scope(filter_create_start) do
-              with_scope(filter_create_end) do
-                with_scope(:find => options) do
-                  Asset.find(:all)
-                end
+    with_scope(filter_text) do
+      with_scope(filter_type) do
+        with_scope(filter_visibility) do
+          with_scope(filter_create_start) do
+            with_scope(filter_create_end) do
+              with_scope(:find => options) do
+                Asset.find(:all)
               end
             end
           end
