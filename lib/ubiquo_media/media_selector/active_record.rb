@@ -128,14 +128,6 @@ module UbiquoMedia
             end
           end
 
-          self.has_many(field, {
-            :through => :asset_relations,
-            :class_name => "::Asset",
-            :source => :asset,
-            :conditions => {'asset_relations.field_name' => field.to_s},
-            :order => "asset_relations.position ASC"
-          },&proc)
-
           define_method("name_for_asset") do |asset_field, asset|
             return "" if asset_field.to_s.blank? || asset.nil?
             AssetRelation.name_for_asset(asset_field, asset, self)
@@ -148,6 +140,14 @@ module UbiquoMedia
             :conditions => {:field_name => field.to_s},
             :order => "asset_relations.position ASC"
           )
+
+          self.has_many(field, {
+            :through => :"#{field}_asset_relations",
+            :class_name => "::Asset",
+            :source => :asset,
+            :order => "asset_relations.position ASC"
+          },&proc)
+
           accepts_nested_attributes_for :"#{field}_asset_relations", :reject_if => :all_blank, :allow_destroy => true
 
           validate "required_amount_of_assets_in_#{field}"

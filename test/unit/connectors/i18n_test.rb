@@ -79,6 +79,35 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
       assert_equal 1, translated_instance.reload.photo.size
     end
 
+    test 'should not share attachments for the main :asset_relations reflection' do
+      UbiquoMedia::TestModel.class_eval do
+        media_attachment :photo, :translation_shared => true
+      end
+
+      assert !UbiquoMedia::TestModel.reflections[:asset_relations].is_translation_shared?
+    end
+
+    test 'should ony display the specific media attachment and not all of them' do
+      UbiquoMedia::TestModel.class_eval do
+        media_attachment :photo, :translation_shared => true
+        media_attachment :video, :translation_shared => true
+      end
+
+      Locale.current = 'ca'
+      instance = UbiquoMedia::TestModel.create :locale => 'ca'
+      instance.photo << photo = AssetPublic.create(:resource => Tempfile.new('tmp'), :name => 'photo')
+      instance.save
+
+      assert_equal photo, instance.photo.first
+      assert_equal photo, instance.reload.photo.first
+
+      # this fails cause instance.video == instance.photo
+      assert instance.video.blank?
+      assert instance.reload.video.blank?
+      assert instance.reload.video.reload.blank?
+      assert instance.video.blank?
+    end
+
     test 'should share attachments between translations when assignating' do
       UbiquoMedia::TestModel.class_eval do
         media_attachment :photo, :translation_shared => true
