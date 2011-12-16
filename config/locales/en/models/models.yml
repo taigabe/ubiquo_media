@@ -1,14 +1,14 @@
----
-en:
-  activerecord:
-    attributes:
-      asset:
+--- 
+en: 
+  activerecord: 
+    attributes: 
+      asset: 
         asset_type_id: "Resource Type"
-        description: ""
-        name: ""
-        resource: ""
-    models:
-      asset: ""
-    errors:
-      messages:
-        not_enough_assets: has not enough assets
+        description: Description
+        name: Name
+        resource: Resource
+    errors: 
+      messages: 
+        not_enough_assets: "has not enough assets"
+    models: 
+      asset: Asset
