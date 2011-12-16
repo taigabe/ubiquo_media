@@ -37,7 +37,17 @@
   </div>
 </div>
 <% javascript_tag do %>
-  media_fields.add_field('<%= counter %>', '<%= field %>', <%= field_options[:size].to_i %>, '<%= object_name %>');
+  <% # Extra options passed to js
+  forwarded_options = {
+    :crop_resize_options => {
+      :current_type => object.class.to_s.underscore,
+      :current_id => object.id || params[:from]
+      }
+    }
+  %>
+  media_fields.add_field('<%= counter %>', '<%= field %>', 
+    <%= field_options[:size].to_i %>, '<%= object_name %>',
+    <%= forwarded_options.to_json %>);
 
   <% asset_relations.each do |ar| %>
     <% next if ar.marked_for_destruction? %>

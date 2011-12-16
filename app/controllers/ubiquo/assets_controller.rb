@@ -221,7 +221,11 @@ class Ubiquo::AssetsController < UbiquoController
 
     respond_to do |format|
       if !errors && @asset.errors.empty? && @asset.resource.errors.empty?
-        flash[:notice] = t('ubiquo.media.asset_updated')
+        flash[:notice] = if params[:crop_resize_save_as_new].present?
+          t('ubiquo.media.image_saved_as_new')
+        else
+          t('ubiquo.media.image_updated')
+        end
 
         if params[:apply] || params[:save_as_new]
           format.any{ redirect_to( advanced_edit_ubiquo_asset_path(@asset, :target => params[:target]) )}
@@ -257,7 +261,7 @@ class Ubiquo::AssetsController < UbiquoController
     @asset = Asset.find(params[:id])
     return if uhook_edit_asset(@asset) == false
     if @asset.restore!
-      flash[:notice] = t('ubiquo.media.asset_updated')
+      flash[:notice] = t('ubiquo.media.image_updated')
     else
       flash[:error] = t('ubiquo.media.asset_update_error')
     end

@@ -17,10 +17,7 @@
   previewable = ( ( ratio == 1.0 ) && format_geometry.modifier == "#" rescue false )
   previewable = previewable && format_geometry.width <= original_geometry.width && format_geometry.height <= original_geometry.height
 
-  shared_asset_msg = if @asset.asset_relations.count > 0 &&
-      Ubiquo::Config.context(:ubiquo_media).get(:advanced_edit_warn_user_when_changing_asset_in_use)
-    t("ubiquo.media.affects_all_related_elements")
-  end
+  shared_asset_msg = shared_asset_warning_message_for(@asset, params)
 
 -%>
 <% if asset.resource.original_filename -%>

@@ -217,8 +217,9 @@ class Ubiquo::AssetsControllerTest < ActionController::TestCase
   end
 
   private
-
+  
   def update_asset_formats_test( options = {} )
+    @old_media_styles_list = Ubiquo::Config.context(:ubiquo_media).get(:media_styles_list).dup
     Ubiquo::Config.context(:ubiquo_media).get(:media_styles_list).merge!({
         :thumb => "100x100>",
         :base_to_crop => "320x200>",
@@ -272,6 +273,8 @@ class Ubiquo::AssetsControllerTest < ActionController::TestCase
 
     #Return data
     {:asset => asset}
+  ensure
+    Ubiquo::Config.context(:ubiquo_media).set(:media_styles_list, @old_media_styles_list)
   end
 
   def create_asset(options = {})

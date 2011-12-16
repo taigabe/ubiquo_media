@@ -52,7 +52,9 @@ Ubiquo::Plugin.register(:ubiquo_media, directory, config) do |config|
   # Advanced edit options (aka Crop&resize)
   config.add :assets_default_keep_backup, true
   # Warn the user when updating an asset that is related to an instance
-  config.add :advanced_edit_warn_user_when_changing_asset_in_use, false
+  config.add :advanced_edit_warn_user_when_changing_asset_in_use, true
+  # Warn the user when updating an asset related with more than this amount of elements
+  config.add :advanced_edit_warn_user_when_changing_asset_in_use_threshold, 1
   # When editing advanced from a media selector, allow to restore to uploaded asset.
   config.add :advanced_edit_allow_restore_from_media_selector, true
   # When false, we'll show "save as" option only on the crop tab and not on the formats.

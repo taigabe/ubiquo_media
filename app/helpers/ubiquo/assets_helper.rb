@@ -48,5 +48,29 @@ module Ubiquo::AssetsHelper
     #Ratio to original / base
     original_geo.send(field).to_f / base_geo.send(field).to_f
   end
+  
+  # Returns the message to show when other elements use this asset. Nil otherways.
+  def shared_asset_warning_message_for asset, params
+    count = asset.asset_relations.count
+    if count > 0 &&
+        Ubiquo::Config.context(:ubiquo_media).get(:advanced_edit_warn_user_when_changing_asset_in_use)
+      
+      # Alert when we are editing an asset which is used elsewhere, in other models.
+      do_warn = if count == 1 && params[:current_id].to_i > 0
+        related_object = asset.asset_relations.first.related_object
+        unless related_object.is_a?( params[:current_type].classify.constantize ) && 
+            related_object.id == params[:current_id].to_i
+          true # We are editing an asset that is related to another instance, not ours, so warn.
+        end
+      else
+        # Notice: when we are advanced_editing an element which is related to a 
+        # translatable model we'll warn even if it's :translation_shared
+        # TODO: manage when it's a relation in a translation_shared relation
+        threshold = (Ubiquo::Config.context(:ubiquo_media).get(:advanced_edit_warn_user_when_changing_asset_in_use_threshold) rescue 1)
+        threshold <= count # More than the limit so warn!
+      end 
+      t("ubiquo.media.affects_all_related_elements", :count => asset.asset_relations.count) if do_warn
+    end
+  end
 
 end

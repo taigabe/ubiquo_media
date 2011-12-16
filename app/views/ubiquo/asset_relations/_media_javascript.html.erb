@@ -15,8 +15,8 @@ if @is_media_included != true
         return ""+this.unique_counter;
       },
       // Limit = 0 -> no limit
-      add_field: function(counter, field, limit, name){
-        this.fields[counter] = {field: field, size: 0, max: limit, name: name};
+      add_field: function(counter, field, limit, name, options){
+        this.fields[counter] = {field: field, size: 0, max: limit, name: name, options: (options||{})};
       },
       //Adds a new element to a media field
       add_element: function(field, relation_id, asset_id, name, counter, thumbnail_url, view_link, asset_name, options){
@@ -104,7 +104,12 @@ if @is_media_included != true
           if( advanced_link.href.indexOf("?") < 0){
             advanced_link.href += "?";
           }
-          advanced_link.href += "target="+ target;
+          advanced_link.href += $H({
+            target: target, 
+            current_type: this.fields[counter].options.crop_resize_options.current_type,
+            current_id: this.fields[counter].options.crop_resize_options.current_id,
+            field: field
+          }).toQueryString();
           if( window["myLightWindow"] ){
             myLightWindow._processLink( advanced_link );
           }
