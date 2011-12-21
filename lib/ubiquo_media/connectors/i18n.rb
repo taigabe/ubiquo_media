@@ -36,9 +36,27 @@ module UbiquoMedia
 
         def self.included(klass)
           klass.send(:extend, ClassMethods)
+          klass.send(:include, InstanceMethods)
           klass.send(:translatable, :name, :position)
           klass.send(:share_translations_for, :asset, :related_object)
-          I18n.register_uhooks klass, ClassMethods
+          I18n.register_uhooks klass, ClassMethods, InstanceMethods
+        end
+
+        module InstanceMethods
+          def uhook_set_attribute_values
+            existing = related_object.send("#{field_name}_asset_relations").select do |ar|
+              ar.asset_id == asset_id
+            end.first
+            if existing
+              # Due to a rails dubious behaviour, it is possible to reach here in
+              # some circumstances (if an association has been loaded before the save).
+              # Being here means that an AssetRelation is being created automatically
+              # and that this AR would be a duplicate of an existing translation.
+              # As we have the policy of no repeated assets inside a media_attachment,
+              # they should have the same content_id
+              write_attribute :content_id, existing.content_id
+            end
+          end
         end
 
         module ClassMethods

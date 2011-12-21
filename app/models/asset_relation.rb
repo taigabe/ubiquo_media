@@ -4,7 +4,7 @@ class AssetRelation < ActiveRecord::Base
 
   validates_presence_of :asset
 
-  before_create :set_position_and_name
+  before_create :set_attribute_values
 
   # Return the name (used for foot-text of images, for example) for a given asset and field
   def self.name_for_asset(field, asset, related_object)
@@ -22,9 +22,9 @@ class AssetRelation < ActiveRecord::Base
 
   private
 
-  # Ensures the position and name fields is filled
-  def set_position_and_name
-    if related_object
+  # Ensures the position and name attributes are filled
+  def set_attribute_values
+    result = if related_object
       set_asset_name     unless self.name
       set_lower_position unless self.position
     else
@@ -32,6 +32,8 @@ class AssetRelation < ActiveRecord::Base
       errors.add(:related_object, :blank)
       false
     end
+    # if the uhook returns false, then stop the propagation
+    result && (uhook_set_attribute_values != false)
   end
 
   # sets the name of the relation to the asset name

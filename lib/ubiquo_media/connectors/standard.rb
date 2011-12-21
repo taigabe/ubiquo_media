@@ -27,7 +27,13 @@ module UbiquoMedia
 
         def self.included(klass)
           klass.send(:extend, ClassMethods)
-          Standard.register_uhooks klass, ClassMethods
+          klass.send(:include, InstanceMethods)
+          Standard.register_uhooks klass, ClassMethods, InstanceMethods
+        end
+
+        module InstanceMethods
+          # Allows to define attribute values before an AssetRelation is created
+          def uhook_set_attribute_values; end
         end
 
         module ClassMethods

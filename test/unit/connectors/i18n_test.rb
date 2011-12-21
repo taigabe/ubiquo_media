@@ -108,6 +108,25 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
       assert instance.video.blank?
     end
 
+    test 'should not duplicate asset relations with different content_id when assigning directly' do
+      UbiquoMedia::TestModel.class_eval do
+        media_attachment :gallery, :translation_shared => true
+      end
+
+      Locale.current = 'ca'
+      instance = UbiquoMedia::TestModel.create :locale => 'ca'
+      2.times do
+        instance.gallery << AssetPublic.create(:resource => Tempfile.new('tmp'), :name => 'gallery')
+      end
+
+      instance.save
+      Locale.current = 'en'
+      translation = instance.translate('en')
+      translation.gallery # load the association, required to recreate the bug
+      translation.save
+      assert_equal 2, translation.reload.gallery.size
+    end
+
     test 'should share attachments between translations when assignating' do
       UbiquoMedia::TestModel.class_eval do
         media_attachment :photo, :translation_shared => true
