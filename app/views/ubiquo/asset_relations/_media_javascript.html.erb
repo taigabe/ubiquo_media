@@ -4,6 +4,7 @@ if @is_media_included != true
   @is_media_included = true
 %>
   <script type="text/javascript">
+    //<![CDATA[
     var Media = Class.create({
       initialize: function(){
         this.unique_counter = 0;
@@ -197,5 +198,6 @@ if @is_media_included != true
       }
     });
     media_fields = new Media();
+    //]]>
   </script>
 <% end %>
