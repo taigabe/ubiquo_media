@@ -55,9 +55,16 @@ class AssetTest < ActiveSupport::TestCase
     Asset.delete_all
     asset1 = create_asset(:name => 'name1', :description => 'description1')
     asset2 = create_asset(:name => 'name2', :description => 'description2')
+
+    #Old filters
     assert_equal_set [asset1, asset2], Asset.filtered_search({:text => 'name'})
     assert_equal_set [asset1], Asset.filtered_search({:text => 'nAMe1'})
     assert_equal_set [asset2], Asset.filtered_search({:text => 'DESCRIPTION2'})
+
+    #New filters
+    assert_equal_set [asset1, asset2], Asset.filtered_search({"filter_text" => 'name'})
+    assert_equal_set [asset1], Asset.filtered_search({"filter_text" => 'nAMe1'})
+    assert_equal_set [asset2], Asset.filtered_search({"filter_text" => 'DESCRIPTION2'})
   end
 
   def test_filter_by_creation_date
@@ -65,9 +72,16 @@ class AssetTest < ActiveSupport::TestCase
     asset1 = create_asset(:created_at => 3.days.ago)
     asset2 = create_asset(:created_at => 1.days.from_now)
     asset3 = create_asset(:created_at => 10.days.from_now)
+
+    #Old filters
     assert_equal_set [asset2, asset3], Asset.filtered_search({:created_start => Time.now}, {})
     assert_equal_set [asset1], Asset.filtered_search({:created_end => Time.now}, {})
     assert_equal_set [asset1, asset2], Asset.filtered_search({:created_start => 5.days.ago, :created_end => 1.days.from_now}, {})
+
+    #New filters
+    assert_equal_set [asset2, asset3], Asset.filtered_search({"filter_created_start" => Time.now}, {})
+    assert_equal_set [asset1], Asset.filtered_search({"filter_created_end" => Time.now}, {})
+    assert_equal_set [asset1, asset2], Asset.filtered_search({"filter_created_start" => 5.days.ago, "filter_created_end" => 1.days.from_now}, {})
   end
 
   def test_should_be_stored_in_public_path

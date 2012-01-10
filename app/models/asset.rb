@@ -22,6 +22,25 @@ class Asset < ActiveRecord::Base
   after_save :update_backup
   after_save :save_geometries
 
+  named_scope :type, lambda {|type|{
+    :conditions => ["asset_type_id IN (?)", type.to_s.split(',').map(&:to_i)]
+  }}
+
+  named_scope :visibility, lambda {|visibility|{
+    :conditions => {:type => "asset_#{visibility}".classify}
+  }}
+
+  named_scope :created_start, lambda {|created_start|{
+    :conditions => ["created_at >= ?", parse_date(created_start)]
+  }}
+
+  named_scope :created_end, lambda {|created_end|{
+    :conditions => ["created_at <= ?", parse_date(created_end, :time_offset => 1.day)]
+  }}
+
+filtered_search_scopes :text => [:name, :description],
+                         :enable => [:type, :visibility, :created_start, :created_end]
+
   # Generic find (ID, key or record)
   def self.gfind(something, options={})
     case something
@@ -36,50 +55,26 @@ class Asset < ActiveRecord::Base
     end
   end
 
-  # filters:
-
-  #   :type: ID of AssetType separated by commas
-  #   :text: String to search in asset name and description
-  #
-  # options: find_options
+  # To mantain backwards compatibility with old filters
   def self.filtered_search(filters = {}, options = {})
-    filter_type = if filters[:type]
-      types_id = filters[:type].to_s.split(",").map(&:to_i)
-      {:find => {:conditions => ["assets.asset_type_id IN (?)", types_id]}}
-    else {}
-    end
-    filter_text = unless filters[:text].blank?
-      args = ["%#{filters[:text]}%"] * 2
-      condition = "upper(assets.name) LIKE upper(?) OR upper(assets.description) LIKE upper(?)"
-      {:find => {:conditions => [condition] + args}}
-    else {}
-    end
-    filter_visibility = unless filters[:visibility].blank?
-      {:find => {:conditions => ["assets.type = ?", "asset_#{filters[:visibility]}".classify]}}
-    else {}
-    end
-    filter_create_start = if filters[:created_start]
-      {:find => {:conditions => ["assets.created_at >= ?", filters[:created_start]]}}
-    else {}
-    end
-    filter_create_end = if filters[:created_end]
-      {:find => {:conditions => ["assets.created_at <= ?", filters[:created_end]]}}
-    else {}
-    end
-
-    with_scope(filter_text) do
-      with_scope(filter_type) do
-        with_scope(filter_visibility) do
-          with_scope(filter_create_start) do
-            with_scope(filter_create_end) do
-              with_scope(:find => options) do
-                Asset.find(:all)
-              end
-            end
-          end
-        end
+    new_filters = {}
+    filters.each do |key, value|
+      if key == :type
+        new_filters["filter_type"] = value
+      elsif key == :text
+        new_filters["filter_text"] = value
+      elsif key == :visibility
+        new_filters["filter_visibility"] = value
+      elsif key == :created_start
+        new_filters["filter_created_start"] = value
+      elsif key == :created_end
+        new_filters["filter_created_end"] = value
+      else
+        new_filters[key] = value
       end
     end
+
+    super new_filters, options
   end
 
   def self.visibilize(visibility)

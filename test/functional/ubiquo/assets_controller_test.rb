@@ -92,7 +92,7 @@ class Ubiquo::AssetsControllerTest < ActionController::TestCase
                    :name => "MyName"
                    )
     end
-    get :search, :field => 'image', :text => 'MyName', :page => 1
+    get :search, :field => 'image', :text => 'MyName', :page => 1, :per_page => list_size
     assert_response :success
     assert_equal assigns(:assets).size, list_size
     assert_equal assigns(:assets_pages), {:previous => nil, :next => 2}
