@@ -55,8 +55,10 @@ class Ubiquo::AssetsController < UbiquoController
     @asset = uhook_create_asset asset_visibility
     respond_to do |format|
       if @asset.save
-        flash[:notice] = t('ubiquo.media.asset_created')
-        format.html { redirect_to(ubiquo_assets_path) }
+        format.html do 
+          flash[:notice] = t('ubiquo.media.asset_created')
+          redirect_to(ubiquo_assets_path)
+        end
         format.xml  { render :xml => @asset, :status => :created, :location => @asset }
         format.js {
           responds_to_parent do
