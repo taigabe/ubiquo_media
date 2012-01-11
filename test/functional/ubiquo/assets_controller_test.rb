@@ -172,6 +172,19 @@ class Ubiquo::AssetsControllerTest < ActionController::TestCase
     assert !flash[:error].blank?
   end
 
+  def test_advanced_edit_hides_tabs_when_formats
+    preserve_configuration do
+      Ubiquo::Config.context(:ubiquo_media).set(:media_styles_list,{})
+
+      asset = create_image_asset
+
+      get :advanced_edit, :id => asset.id
+      assert_response :success
+
+      assert_select "#resize-actions li",0
+    end
+  end
+
   def test_should_advanced_update_asset_original
     asset = create_image_asset
 
@@ -219,62 +232,61 @@ class Ubiquo::AssetsControllerTest < ActionController::TestCase
   private
   
   def update_asset_formats_test( options = {} )
-    @old_media_styles_list = Ubiquo::Config.context(:ubiquo_media).get(:media_styles_list).dup
-    Ubiquo::Config.context(:ubiquo_media).get(:media_styles_list).merge!({
-        :thumb => "100x100>",
-        :base_to_crop => "320x200>",
-        :long => "30x180#" #Very vertical image
-      })
+    preserve_configuration do
+      Ubiquo::Config.context(:ubiquo_media).get(:media_styles_list).merge!({
+          :thumb => "100x100>",
+          :base_to_crop => "320x200>",
+          :long => "30x180#" #Very vertical image
+        })
 
-    asset = create_image_asset
+      asset = create_image_asset
 
-    put( :advanced_update, ({ :id => asset.id,
-       "operation_type"=>"formats",
-      "asset" => {"keep_backup" => true},
-      "crop_resize" => {
-        "original"=>{
-          "left"=>"1",
-          "width"=>"10",
-          "top"=>"0",
-          "height"=>"10",
+      put( :advanced_update, ({ :id => asset.id,
+         "operation_type"=>"formats",
+        "asset" => {"keep_backup" => true},
+        "crop_resize" => {
+          "original"=>{
+            "left"=>"1",
+            "width"=>"10",
+            "top"=>"0",
+            "height"=>"10",
+            },
+          "thumb"=>{
+            "left"=>"2",
+            "width"=>"15",
+            "top"=>"3",
+            "height"=>"12",
           },
-        "thumb"=>{
-          "left"=>"2",
-          "width"=>"15",
-          "top"=>"3",
-          "height"=>"12",
-        },
-        "long"=>{
-          "left"=>"0",
-          "width"=>"20",
-          "top"=>"2",
-          "height"=>"60",
-          },
-        }
-      }).merge( options[:request] || {} )
-    )
+          "long"=>{
+            "left"=>"0",
+            "width"=>"20",
+            "top"=>"2",
+            "height"=>"60",
+            },
+          }
+        }).merge( options[:request] || {} )
+      )
 
-    assert_nil assigns(:asset).asset_areas.find_by_style("original")
-    assert_nil assigns(:asset).asset_areas.find_by_style("base_to_crop")
+      assert_nil assigns(:asset).asset_areas.find_by_style("original")
+      assert_nil assigns(:asset).asset_areas.find_by_style("base_to_crop")
 
-    thumb = assigns(:asset).asset_areas.find_by_style("thumb")
-    assert_equal 2, thumb.left
-    assert_equal 15, thumb.width
-    assert_equal 12, thumb.height
-    assert_equal 3, thumb.top
+      thumb = assigns(:asset).asset_areas.find_by_style("thumb")
+      assert_equal 2, thumb.left
+      assert_equal 15, thumb.width
+      assert_equal 12, thumb.height
+      assert_equal 3, thumb.top
 
-    thumb = assigns(:asset).asset_areas.find_by_style("long")
-    assert_equal 0, thumb.left
-    assert_equal 20, thumb.width
-    assert_equal 60, thumb.height
-    assert_equal 2, thumb.top
+      thumb = assigns(:asset).asset_areas.find_by_style("long")
+      assert_equal 0, thumb.left
+      assert_equal 20, thumb.width
+      assert_equal 60, thumb.height
+      assert_equal 2, thumb.top
 
-    assert_redirected_to ubiquo_assets_path
+      assert_redirected_to ubiquo_assets_path
 
-    #Return data
-    {:asset => asset}
-  ensure
-    Ubiquo::Config.context(:ubiquo_media).set(:media_styles_list, @old_media_styles_list)
+      #Return data
+      {:asset => asset}
+    end
   end
 
   def create_asset(options = {})
@@ -318,4 +330,11 @@ class Ubiquo::AssetsControllerTest < ActionController::TestCase
 
   end
 
+  # To recover the configuration after the changes.
+  def preserve_configuration
+    @old_media_styles_list = Ubiquo::Config.context(:ubiquo_media).get(:media_styles_list).dup
+    yield
+  ensure
+    Ubiquo::Config.context(:ubiquo_media).set(:media_styles_list, @old_media_styles_list)
+  end
 end

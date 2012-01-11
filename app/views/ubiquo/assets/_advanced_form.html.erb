@@ -11,16 +11,16 @@
     <%= hidden_field_tag("operation_type", "original") %>
     <%= hidden_field_tag "asset_name", @asset.name, :id => "crop_resize_asset_name" %>
     <div id="resize-actions">
+      <% unless hide_styles %>
       <ul>
         <li>
           <a href="#" class="resize-highlighted-action" onclick="$('operation_type').value='original'; return false;" rel="#original_tab_contents_<%= form_scope %>"><%= t("ubiquo.media.crop") %></a>
         </li>
-      <% unless hide_styles %>
         <li >
           <a href="#" onclick="$('operation_type').value='styles';return false;" rel="#styles_tab_content_<%= form_scope %>" ><%= t("ubiquo.media.formats") %></a>
         </li>
-      <% end %>
       </ul>
+      <% end %>
     </div>
     <div class="tab_content_container">
       <div id="original_tab_contents_<%= form_scope %>" class="resize-box tab-content">
