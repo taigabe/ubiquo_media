@@ -53,8 +53,16 @@ class Ubiquo::AssetsController < UbiquoController
     visibility = get_visibility(params)
     asset_visibility = "asset_#{visibility}".classify.constantize
     @asset = uhook_create_asset asset_visibility
+    ok = @asset.save
+    if params[:accepted_types]
+      if !params[:accepted_types].include?( @asset.asset_type.key )
+        ok = false
+        @asset.destroy
+        @asset.errors.add_to_base(t("ubiquo.media.invalid_asset_type"))
+      end
+    end
     respond_to do |format|
-      if @asset.save
+      if ok
         format.html do 
           flash[:notice] = t('ubiquo.media.asset_created')
           redirect_to(ubiquo_assets_path)
@@ -77,7 +85,8 @@ class Ubiquo::AssetsController < UbiquoController
                 :locals => {
                   :counter => counter,
                   :field => field,
-                  :visibility => visibility
+                  :visibility => visibility,
+                  :accepted_types => params[:accepted_types]
                 })
               @asset = saved_asset
             end
@@ -98,7 +107,8 @@ class Ubiquo::AssetsController < UbiquoController
                 :locals => {
                   :field => field,
                   :counter => counter,
-                  :visibility => visibility
+                  :visibility => visibility,
+                  :accepted_types => params[:accepted_types]
                 })
             end
           end

@@ -58,6 +58,7 @@ es:
       asset_view: "ver"
       invalid_related_object_type: "Identificador invalido para el tipo seleccionado: %{type} %{id}"
       invalid: "invalido"
+      invalid_asset_type: "Tipo de fichero incorrecto"
       type_filter: "Filtrar por tipo"
       # Resize
       crop_and_resize: "Redimensionar imagen"

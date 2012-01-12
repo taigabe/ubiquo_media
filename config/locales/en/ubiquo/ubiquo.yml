@@ -58,6 +58,7 @@ en:
       asset_view: "view"
       invalid_related_object_type: "Invalid identifier for the selected type: %{type} %{id}"
       invalid: "invalid"
+      invalid_asset_type: "Wrong file type"
       type_filter: "Filter by type"
       # Resize
       crop_and_resize: "Resize image"

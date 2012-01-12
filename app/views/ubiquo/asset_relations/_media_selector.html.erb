@@ -18,6 +18,7 @@
               :field => field,
               :counter => counter,
               :types => field_options[:types],
+              :accepted_types => field_options[:types].map(&:key),
               :visibility => visibility } %>
       </div>
     </fieldset>

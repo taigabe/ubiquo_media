@@ -58,6 +58,7 @@ ca:
       asset_view: "veure"
       invalid_related_object_type: "Identificador invàlid pel tipus seleccionat: %{type} %{id}"
       invalid: "invàlid"
+      invalid_asset_type: "Tipus de fitxer incorrecte"
       type_filter: "Filtrar per tipus"
       # Resize
       crop_and_resize: "Redimensionar imatge"

@@ -4,6 +4,9 @@
   <%= tag(:input, :type => "hidden", :name => request_forgery_protection_token.to_s, :value =>  Rails.env.test? ? "" : form_authenticity_token) %>
   <%= tag(:input, :type => "hidden", :name => "counter", :value => counter) %>
   <%= tag(:input, :type => "hidden", :name => "field", :value => field) %>
+  <% (accepted_types || []).each do |type_key| %>
+    <%= tag(:input, :type => "hidden", :name => "accepted_types[]", :value => type_key) %>
+  <% end %>
   <div class="form-item">
     <%= label :asset, :name, Asset.human_attribute_name("name") %>
     <%= text_field :asset, :name %>

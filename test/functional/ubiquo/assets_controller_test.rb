@@ -39,8 +39,8 @@ class Ubiquo::AssetsControllerTest < ActionController::TestCase
     assert_difference('Asset.count') do
       post :create, :asset => { :name => "new asset",
                                 :resource => test_file,
-                                :asset_type_id => AssetType.find(:first).id},
                                 :is_protected => false
+      }
     end
     assert_redirected_to ubiquo_assets_path
     assert flash[:notice]
@@ -50,11 +50,28 @@ class Ubiquo::AssetsControllerTest < ActionController::TestCase
     assert_difference('Asset.count') do
       xhr :post, :create, :asset => { :name => "new asset",
                                 :resource => test_file,
-                                :asset_type_id => AssetType.find(:first).id},
                                 :is_protected => false
+      }
     end
     assert_response :success
     assert flash[:notice].blank?, "Expecting emtpy message but getting, #{flash[:notice].inspect}"
+  end
+
+  def test_should_create_asset_by_xhr_and_validate_type
+    assert_no_difference('Asset.count') do
+      xhr :post, :create,{ 
+          :asset => { 
+            :name => "new asset",
+            :resource => test_file,
+            :is_protected => false
+          },
+          :accepted_types => ["image"]
+        }
+    end
+    assert_response :success
+    assert @response.body.include?("errorExplanation") # The div with error message is shown
+    # no add_element is called as it has failed
+    assert !@response.body.include?("add_element")
   end
 
   def test_should_get_edit
