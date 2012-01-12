@@ -172,9 +172,11 @@ module UbiquoMedia
             end
 
             current_amount = send("#{field}_current_asset_relations").size
-
-            invalid = required_amount &&  current_amount < required_amount
-            errors.add(field, :not_enough_assets) if invalid
+            
+            if required_amount
+              errors.add(field, :not_enough_assets) if current_amount < required_amount
+              errors.add(field, :too_much_assets) if current_amount > required_amount
+            end
           end
           
           define_method "valid_asset_types_in_#{field}" do

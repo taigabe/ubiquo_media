@@ -281,6 +281,24 @@ class MediaFileTest < ActiveSupport::TestCase
     end
   end
 
+  def test_should_not_accept_more_than_size
+    AssetRelation.destroy_all
+    asset_one, asset_two = two_assets
+    item = AssetType.new(:sized => [asset_one, asset_two, Asset.first(:offset => 3)])
+    item.sized.options[:required] = true
+
+    begin
+      assert !item.valid?
+      assert item.errors.on(:sized)
+
+      item.update_attributes :sized => [asset_one, asset_two]
+      assert item.valid?
+    ensure
+      # cleanup
+      item.sized.options[:required] = false
+    end
+  end
+
   # as above, but with the method that controllers will use
   def test_should_require_all_n_assets_if_true_using_attributes
     AssetRelation.destroy_all
