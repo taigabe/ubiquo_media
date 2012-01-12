@@ -62,7 +62,7 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
       translated_instance = instance.translate('en')
       translated_instance.save
 
-      instance.photo << AssetPublic.create(:resource => Tempfile.new('tmp'), :name => 'photo')
+      instance.photo << create_image
       assert_equal 0, translated_instance.reload.photo.size
     end
 
@@ -75,7 +75,7 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
       translated_instance = instance.translate('en')
       translated_instance.save
 
-      instance.photo << AssetPublic.create(:resource => Tempfile.new('tmp'), :name => 'photo')
+      instance.photo << create_image
       assert_equal 1, translated_instance.reload.photo.size
     end
 
@@ -95,7 +95,7 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
 
       Locale.current = 'ca'
       instance = UbiquoMedia::TestModel.create :locale => 'ca'
-      instance.photo << photo = AssetPublic.create(:resource => Tempfile.new('tmp'), :name => 'photo')
+      instance.photo << photo = create_image
       instance.save
 
       assert_equal photo, instance.photo.first
@@ -136,7 +136,7 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
       translated_instance = instance.translate('en')
       translated_instance.save
 
-      instance.photo = [AssetPublic.create(:resource => Tempfile.new('tmp'), :name => 'photo')]
+      instance.photo = [create_image]
       assert_equal 1, translated_instance.reload.photo.size
     end
 
@@ -149,7 +149,7 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
       instance = UbiquoMedia::TestModel.create :locale => 'ca'
       translated_instance = instance.translate('en')
       translated_instance.save
-      instance.photo << photo = AssetPublic.create(:resource => Tempfile.new('tmp'), :name => 'photo')
+      instance.photo << photo = create_image
 
       # save the original name in the translation and then update it
       original_name = AssetRelation.name_for_asset :photo, translated_instance.reload.photo.first, translated_instance
@@ -177,7 +177,7 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
 
       Locale.current = 'ca'
       instance = UbiquoMedia::TestModel.create :locale => 'ca'
-      instance.photo << photo = AssetPublic.create(:resource => Tempfile.new('tmp'), :name => 'photo')
+      instance.photo << photo = create_image
       translated_instance = instance.translate('en')
       translated_instance.content_id = nil
 
@@ -199,6 +199,59 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
       assert_equal original_name, instance.name_for_asset(:photo, photo)
     end
 
+    test 'should clean old asset relations when have some new assigned' do
+     UbiquoMedia::TestModel.class_eval do
+       media_attachment :photo, :translation_shared => true
+     end
+
+     Locale.current = 'ca'
+     instance = UbiquoMedia::TestModel.create :locale => 'ca'
+     t = instance.translate('es')
+     assert t.save
+
+     image = create_image
+     assert_difference('AssetRelation.count') do
+       instance.photo = [image]
+     end
+     assert_equal [image], t.reload.photo
+
+     relation = instance.photo_asset_relations.first
+     relation_translated = relation.translate('es')
+     relation_translated.related_object_id = t.id
+
+     assert_difference('AssetRelation.count') do
+       relation_translated.save
+     end
+
+     Locale.current = nil
+     assert_equal [image], t.reload.photo
+     assert_equal [relation_translated], t.reload.photo_asset_relations
+
+     assert_equal [image], instance.reload.photo
+     assert_equal [relation], instance.reload.photo_asset_relations
+
+     assert_equal relation.reload.related_object_id, instance.id
+     assert_equal relation_translated.reload.related_object_id, t.id
+
+     # now the real test
+     Locale.current = 'ca'
+     instance.reload
+     t.reload
+     new_image = create_image
+
+     # should delete the two existing AssetRelation and create a new one
+     assert_difference('AssetRelation.count', -2 + 1 ) do
+       instance.update_attributes :photo_attributes => {
+         "2"=>{"name"=>"Imagen 2", "position"=>"1", "asset_id"=>new_image.id}
+       }
+     end
+
+     assert_equal [new_image], t.reload.photo
+     assert_equal [new_image], instance.reload.photo
+
+     assert !AssetRelation.find_by_id(relation.id)
+     assert !AssetRelation.find_by_id(relation_translated.id)
+    end
 
     private
 
@@ -214,6 +267,10 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
         ActiveRecord::Base.connection.create_table(:ubiquo_media_test_models, :translatable => true) {}
       end
       UbiquoMedia::TestModel.translatable
+    end
+
+    def create_image
+      AssetPublic.create(:resource => Tempfile.new('tmp'), :name => 'photo')
     end
 
   else
