@@ -11,3 +11,4 @@ ca:
     errors:
       messages:
         not_enough_assets: no té tots els elements multimèdia requerits
+        wrong_asset_type: conté un tipus de fitxer no apte per aquest camp

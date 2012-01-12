@@ -1,6 +1,8 @@
 --- 
 en: 
   activerecord: 
+    models: 
+      asset: Asset
     attributes: 
       asset: 
         asset_type_id: "Resource Type"
@@ -10,5 +12,4 @@ en:
     errors: 
       messages: 
         not_enough_assets: "has not enough assets"
-    models: 
-      asset: Asset
+        wrong_asset_type: has a file type not suitable for this field

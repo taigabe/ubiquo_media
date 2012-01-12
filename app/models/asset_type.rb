@@ -15,4 +15,15 @@ class AssetType < ActiveRecord::Base
     end
   end
 
+  # Returns the AssetTypes that fit this types.
+  # Expects an array of keys [:image, :other] or the symbol :ALL
+  def self.get_by_keys( types )
+    types = [types].flatten.map(&:to_sym)
+    if(types.include?(:ALL))
+      AssetType.find(:all)
+    else
+      types.map{|o|AssetType.gfind(o)}
+    end
+  end
+    
 end

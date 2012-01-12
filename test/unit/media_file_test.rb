@@ -409,6 +409,14 @@ class MediaFileTest < ActiveSupport::TestCase
       AssetPublic.attachment_definitions[:resource] = AssetPrivate.attachment_definitions[:resource]
     end
   end
+  
+  def test_shoud_not_save_wrong_asset_type_relations
+    t = AssetType.first
+    a = assets(:doc)
+    t.some_types << a
+    assert !t.valid?
+    assert !t.save
+  end
 
   protected
 

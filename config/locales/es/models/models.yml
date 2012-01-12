@@ -1,3 +1,4 @@
+--- 
 es:
   activerecord:
     models:
@@ -12,3 +13,4 @@ es:
     errors:
       messages:
         not_enough_assets: no tiene los elementos suficientes
+        wrong_asset_type: contiene un tipo de fichero no apto para este campo

@@ -57,7 +57,10 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
         unshare_translations_for :photo
         media_attachment :photo, :translation_shared => false
       end
-
+      
+      # FIXME: this test makes trouble on UbiquoMedia::MediaSelector::ActiveRecord
+      # valid_asset_types_in_* complaining that it has an AssetRelation with a non-existing asset.
+      # To reproduce that go to the mentioned class and comment the FIXME too
       instance = UbiquoMedia::TestModel.create :locale => 'ca'
       translated_instance = instance.translate('en')
       translated_instance.save

@@ -86,7 +86,11 @@ module UbiquoMedia
               :dependent => :destroy,
               :order => "asset_relations.position ASC"
           }) unless self.respond_to?(:asset_relations)
-
+        
+          # WARNING: asset_types are cached since you define media_attachment on a model!
+          # A server restart could be required when adding new asset_types
+          options[:types] = AssetType.get_by_keys(options[:types])
+          
           proc = Proc.new do
 
             def is_full?
@@ -95,22 +99,11 @@ module UbiquoMedia
             end
 
             def accepts? asset
-              refresh_types if self.options[:asset_types].nil?
-              self.options[:asset_types].include?(asset.asset_type)
+              self.options[:types].include?(asset.asset_type)
             end
 
             define_method('options') do
-              refresh_types if options[:asset_types].nil?
               options
-            end
-
-            define_method('refresh_types') do
-              options[:types] = [options[:types]].flatten.map(&:to_sym)
-              if(options[:types].include?(:ALL))
-                options[:asset_types] = AssetType.find(:all)
-              else
-                options[:asset_types] = options[:types].map{|o|AssetType.gfind(o)}
-              end
             end
 
             define_method('reset_positions') do |assets|
@@ -152,14 +145,12 @@ module UbiquoMedia
           accepts_nested_attributes_for :"#{field}_asset_relations", :reject_if => :all_blank, :allow_destroy => true
 
           validate "required_amount_of_assets_in_#{field}"
+          
+          validate "valid_asset_types_in_#{field}"
 
-          define_method "required_amount_of_assets_in_#{field}" do
-            required_amount = case options[:required]
-            when TrueClass
-              options[:size] == :many ? 1 : options[:size]
-            when Fixnum
-              options[:required]
-            end
+          # To get the current assets related (in memory).
+          # CAUTION: it can return Assets or AssetRelations
+          define_method "#{field}_current_asset_relations" do
             # Note that the field to watch depends on how relations have been assigned.
             # Usually, in the controller flow, will be _field_asset_relations_, but if it's
             # empty, we'll take a look to _field_ and if there is something, we assume
@@ -167,12 +158,39 @@ module UbiquoMedia
             # This is a far from perfect approach and could be a bug in some situations,
             # but it's the best way we've found to correctly perform this validation
             # in the usual use cases without monkeypatching.
-            current_amount = send("#{field}_asset_relations").present? ?
-              send("#{field}_asset_relations").reject(&:marked_for_destruction?).size :
-              send(field).size
+            send("#{field}_asset_relations").present? ?
+              send("#{field}_asset_relations").reject(&:marked_for_destruction?) :
+              send(field)
+          end
+          
+          define_method "required_amount_of_assets_in_#{field}" do
+            required_amount = case options[:required]
+            when TrueClass
+              options[:size] == :many ? 1 : options[:size]
+            when Fixnum
+              options[:required]
+            end
+
+            current_amount = send("#{field}_current_asset_relations").size
 
             invalid = required_amount &&  current_amount < required_amount
             errors.add(field, :not_enough_assets) if invalid
+          end
+          
+          define_method "valid_asset_types_in_#{field}" do
+            invalid = send("#{field}_current_asset_relations").to_a.detect do |asset|
+              # current_asset_relations can return assets or asset_relations
+              asset = asset.respond_to?( :asset ) ? asset.asset : asset
+              if asset
+                !options[:types].include?(asset.asset_type)
+              else
+                # FIXME: some I18nTest methods fail 'cause the asset does not exist
+                # Some weird cases the asset does not exist, so we cannot validate.
+                self.logger.warn("Asset type could not be checked for #{self.inspect}")
+                false
+              end
+            end.present?
+            errors.add(field, :wrong_asset_type) if invalid
           end
 
           # Like Rails' nested_attributes (uses it), but it's a hard-assign,
