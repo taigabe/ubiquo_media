@@ -138,7 +138,8 @@ module UbiquoMedia
             :class_name => "::AssetRelation",
             :as => :related_object,
             :conditions => {:field_name => field.to_s},
-            :order => "asset_relations.position ASC"
+            :order => "asset_relations.position ASC",
+            :dependent => :destroy
           )
 
           self.has_many(field, {
