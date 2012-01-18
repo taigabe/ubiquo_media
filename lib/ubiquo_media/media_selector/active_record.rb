@@ -87,22 +87,18 @@ module UbiquoMedia
               :order => "asset_relations.position ASC"
           }) unless self.respond_to?(:asset_relations)
         
-          # WARNING: asset_types are cached since you define media_attachment on a model!
-          # A server restart could be required when adding new asset_types
-          options[:types] = AssetType.get_by_keys(options[:types])
-          
           proc = Proc.new do
-
             def is_full?
               return false if self.options[:size].to_sym == :many
               self.size >= self.options[:size]
             end
 
             def accepts? asset
-              self.options[:types].include?(asset.asset_type)
+              self.options[:asset_types].include?(asset.asset_type)
             end
 
             define_method('options') do
+              proxy_owner.send("#{field}_initialize_asset_types")
               options
             end
 
@@ -147,6 +143,14 @@ module UbiquoMedia
           validate "required_amount_of_assets_in_#{field}"
           
           validate "valid_asset_types_in_#{field}"
+          
+          define_method "#{field}_initialize_asset_types" do
+            # WARNING: asset_types are cached since you define media_attachment on a model!
+            # A server restart could be required when adding new asset_types
+            if options[:asset_types].blank?
+              options[:asset_types] = AssetType.get_by_keys(options[:types]) 
+            end
+          end
 
           # To get the current assets related (in memory).
           # CAUTION: it can return Assets or AssetRelations
@@ -180,11 +184,12 @@ module UbiquoMedia
           end
           
           define_method "valid_asset_types_in_#{field}" do
+            send("#{field}_initialize_asset_types")
             invalid = send("#{field}_current_asset_relations").to_a.detect do |asset|
               # current_asset_relations can return assets or asset_relations
               asset = asset.respond_to?( :asset ) ? asset.asset : asset
               if asset
-                !options[:types].include?(asset.asset_type)
+                !options[:asset_types].include?(asset.asset_type)
               else
                 # FIXME: some I18nTest methods fail 'cause the asset does not exist
                 # Some weird cases the asset does not exist, so we cannot validate.

@@ -436,6 +436,21 @@ class MediaFileTest < ActiveSupport::TestCase
     assert !t.save
   end
 
+  # Issue #699
+  def test_should_defer_asset_type_loading
+    # Will not be called as we do not use it.
+    AssetType.expects(:get_by_keys).never
+    AssetType.send(:media_attachment, :test_should_defer_asset_type_loading, :types => %w{audio video} )
+  end
+
+  def test_should_defer_asset_type_loading_but_loaded_at_last
+    # Will not be called as we do not use it.
+    AssetType.expects(:get_by_keys).once.returns([AssetType.first])
+    AssetType.send(:media_attachment, :test_should_defer_asset_type_loading_2, :types => %w{audio video} )
+    a = AssetType.new
+    a.test_should_defer_asset_type_loading_2.accepts? assets(:image) # Trigger loading
+  end
+  
   protected
 
   def two_assets
