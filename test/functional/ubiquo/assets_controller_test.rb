@@ -73,6 +73,23 @@ class Ubiquo::AssetsControllerTest < ActionController::TestCase
     # no add_element is called as it has failed
     assert !@response.body.include?("add_element")
   end
+  
+  def test_should_create_asset_by_xhr_and_validate_type_unless_fails
+    assert_no_difference('Asset.count') do
+      xhr :post, :create,{ 
+          :asset => { 
+            :name => "asd",
+            :resource => nil,
+            :is_protected => false
+          },
+          :accepted_types => AssetType.all.map(&:key)
+        }
+    end
+    assert_response :success
+    assert @response.body.include?("errorExplanation") # The div with error message is shown
+    # no add_element is called as it has failed
+    assert !@response.body.include?("add_element")
+  end
 
   def test_should_get_edit
     get :edit, :id => assets(:video).id

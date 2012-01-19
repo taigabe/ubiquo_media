@@ -54,7 +54,7 @@ class Ubiquo::AssetsController < UbiquoController
     asset_visibility = "asset_#{visibility}".classify.constantize
     @asset = uhook_create_asset asset_visibility
     ok = @asset.save
-    if params[:accepted_types]
+    if ok && params[:accepted_types]
       if !params[:accepted_types].include?( @asset.asset_type.key )
         ok = false
         @asset.destroy
@@ -93,12 +93,13 @@ class Ubiquo::AssetsController < UbiquoController
           end
         }
       else
-        flash[:error] = t('ubiquo.media.asset_create_error')
         format.html {
+          flash[:error] = t('ubiquo.media.asset_create_error')
           render :action => "new"
         }
         format.xml  { render :xml => @asset.errors, :status => :unprocessable_entity }
         format.js {
+          flash.now[:error] = t('ubiquo.media.asset_create_error')
           responds_to_parent do
             render :update do |page|
               page.replace_html(
