@@ -178,8 +178,12 @@ module UbiquoMedia
             current_amount = send("#{field}_current_asset_relations").size
             
             if required_amount
-              errors.add(field, :not_enough_assets) if current_amount < required_amount
-              errors.add(field, :too_much_assets) if current_amount > required_amount
+              if current_amount < required_amount
+                errors.add(field, :not_enough_assets)
+              # :many is a open ended size, we don't have a superior limit
+              elsif current_amount > required_amount && options[:size] != :many
+                errors.add(field, :too_much_assets)
+              end
             end
           end
           

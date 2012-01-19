@@ -299,6 +299,35 @@ class MediaFileTest < ActiveSupport::TestCase
     end
   end
 
+  def test_should_not_limit_size_when_many_is_especified
+    AssetRelation.destroy_all
+    asset_one, asset_two = two_assets
+    item = AssetType.new
+    item.sized.options[:required] = 2
+    item.sized.options[:size]     = :many
+
+    begin
+      assert !item.valid?
+      assert item.errors.on(:sized)
+
+      item.update_attributes :sized => [asset_one]
+      assert !item.valid?
+      assert item.errors.on(:sized)
+
+      item.update_attributes :sized => item.sized + [Asset.first(:offset => 2)]
+      assert item.valid?
+      assert !item.errors.on(:sized)
+
+      item.update_attributes :sized => item.sized + [Asset.first(:offset => 3)]
+      assert item.valid?
+      assert !item.errors.on(:sized)
+    ensure
+      # cleanup
+      item.sized.options[:required] = false
+      item.sized.options[:size]     = 2
+    end
+  end
+
   # as above, but with the method that controllers will use
   def test_should_require_all_n_assets_if_true_using_attributes
     AssetRelation.destroy_all
@@ -427,7 +456,7 @@ class MediaFileTest < ActiveSupport::TestCase
       AssetPublic.attachment_definitions[:resource] = AssetPrivate.attachment_definitions[:resource]
     end
   end
-  
+
   def test_shoud_not_save_wrong_asset_type_relations
     t = AssetType.first
     a = assets(:doc)
@@ -450,7 +479,7 @@ class MediaFileTest < ActiveSupport::TestCase
     a = AssetType.new
     a.test_should_defer_asset_type_loading_2.accepts? assets(:image) # Trigger loading
   end
-  
+
   protected
 
   def two_assets
