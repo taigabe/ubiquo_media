@@ -73,7 +73,7 @@ if @is_media_included != true
         if( options["position"] ){
           //Insert the element in the position given
           //Notice that position is always > 0
-          var elems = $('media_selector_'+ counter).select(".items-list .element");
+          var elems = $('media_selector_'+ counter).select(".selected-assets .items-list .item");
           if(elems.length > 0 && options.position > 0 && options.position < elems.length + 1){
             elems[options.position-1].insert({before:elem});
             inserted = true;
