@@ -30,3 +30,11 @@
         end %>
   </div>
 </div>
+<% javascript_tag do %>
+  $("new_<%= counter %>_form").observe('keypress', function(event){
+    if(event.keyCode == Event.KEY_RETURN) {
+      Event.stop(event);
+      $("new_<%= counter %>_form").select(".bt-upload").first().onclick();
+    }
+  });
+<% end %>
