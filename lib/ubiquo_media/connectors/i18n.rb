@@ -131,9 +131,12 @@ module UbiquoMedia
             protected
 
             def uhook_media_attachment_process_call parameters
-              if parameters[:options][:translation_shared]
-                field = parameters[:field]
-                parameters[:klass].share_translations_for field, :"#{field}_asset_relations"
+              # pass all the options
+              field, klass, options = parameters.values_at(:field, :klass, :options)
+              if options[:translation_shared]
+                klass.share_translations_for(field, :"#{field}_asset_relations")
+              elsif options[:translation_shared_on_initialize]
+                klass.initialize_translations_for(field, :"#{field}_asset_relations")
               end
             end
           end
@@ -143,7 +146,6 @@ module UbiquoMedia
           end
         end
       end
-
     end
   end
 end

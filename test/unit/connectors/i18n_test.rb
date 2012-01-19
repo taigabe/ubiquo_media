@@ -41,7 +41,30 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
         media_attachment :simple
       end
       Asset.uhook_media_attachment :simple, {:translation_shared => true}
-      assert Asset.reflections[:simple].options[:translation_shared]
+
+      reflection = Asset.reflections[:simple]
+      assert  reflection.is_translation_shared?
+      assert !reflection.is_translation_shared_on_initialize?
+
+      asset_relations_reflection = Asset.reflections[:simple_asset_relations]
+      assert  asset_relations_reflection.is_translation_shared?
+      assert !asset_relations_reflection.is_translation_shared_on_initialize?
+    end
+
+    test 'uhook_media_attachment should add translation_shared_on_initialize option if set' do
+      Asset.class_eval do
+        media_attachment :simple
+      end
+
+      Asset.uhook_media_attachment :simple, {:translation_shared_on_initialize => true}
+
+      reflection = Asset.reflections[:simple]
+      assert  reflection.is_translation_shared_on_initialize?
+      assert !reflection.is_translation_shared?
+
+      asset_relations_reflection = Asset.reflections[:simple_asset_relations]
+      assert  asset_relations_reflection.is_translation_shared_on_initialize?
+      assert !asset_relations_reflection.is_translation_shared?
     end
 
     test 'uhook_media_attachment should not add translation_shared option if not set' do
@@ -49,7 +72,15 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
         media_attachment :simple
       end
       Asset.uhook_media_attachment :simple, {:translation_shared => false}
-      assert !Asset.reflections[:simple].options[:translation_shared]
+
+      reflection = Asset.reflections[:simple]
+      assert !reflection.is_translation_shared?
+      assert !reflection.is_translation_shared_on_initialize?
+
+      asset_relations_reflection = Asset.reflections[:simple_asset_relations]
+      assert !asset_relations_reflection.is_translation_shared?
+      assert !asset_relations_reflection.is_translation_shared_on_initialize?
+
     end
 
     test 'should not share attachments between translations if not defined' do
@@ -57,7 +88,7 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
         unshare_translations_for :photo
         media_attachment :photo, :translation_shared => false
       end
-      
+
       # FIXME: this test makes trouble on UbiquoMedia::MediaSelector::ActiveRecord
       # valid_asset_types_in_* complaining that it has an AssetRelation with a non-existing asset.
       # To reproduce that go to the mentioned class and comment the FIXME too
@@ -200,6 +231,50 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
       assert_equal 'newname', translated_instance.name_for_asset(:photo, photo)
       # translation untouched
       assert_equal original_name, instance.name_for_asset(:photo, photo)
+    end
+
+    test 'should respect original relations when creating new translations if the relation is not shared_translations ' do
+      UbiquoMedia::TestModel.class_eval do
+        media_attachment :photo, :translation_shared => false,
+                                 :translation_shared_on_initialize => true
+      end
+      #  instance will have versions in ca, en and es
+      #    [ca, es]  will have the asset 'photo'
+      #    en        will have another   'new_photo'
+      #
+      #  no relations will be deleted or modified
+      #
+      Locale.current = 'ca'
+      instance = UbiquoMedia::TestModel.create :locale => 'ca'
+      instance.photo << photo = create_image
+
+      en_instance = instance.translate('en')
+      Locale.current = 'en'
+
+      en_instance.photo_attributes = [{
+        "asset_id" => (new_photo = create_image).id.to_s,
+      }]
+      assert en_instance.save
+
+      assert_equal [new_photo], en_instance.reload.photo
+      assert_equal [photo], instance.reload.photo
+
+      Locale.current = 'es'
+      es_instance = instance.translate('es')
+
+      es_instance.photo_attributes = [{
+        "id" => instance.photo_asset_relations.first.id.to_s,
+        "asset_id" => photo.id.to_s,
+      }]
+
+      assert es_instance.save
+
+      assert_equal [photo],     es_instance.reload.photo
+      assert_equal [new_photo], en_instance.reload.photo
+      assert_equal [photo],     instance.reload.photo
+
+      # check that everyone is related
+      assert_equal_set [es_instance, en_instance, instance], es_instance.with_translations
     end
 
     test 'should clean old asset relations when have some new assigned' do
