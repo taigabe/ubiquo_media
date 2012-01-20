@@ -143,6 +143,15 @@ module UbiquoMedia
 
           module InstanceMethods
             include Standard::ActiveRecord::Base::InstanceMethods
+
+            # we should reject the duplications, objects may contain asset_relations
+            # and one of its translations and we only want to keep one
+            # we may receive asset_relations or assets
+            def uhook_current_asset_relations objects
+              objects.reject do |object|
+                object.new_record? && object.class.is_translatable? && object.translations.present?
+              end
+            end
           end
         end
       end

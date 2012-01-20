@@ -331,6 +331,83 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
      assert !AssetRelation.find_by_id(relation_translated.id)
     end
 
+    def test_uhook_current_asset_relations
+      AssetRelation.destroy_all
+      Locale.current = 'ca'
+      asset_one, asset_two = create_image, create_image
+      model = TestMediaTranslatable.create(
+          :test_media_translatable_models_attributes =>
+            [
+              :field1 => 'jaja',
+              :sized_shared_attributes => [
+                {:asset_id => asset_one.id},
+                {:asset_id => asset_two.id}
+              ]
+          ]
+      )
+      relation = AssetRelation.last
+      t = relation.translate('es')
+
+      # reject the relation recently instanciated as is not persistent
+      assert_equal [relation], model.uhook_current_asset_relations([relation, t])
+
+      # do not filter anything for assets (or any not translatable class)
+      assert_equal [relation.asset, t.asset],
+                    model.uhook_current_asset_relations([asset_two, asset_two])
+
+      # do not filter, no duplicates
+      assert_equal                                      [relation, AssetRelation.first],
+                    model.uhook_current_asset_relations([relation, AssetRelation.first])
+
+    end
+
+    def test_current_asset_relations_should_consider_the_case_where_it_have_a_new_relation_for_size_validation
+      AssetRelation.destroy_all
+      asset_one, asset_two = create_image, create_image
+      begin
+        model = TestMediaTranslatable.create(
+          :test_media_translatable_models_attributes =>
+            [
+              :field1 => 'jaja',
+              :sized_shared_attributes => [
+                {:asset_id => asset_one.id},
+                {:asset_id => asset_two.id}
+              ]
+          ]
+        )
+
+        t = model.translate('de')
+        Locale.current = 'de'
+
+        model_with_attachments = TestMediaTranslatableModel.last
+
+        assert t.save
+
+        assert_difference('TestMediaTranslatableModel.count', 1) do
+          # we should new create two new asset relations on the new object
+          assert_difference('AssetRelation.count', 2) do
+            assert t.update_attributes(
+              :test_media_translatable_models_attributes =>
+                [
+                  :field1 => 'jaja translated',
+                  :content_id => model.test_media_translatable_models.first.content_id,
+                  :sized_shared_attributes => [
+                    {:id => model_with_attachments.asset_relations.first.id, :asset_id => asset_one.id, :name => 'another'},
+                    {:id => model_with_attachments.asset_relations.last.id, :asset_id => asset_two.id}
+                  ]
+              ]
+            )
+          end
+        end
+        assert model.valid?
+        assert_equal t.test_media_translatable_models.first.content_id,
+                                     model_with_attachments.content_id
+
+      ensure
+        # cleanup
+      end
+    end
+
     private
 
     def define_translatable_test_model

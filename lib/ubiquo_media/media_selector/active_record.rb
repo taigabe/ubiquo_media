@@ -86,7 +86,7 @@ module UbiquoMedia
               :dependent => :destroy,
               :order => "asset_relations.position ASC"
           }) unless self.respond_to?(:asset_relations)
-        
+
           proc = Proc.new do
             def is_full?
               return false if self.options[:size].to_sym == :many
@@ -141,14 +141,14 @@ module UbiquoMedia
           accepts_nested_attributes_for :"#{field}_asset_relations", :reject_if => :all_blank, :allow_destroy => true
 
           validate "required_amount_of_assets_in_#{field}"
-          
+
           validate "valid_asset_types_in_#{field}"
-          
+
           define_method "#{field}_initialize_asset_types" do
             # WARNING: asset_types are cached since you define media_attachment on a model!
             # A server restart could be required when adding new asset_types
             if options[:asset_types].blank?
-              options[:asset_types] = AssetType.get_by_keys(options[:types]) 
+              options[:asset_types] = AssetType.get_by_keys(options[:types])
             end
           end
 
@@ -162,11 +162,12 @@ module UbiquoMedia
             # This is a far from perfect approach and could be a bug in some situations,
             # but it's the best way we've found to correctly perform this validation
             # in the usual use cases without monkeypatching.
-            send("#{field}_asset_relations").present? ?
+            objects = send("#{field}_asset_relations").present? ?
               send("#{field}_asset_relations").reject(&:marked_for_destruction?) :
               send(field)
+            uhook_current_asset_relations(objects)
           end
-          
+
           define_method "required_amount_of_assets_in_#{field}" do
             required_amount = case options[:required]
             when TrueClass
@@ -176,7 +177,7 @@ module UbiquoMedia
             end
 
             current_amount = send("#{field}_current_asset_relations").size
-            
+
             if required_amount
               if current_amount < required_amount
                 errors.add(field, :not_enough_assets)
@@ -186,7 +187,7 @@ module UbiquoMedia
               end
             end
           end
-          
+
           define_method "valid_asset_types_in_#{field}" do
             send("#{field}_initialize_asset_types")
             invalid = send("#{field}_current_asset_relations").to_a.detect do |asset|

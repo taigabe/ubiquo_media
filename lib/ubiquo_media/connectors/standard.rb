@@ -169,6 +169,10 @@ module UbiquoMedia
             # passing them to the nested_attributes handler. The +attributes+ object
             # is the one that will be used, so any changes you do to it will remain
             def uhook_media_attachment_set_attributes! field, attributes; end
+
+            def uhook_current_asset_relations asset_relations
+              asset_relations
+            end
           end
 
         end

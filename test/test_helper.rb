@@ -38,3 +38,34 @@ end
 if ActiveRecord::Base.connection.class.to_s == "ActiveRecord::ConnectionAdapters::PostgreSQLAdapter"
   ActiveRecord::Base.connection.client_min_messages = "ERROR"
 end
+
+conn = ActiveRecord::Base.connection
+
+conn.drop_table   :test_media_translatables rescue nil
+conn.create_table :test_media_translatables, :translatable => true do |t|
+  t.string :field1
+  t.string :field2
+end unless conn.tables.include?('test_media_translatable_model_with_relations')
+
+conn.drop_table :test_media_translatable_models rescue nil
+conn.create_table :test_media_translatable_models, :translatable => true do |t|
+  t.string :field1
+  t.string :field2
+  t.integer :test_media_translatable_id
+end unless conn.tables.include?('test_media_translatable_models')
+
+class TestMediaTranslatable < ActiveRecord::Base
+  translatable
+  has_many :test_media_translatable_models
+  accepts_nested_attributes_for :test_media_translatable_models
+  share_translations_for :test_media_translatable_models
+  validates_length_of :test_media_translatable_models, :minimum => 1
+end
+
+class TestMediaTranslatableModel < ActiveRecord::Base
+  translatable
+  belongs_to :test_media_translatable_model_with_relation
+  media_attachment :sized,        :size => 2, :required => false
+  media_attachment :sized_shared, :size => 2, :required => true, :translation_shared => true
+end
+
