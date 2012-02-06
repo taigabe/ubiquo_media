@@ -6,7 +6,7 @@ module UbiquoMedia
     file    = File.join(File.dirname(__FILE__), "..", "..", "VERSION")
     version = File.read(file).strip.split(".")
 
-    MAJOR, MINOR, TINY = version
+    MAJOR, MINOR, *TINY = version
 
     STRING = [MAJOR, MINOR, TINY].join('.')
   end
