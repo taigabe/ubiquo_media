@@ -149,7 +149,24 @@ module UbiquoMedia
             # we may receive asset_relations or assets
             def uhook_current_asset_relations objects
               objects.reject do |object|
-                object.new_record? && object.class.is_translatable? && object.translations.present?
+                if !object.new_record? && object.class.is_translatable?
+                  objects.detect{ |o| o.new_record? && o.content_id == object.content_id }
+                end
+              end
+            end
+
+            # Called when setting the +attributes+ of a media_attachment, before
+            # passing them to the nested_attributes handler. The +attributes+ object
+            # is the one that will be used, so any changes you do to it will remain
+            def uhook_media_attachment_set_attributes! field, attributes
+              reflection = self.class.reflections[field]
+              # we need to reset the proxy caused the next time we access the association
+              # when building objects in
+              #    *_attributes_with_shared_translations=  method
+              # we need to know that the relation is translatable kind and we will need
+              # to translate the asset_relation in the current locale
+              if reflection.can_be_initialized?(self, true)
+                attributes.reject! { |attrs| has_destroy_flag?(attrs) }
               end
             end
           end

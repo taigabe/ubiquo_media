@@ -335,29 +335,36 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
       AssetRelation.destroy_all
       Locale.current = 'ca'
       asset_one, asset_two = create_image, create_image
-      model = TestMediaTranslatable.create(
-          :test_media_translatable_models_attributes =>
-            [
-              :field1 => 'jaja',
-              :sized_shared_attributes => [
-                {:asset_id => asset_one.id},
-                {:asset_id => asset_two.id}
-              ]
+      model = TestMediaTranslatableModel.create(
+        :field1 => 'jaja',
+        # is required
+        :sized_shared_attributes => [
+          {:asset_id => asset_one.id},
+          {:asset_id => asset_two.id}
+        ],
+        :sized_initialized_attributes => [
+          {:asset_id => asset_one.id},
+          {:asset_id => asset_two.id}
           ]
       )
       relation = AssetRelation.last
       t = relation.translate('es')
+      model_translated = model.translate('es')
 
       # reject the relation recently instanciated as is not persistent
-      assert_equal [relation], model.uhook_current_asset_relations([relation, t])
+      model_translated.uhook_current_asset_relations([relation, t])
+      assert_equal [t], model_translated.uhook_current_asset_relations([relation, t])
 
       # do not filter anything for assets (or any not translatable class)
+      assert_equal [relation.asset, t.asset],
+                   model_translated.uhook_current_asset_relations([asset_two, asset_two])
+
       assert_equal [relation.asset, t.asset],
                     model.uhook_current_asset_relations([asset_two, asset_two])
 
       # do not filter, no duplicates
-      assert_equal                                      [relation, AssetRelation.first],
-                    model.uhook_current_asset_relations([relation, AssetRelation.first])
+      assert_equal [relation, AssetRelation.first],
+                    model_translated.uhook_current_asset_relations([relation, AssetRelation.first])
 
     end
 
@@ -407,6 +414,56 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
         # cleanup
       end
     end
+
+    # old school, ubiquo forms way
+    def test_current_asset_relations_should_consider_the_case_where_it_have_a_new_relation_for_size_validation_shit_jajaja_initialize
+      #
+      #
+      # :sized_initialized attachment allows only 1 element
+
+      AssetRelation.destroy_all
+      TestMediaTranslatableModel.new.sized_shared.options[:required] = false
+      asset_one, asset_two = create_image, create_image
+      begin
+        Locale.current = 'en'
+        model = TestMediaTranslatableModel.create(
+          :field1 => 'jaja',
+          :sized_initialized_attributes => [
+            {:asset_id => asset_one.id},
+          ]
+        )
+
+        Locale.current = 'de'
+        assert_difference('TestMediaTranslatableModel.count', 1) do
+          assert_difference('AssetRelation.count', 1) do
+            # now ignore 'model' asset, we want a another
+            t = TestMediaTranslatableModel.create({
+              :field1 => 'jaja translated',
+              :content_id => model.content_id,
+              :sized_initialized_attributes => [
+                {:id => model.asset_relations.first.id, :asset_id => asset_two.id}
+              ]})
+            # here the validation error, we will have the 'model' asset_relation and the new
+            # were are creating, when we (t) should be independent and forget about our translation
+            # but we don't have any validation error
+            assert !t.errors.on(:sized_initialized)
+            assert t.errors.blank?
+            assert t.sized_initialized_asset_relations.size == 2
+            # we can do this
+            assert t.save
+            # and all will be just fine, why ????????????????
+          end
+        end
+
+        assert model.valid?
+        assert model.reload.valid?
+
+      ensure
+        # cleanup
+        TestMediaTranslatableModel.new.sized_shared.options[:required] = true
+      end
+    end
+
 
     private
 

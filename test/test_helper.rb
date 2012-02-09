@@ -67,5 +67,6 @@ class TestMediaTranslatableModel < ActiveRecord::Base
   belongs_to :test_media_translatable_model_with_relation
   media_attachment :sized,        :size => 2, :required => false
   media_attachment :sized_shared, :size => 2, :required => true, :translation_shared => true
+  media_attachment :sized_initialized, :size => 1, :required => false, :translation_shared_on_initialize => true
 end
 
