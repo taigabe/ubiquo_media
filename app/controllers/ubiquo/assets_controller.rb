@@ -162,7 +162,7 @@ class Ubiquo::AssetsController < UbiquoController
     per_page = params[:per_page] || Ubiquo::Config.context(:ubiquo_media).get(:media_selector_list_size)
 
     filters = {
-      "filter_type" => params[:asset_type_id],
+      "filter_asset_type" => params[:asset_type_id],
       "filter_text" => @search_text,
       "filter_visibility" => params[:visibility],
       :per_page => per_page,

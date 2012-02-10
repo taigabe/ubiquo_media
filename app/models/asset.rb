@@ -22,7 +22,7 @@ class Asset < ActiveRecord::Base
   after_save :update_backup
   after_save :save_geometries
 
-  named_scope :type, lambda {|type|{
+  named_scope :asset_type, lambda {|type|{
     :conditions => ["asset_type_id IN (?)", type.to_s.split(',').map(&:to_i)]
   }}
 
@@ -39,7 +39,7 @@ class Asset < ActiveRecord::Base
   }}
 
 filtered_search_scopes :text => [:name, :description],
-                         :enable => [:type, :visibility, :created_start, :created_end]
+                         :enable => [:asset_type, :visibility, :created_start, :created_end]
 
   # Generic find (ID, key or record)
   def self.gfind(something, options={})
@@ -60,7 +60,7 @@ filtered_search_scopes :text => [:name, :description],
     new_filters = {}
     filters.each do |key, value|
       if key == :type
-        new_filters["filter_type"] = value
+        new_filters["filter_asset_type"] = value
       elsif key == :text
         new_filters["filter_text"] = value
       elsif key == :visibility
