@@ -5,6 +5,7 @@ class AddIndexesToUbiquoMediaTables < ActiveRecord::Migration
     add_index :asset_relations, :asset_id
     add_index :asset_areas, :asset_id
     add_index :asset_geometries, :asset_id
+    add_index :asset_types, :key
   end
 
   def self.down
@@ -13,5 +14,6 @@ class AddIndexesToUbiquoMediaTables < ActiveRecord::Migration
     remove_index :asset_relations, :asset_id
     remove_index :asset_areas, :asset_id
     remove_index :asset_geometries, :asset_id
+    remove_index :asset_types, :key
   end
 end

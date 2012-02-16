@@ -1,6 +1,8 @@
 class AssetType < ActiveRecord::Base
   has_many :assets
-  
+
+  validates_uniqueness_of :key, :case_sensitive => false
+
   # Generic find (ID, key or record)
   def self.gfind(something, options={})
     case something
