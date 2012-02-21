@@ -416,51 +416,75 @@ class UbiquoMedia::Connectors::I18nTest < ActiveSupport::TestCase
     end
 
     # old school, ubiquo forms way
-    def test_current_asset_relations_should_consider_the_case_where_it_have_a_new_relation_for_size_validation_shit_jajaja_initialize
+    def test_current_asset_relations_should_consider_the_case_where_it_have_a_new_relation_for_size_validation_initialize
       #
       #
       # :sized_initialized attachment allows only 1 element
 
       AssetRelation.destroy_all
       TestMediaTranslatableModel.new.sized_shared.options[:required] = false
-      asset_one, asset_two = create_image, create_image
+      TestMediaTranslatableModel.new.sized_initialized.options[:required] = true
+      asset_one, asset_two, asset_three = create_image, create_image, create_image
       begin
         Locale.current = 'en'
         model = TestMediaTranslatableModel.create(
-          :field1 => 'jaja',
           :sized_initialized_attributes => [
-            {:asset_id => asset_one.id},
+            {:asset_id => asset_one.id, :name => 'en'},
           ]
         )
 
         Locale.current = 'de'
+        translation_de = translation_jp = translation_ir = nil
         assert_difference('TestMediaTranslatableModel.count', 1) do
           assert_difference('AssetRelation.count', 1) do
-            # now ignore 'model' asset, we want a another
-            t = TestMediaTranslatableModel.create({
-              :field1 => 'jaja translated',
+            # create a translation with the same asset, but another name
+            translation_de = TestMediaTranslatableModel.create({
               :content_id => model.content_id,
               :sized_initialized_attributes => [
-                {:id => model.asset_relations.first.id, :asset_id => asset_two.id}
+                {:id => model.asset_relations.first.id, :asset_id => asset_one.id, :name => 'de'}
               ]})
-            # here the validation error, we will have the 'model' asset_relation and the new
-            # were are creating, when we (t) should be independent and forget about our translation
-            # but we don't have any validation error
-            assert !t.errors.on(:sized_initialized)
-            assert t.errors.blank?
-            assert t.sized_initialized_asset_relations.size == 2
-            # we can do this
-            assert t.save
-            # and all will be just fine, why ????????????????
           end
         end
 
-        assert model.valid?
-        assert model.reload.valid?
+        # let's do it again with one difference: now the new AR does not have ID
+        # (in the media_selector, this happens if the user deletes the existing image
+        # and selects a new one)
+        Locale.current = 'jp'
+        assert_difference('TestMediaTranslatableModel.count', 1) do
+          assert_difference('AssetRelation.count', 1) do
+            # create a translation with a new asset. The old one should not be an issue
+            translation_jp = TestMediaTranslatableModel.create({
+              :content_id => model.content_id,
+              :sized_initialized_attributes => [
+                {:asset_id => asset_three.id}
+              ]})
+          end
+        end
+
+        # last but not least: an asset that already is in a translation
+        Locale.current = 'ir'
+        assert_difference('TestMediaTranslatableModel.count', 1) do
+          assert_difference('AssetRelation.count', 1) do
+            # create a translation with a new asset. The old one should not be an issue
+            translation_ir = TestMediaTranslatableModel.create({
+              :content_id => model.content_id,
+              :sized_initialized_attributes => [
+                {:asset_id => asset_one.id, :name => 'ir'}
+              ]})
+          end
+        end
+
+        assert_equal [asset_one], model.reload.sized_initialized
+        assert_equal [asset_one], translation_de.reload.sized_initialized
+        assert_equal [asset_three], translation_jp.reload.sized_initialized
+        assert_equal 'en', model.sized_initialized_asset_relations.first.name
+        assert_equal 'de', translation_de.sized_initialized_asset_relations.first.name
+        assert_equal 'ir', translation_ir.sized_initialized_asset_relations.first.name
 
       ensure
         # cleanup
         TestMediaTranslatableModel.new.sized_shared.options[:required] = true
+        TestMediaTranslatableModel.new.sized_initialized.options[:required] = false
       end
     end
 

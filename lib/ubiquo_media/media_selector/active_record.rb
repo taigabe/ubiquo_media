@@ -221,10 +221,10 @@ module UbiquoMedia
             missing_ids = current_ids - new_ids
             destroyable = missing_ids.map{ |id| {'id' => id, '_destroy' => true} }
             attrs_to_set = attrs_as_array + destroyable
-            
+
             uhook_media_attachment_set_attributes!(field, attrs_to_set)
 
-            send("#{field}_asset_relations_attributes=", attrs_to_set)            
+            send("#{field}_asset_relations_attributes=", attrs_to_set)
           end
 
           # Rails tries to be lazy when replacing a collection, but we want to
