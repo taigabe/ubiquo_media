@@ -182,7 +182,7 @@ module UbiquoMedia
               if current_amount < required_amount
                 errors.add(field, :not_enough_assets)
               # :many is a open ended size, we don't have a superior limit
-              elsif current_amount > required_amount && options[:size] != :many
+              elsif options[:size] != :many && current_amount > options[:size]
                 errors.add(field, :too_much_assets)
               end
             end

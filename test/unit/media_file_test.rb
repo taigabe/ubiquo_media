@@ -299,6 +299,38 @@ class MediaFileTest < ActiveSupport::TestCase
     end
   end
 
+  def test_should_require_between_required_and_size_assets
+    AssetRelation.destroy_all
+    assets = (1..5).to_a.map{|i| AssetPublic.create!(:name => "#{i}_asset", :resource => test_file) }
+    item = AssetType.new
+    item.sized.options[:required] = 1
+    item.sized.options[:size] = 2
+
+    begin
+      # not enough
+      assert !item.valid?
+      assert item.errors.on(:sized)
+
+      item.update_attributes :sized => assets.first(1)
+      assert item.valid?
+      assert !item.errors.on(:sized)
+
+      item.update_attributes :sized => assets.first(2)
+      assert item.valid?
+      assert !item.errors.on(:sized)
+
+      # too many
+      item.update_attributes :sized => assets.first(3)
+      assert !item.valid?
+      assert item.errors.on(:sized)
+
+    ensure
+      # cleanup
+      item.sized.options[:required] = false
+      item.sized.options[:size] = 2
+    end
+  end
+
   def test_should_not_limit_size_when_many_is_especified
     AssetRelation.destroy_all
     asset_one, asset_two = two_assets
