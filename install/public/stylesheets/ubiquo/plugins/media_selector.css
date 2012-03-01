@@ -157,6 +157,24 @@
               }
                 .select-assets .search-results .items-list li.item .actions li a {
                 }
+
+.ubiquo_lb #widget_form div.media_selector fieldset li a {
+  position: static;
+}
+
+.ubiquo_lb #widget_form .selected-assets .items-list {
+  font-size: 0.8em;
+}
+.ubiquo_lb #widget_form .select-assets .search-results .items-list li.item {
+  font-size: 0.8em;
+  width:29%;
+  min-height:180px;
+}
+.ubiquo_lb #widget_form .select-assets .search-results .items-list li.item h4 {
+  height:50px;
+  overflow:hidden;
+}
+
 /* clearfix */
 .group-related-assets .selected-assets .items-list li.item:after,
 .search-block:after,
