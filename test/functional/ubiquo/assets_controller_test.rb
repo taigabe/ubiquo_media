@@ -59,8 +59,8 @@ class Ubiquo::AssetsControllerTest < ActionController::TestCase
 
   def test_should_create_asset_by_xhr_and_validate_type
     assert_no_difference('Asset.count') do
-      xhr :post, :create,{ 
-          :asset => { 
+      xhr :post, :create,{
+          :asset => {
             :name => "new asset",
             :resource => test_file,
             :is_protected => false
@@ -73,11 +73,11 @@ class Ubiquo::AssetsControllerTest < ActionController::TestCase
     # no add_element is called as it has failed
     assert !@response.body.include?("add_element")
   end
-  
+
   def test_should_create_asset_by_xhr_and_validate_type_unless_fails
     assert_no_difference('Asset.count') do
-      xhr :post, :create,{ 
-          :asset => { 
+      xhr :post, :create,{
+          :asset => {
             :name => "asd",
             :resource => nil,
             :is_protected => false
@@ -258,6 +258,90 @@ class Ubiquo::AssetsControllerTest < ActionController::TestCase
         }
     assert_redirected_to ubiquo_assets_path
     assert_equal 0, assigns(:asset).asset_areas.count
+  end
+
+  def test_should_advanced_update_support_styles_without_areas_defined_and_no_width_or_height
+    asset = create_image_asset
+
+    Ubiquo::Config.context(:ubiquo_media).get(:media_styles_list).merge!(
+      {:thumb => "100x100>",:no_height => "500x",:no_width => "x500"})
+    thumb_parameters = {
+      "left"=>"0",
+      "height"=>"20",
+      "top"=>"0",
+      "width"=>"30"
+    }
+
+    put :advanced_update, :id => asset.id,
+      "operation_type"=>"formats",
+      "asset" => {"keep_backup" => true},
+      "crop_resize" => {
+        "thumb"=> thumb_parameters,
+        # no region defined yet
+        "no_height"=>{
+          "left"=>"0",
+          "height"=>"0",
+          "top"=>"0",
+          "width"=>"0"
+        },
+        "no_width"=>{
+          "left"=>"0",
+          "height"=>"0",
+          "top"=>"0",
+          "width"=>"0"
+        },
+      }
+    assert_redirected_to ubiquo_assets_path
+    assert_equal 1, assigns(:asset).asset_areas.size
+
+    assert_no_difference('Asset.count') do
+      put :advanced_update, :id => asset.id,
+        "operation_type"=>"formats",
+        "asset" => {"keep_backup" => true},
+        "crop_resize" => {
+          "thumb"=> thumb_parameters,
+          # region defined, the UI would never allow that once selected
+          # have a height = 0 and width = 0
+          "no_height"=>{
+            "left"=>"0",
+            "height"=>"10",
+            "top"=>"0",
+            "width"=>"0"
+          },
+          "no_width"=>{
+            "left"=>"0",
+            "height"=>"0",
+            "top"=>"0",
+            "width"=>"0"
+          },
+        }
+    end
+    assert_equal 1, assigns(:asset).asset_areas.size
+
+    put :advanced_update, :id => asset.id,
+      "operation_type"=>"formats",
+      "asset" => {"keep_backup" => true},
+      "crop_resize" => {
+        "thumb"=> thumb_parameters,
+        "no_height"=>{
+          "left"=>"0",
+          "height"=>"10",
+          "top"=>"0",
+          "width"=>"10"
+        },
+        # no area
+        "no_width"=>{
+          "left"=>"0",
+          "height"=>"0",
+          "top"=>"0",
+          "width"=>"0"
+        },
+      }
+    assert_redirected_to ubiquo_assets_path
+    assert_equal 2, assigns(:asset).asset_areas.size
+
+    asset_area = assigns(:asset).asset_areas.last
+    assert_equal [10, 10], [asset_area.height, asset_area.width]
   end
 
   def test_should_advanced_update_asset_formats

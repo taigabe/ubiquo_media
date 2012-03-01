@@ -63,7 +63,7 @@ class Ubiquo::AssetsController < UbiquoController
     end
     respond_to do |format|
       if ok
-        format.html do 
+        format.html do
           flash[:notice] = t('ubiquo.media.asset_created')
           redirect_to(ubiquo_assets_path)
         end
@@ -205,6 +205,9 @@ class Ubiquo::AssetsController < UbiquoController
       params[:crop_resize].delete(:original)
       #Save asset_areas
       params[:crop_resize].each do |style, values|
+        # skip if the area if the style do not have a region defined
+        #   ([l, t, h, w] are all 0)
+        next if values.values.uniq == ["0"]
         asset_area = @asset.asset_areas.find_by_style(style)
         if asset_area
           asset_area.update_attributes( values )
