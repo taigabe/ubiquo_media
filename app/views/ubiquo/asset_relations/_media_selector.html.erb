@@ -1,4 +1,11 @@
 <%= render :partial => "ubiquo/asset_relations/media_javascript.html.erb" %>
+<% locals = {
+     :field => field,
+     :counter => counter,
+     :types => AssetType.get_by_keys(field_options[:types]),
+     :accepted_types => field_options[:types],
+     :visibility => visibility
+}  %>
 <div id="media_selector_<%= counter %>" class="media_selector">
   <div class="selected-assets">
     <fieldset>
@@ -13,24 +20,15 @@
     <fieldset>
       <legend><%= t('ubiquo.media.media_item_new') %></legend>
       <div class="add" id="add_<%= counter%>">
-	<%= render :partial => 'ubiquo/asset_relations/asset_form.html.erb',
-	    :locals => {
-              :field => field,
-              :counter => counter,
-              :types => field_options[:asset_types],
-              :accepted_types => field_options[:asset_types].map(&:key),
-              :visibility => visibility } %>
+      	<%= render :partial => 'ubiquo/asset_relations/asset_form.html.erb',
+              	   :locals => locals %>
       </div>
     </fieldset>
     <fieldset>
       <legend><%= t('ubiquo.media.select_existing_media_item') %></legend>
       <div class="search-block" id="search_<%= counter%>">
-	<%= render :partial => 'ubiquo/asset_relations/asset_search.html.erb',
-	    :locals => {
-              :counter => counter,
-              :field => field,
-              :types => field_options[:asset_types],
-              :visibility => visibility } %>
+       	<%= render :partial => 'ubiquo/asset_relations/asset_search.html.erb',
+               	   :locals => locals %>
       </div>
       <div id="asset_search_results_<%= counter %>" class="search-results">
       </div>
@@ -46,7 +44,7 @@
       }
     }
   %>
-  media_fields.add_field('<%= counter %>', '<%= field %>', 
+  media_fields.add_field('<%= counter %>', '<%= field %>',
     <%= field_options[:size].to_i %>, '<%= object_name %>',
     <%= forwarded_options.to_json %>);
 

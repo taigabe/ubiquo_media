@@ -497,19 +497,54 @@ class MediaFileTest < ActiveSupport::TestCase
     assert !t.save
   end
 
-  # Issue #699
-  def test_should_defer_asset_type_loading
-    # Will not be called as we do not use it.
-    AssetType.expects(:get_by_keys).never
-    AssetType.send(:media_attachment, :test_should_defer_asset_type_loading, :types => %w{audio video} )
+  def test_should_validate_asset_type_even_when_the_asset_type_instance_change
+    # setup, initial asset_type and media_attachment definition
+    asset_type_attributes = {:key => 'my_asset_type'}
+    asset_type = AssetType.create(asset_type_attributes)
+    assert !asset_type.new_record?
+    AssetType.send(:media_attachment, :my_attachment, :types => ["my_asset_type"])
+
+    object = nil
+
+    test_asset_addition = lambda { |current_asset_type|
+      # create_asset
+      asset = AssetPublic.new(:name => 'my_asset',
+        :resource => sample_image,
+        :asset_type => current_asset_type)
+      # skip validation, sample file is a image
+      asset.expects(:set_asset_type).returns(true)
+      assert asset.save
+
+      # create_object with the asset_relation
+      object = AssetType.create(
+        :my_attachment_attributes => [{:asset_id => asset.id}],
+        :key => "my_new_object_for_#{current_asset_type.id}")
+
+      assert !object.new_record?, object.errors.full_messages
+      assert object.accepts_asset_for_my_attachment?(asset)
+    }
+
+    # test
+    test_asset_addition.call(asset_type)
+
+    assert asset_type.destroy
+    object.reload
+    assert !object.valid?
+    # new asset_type instance with the same key,
+    # assets with this asset_type_id should also be valid for the media_attachment
+    asset_type_copy = AssetType.create(asset_type_attributes)
+    assert !asset_type.new_record?
+
+    test_asset_addition.call(asset_type_copy)
   end
 
-  def test_should_defer_asset_type_loading_but_loaded_at_last
-    # Will not be called as we do not use it.
-    AssetType.expects(:get_by_keys).once.returns([AssetType.first])
-    AssetType.send(:media_attachment, :test_should_defer_asset_type_loading_2, :types => %w{audio video} )
-    a = AssetType.new
-    a.test_should_defer_asset_type_loading_2.accepts? assets(:image) # Trigger loading
+   def test_should_validate_asset_type
+    AssetType.send(:media_attachment, :my_attachment, :types => ["image", "video"])
+
+    model = AssetType.new
+    assert !model.accepts_asset_for_my_attachment?(assets(:doc))
+    assert  model.accepts_asset_for_my_attachment?(assets(:image))
+    assert  model.accepts_asset_for_my_attachment?(assets(:video))
   end
 
   protected

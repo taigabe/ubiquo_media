@@ -94,11 +94,14 @@ module UbiquoMedia
             end
 
             def accepts? asset
-              self.options[:asset_types].include?(asset.asset_type)
+              proxy_owner.send("accepts_asset_for_#{self.field}?", asset)
+            end
+
+            define_method('field') do
+              field
             end
 
             define_method('options') do
-              proxy_owner.send("#{field}_initialize_asset_types")
               options
             end
 
@@ -144,14 +147,6 @@ module UbiquoMedia
 
           validate "valid_asset_types_in_#{field}"
 
-          define_method "#{field}_initialize_asset_types" do
-            # WARNING: asset_types are cached since you define media_attachment on a model!
-            # A server restart could be required when adding new asset_types
-            if options[:asset_types].blank?
-              options[:asset_types] = AssetType.get_by_keys(options[:types])
-            end
-          end
-
           # To get the current assets related (in memory).
           # CAUTION: it can return Assets or AssetRelations
           define_method "#{field}_current_asset_relations" do
@@ -189,12 +184,11 @@ module UbiquoMedia
           end
 
           define_method "valid_asset_types_in_#{field}" do
-            send("#{field}_initialize_asset_types")
             invalid = send("#{field}_current_asset_relations").to_a.detect do |asset|
               # current_asset_relations can return assets or asset_relations
               asset = asset.respond_to?( :asset ) ? asset.asset : asset
               if asset
-                !options[:asset_types].include?(asset.asset_type)
+                !self.send("accepts_asset_for_#{field}?", asset)
               else
                 # FIXME: some I18nTest methods fail 'cause the asset does not exist
                 # Some weird cases the asset does not exist, so we cannot validate.
@@ -203,6 +197,15 @@ module UbiquoMedia
               end
             end.present?
             errors.add(field, :wrong_asset_type) if invalid
+          end
+
+          define_method "accepts_asset_for_#{field}?" do |asset|
+            types = Array(options[:types]).clone
+            if types.include?(:ALL)
+              true
+            else
+              asset.asset_type && types.include?(asset.asset_type.key)
+            end
           end
 
           # Like Rails' nested_attributes (uses it), but it's a hard-assign,
