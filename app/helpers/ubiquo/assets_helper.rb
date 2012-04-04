@@ -10,7 +10,7 @@ module Ubiquo::AssetsHelper
 
     filters_for 'Asset' do |f|
       f.text(:caption => t('ubiquo.media.text')) if string_filter_enabled
-      f.link(:type, asset_types, {
+      f.link(:asset_type, asset_types, {
         :id_field => :key,
         :caption => t('ubiquo.media.type'),
         :all_caption => t('ubiquo.media.all')
