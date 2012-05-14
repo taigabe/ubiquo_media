@@ -3,7 +3,7 @@
      :field => field,
      :counter => counter,
      :types => AssetType.get_by_keys(field_options[:types]),
-     :accepted_types => field_options[:types],
+     :accepted_types => field_options[:types] == :ALL ? AssetType.all.map(&:key) : field_options[:types],
      :visibility => visibility
 }  %>
 <div id="media_selector_<%= counter %>" class="media_selector">
