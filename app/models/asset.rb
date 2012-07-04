@@ -137,7 +137,7 @@ filtered_search_scopes :text => [:name, :description],
   def geometry(style = :original)
     asset_geometry = self.asset_geometries.find_by_style(style.to_s)
 
-    unless asset_geometry
+    if !asset_geometry || style.to_s == "base_to_crop"
       asset_geometry = calculate_geometry(style)
       if asset_geometry
         asset_geometry.asset_id = self.id
