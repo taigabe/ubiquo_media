@@ -133,6 +133,12 @@
         line-height: 131px;
         font-size:0px;
     }
+    #crop-resize-container .resize-box-content-list ul li div.resize-box-detail-image img,
+    .imgCrop_previewWrap,
+    #crop-resize-container .resize-box-content-right .preview .current img 
+    {
+        background:url('../../../images/ubiquo/media/resize-bg.png') repeat scroll 0 0 transparent;  
+    }
 
 
   #crop-resize-container .resize-box-content-left {
@@ -191,7 +197,7 @@
         opacity: 0.3;
     }
 
-    #crop-resize-container .resize-box-content-right .preview {
+    #crop-resize-container .resize-box-content-right .resize-box-widget.preview {
       background: url("../../../images/ubiquo/media/resize-list-arrow.png") no-repeat scroll center center;
       text-align: center; }
       #crop-resize-container .resize-box-content-right .preview .resize-box-widget-title {

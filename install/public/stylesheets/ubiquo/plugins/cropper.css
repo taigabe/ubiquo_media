@@ -3,7 +3,7 @@
 	/* height: 375px;  @done_in_js */
 	position: relative;
 	cursor: crosshair;
-    background-color:#000;
+    background:url('../../../images/ubiquo/media/resize-bg.png') repeat scroll 0 0 transparent;
 }
 
 /* an extra classname is applied for Opera < 9.0 to fix it's lack of opacity support */
