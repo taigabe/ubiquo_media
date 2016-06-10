@@ -3,6 +3,7 @@ class AssetRelation < ActiveRecord::Base
   belongs_to :related_object, :polymorphic => true
 
   validates_presence_of :asset
+  validates_length_of :name, :maximum => 255
 
   before_create :set_attribute_values
 

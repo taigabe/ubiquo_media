@@ -15,6 +15,7 @@ class Asset < ActiveRecord::Base
   has_many :asset_geometries, :dependent => :destroy
 
   validates_presence_of :name, :asset_type_id, :type
+  validates_length_of :name, :maximum => 255
   before_validation_on_create :set_asset_type
   after_update :uhook_after_update
   attr_accessor :cloned_from
