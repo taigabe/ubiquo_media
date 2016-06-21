@@ -97,11 +97,11 @@ class Ubiquo::AssetsHelperTest < ActionView::TestCase
   
   # Wrapper to set the config to a value and restore it to not affect other tests
   def set_ubiquo_media_config_to key, value
-    old = Ubiquo::Config.context(:ubiquo_media).get(key)
-    Ubiquo::Config.context(:ubiquo_media).set(key, value)
+    old = Ubiquo::Settings.context(:ubiquo_media).get(key)
+    Ubiquo::Settings.context(:ubiquo_media).set(key, value)
     yield
   ensure
-    Ubiquo::Config.context(:ubiquo_media).set(key, old)
+    Ubiquo::Settings.context(:ubiquo_media).set(key, old)
   end
 
 end

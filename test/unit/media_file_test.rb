@@ -469,7 +469,7 @@ class MediaFileTest < ActiveSupport::TestCase
     # short way to recursivelly clone
     styles_hash_copy = Marshal.load(Marshal.dump(styles_hash))
 
-    Ubiquo::Config.context(:ubiquo_media).set do |config|
+    Ubiquo::Settings.context(:ubiquo_media).set do |config|
       config.media_styles_list = styles_hash_copy
     end
     begin
@@ -481,7 +481,7 @@ class MediaFileTest < ActiveSupport::TestCase
       asset = AssetPublic.new
       asset.attachment_for(:resource).styles
 
-      assert_equal styles_hash, Ubiquo::Config.context(:ubiquo_media).get(:media_styles_list)
+      assert_equal styles_hash, Ubiquo::Settings.context(:ubiquo_media).get(:media_styles_list)
       assert !styles_hash[:style_name].blank?
     ensure
       # cleanup

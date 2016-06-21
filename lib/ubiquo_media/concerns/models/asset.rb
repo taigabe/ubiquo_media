@@ -89,7 +89,7 @@ module UbiquoMedia::Concerns::Models::Asset
     # Correct parameters to the resize_and_crop processor.
     # If the processor is other, the extra params will be ignored
     def correct_styles(styles_list = {})
-      global_options = Ubiquo::Config.context(:ubiquo_media).get(:media_styles_options)
+      global_options = Ubiquo::Settings.context(:ubiquo_media).get(:media_styles_options)
 
       styles_list.map do |style, value|
         extra_options = global_options.is_a?(Proc) ? global_options.call(style, value) : global_options
@@ -175,7 +175,7 @@ module UbiquoMedia::Concerns::Models::Asset
   def set_asset_type
     if self.resource_file_name && self.resource.errors.blank?
       # mime_types hash is here momentarily but maybe its must be in ubiquo config
-      mime_types = Ubiquo::Config.context(:ubiquo_media).get(:mime_types)
+      mime_types = Ubiquo::Settings.context(:ubiquo_media).get(:mime_types)
       content_type = self.resource_content_type.split('/') rescue []
       mime_types.each do |type_relations|
         type_relations.last.each do |mime|

@@ -3,10 +3,10 @@
   hidden= false unless hidden
   preview = true unless preview == false
   allow_restore = style.to_s == "original" && 
-    ( Ubiquo::Config.context(:ubiquo_media).get(:advanced_edit_allow_restore_from_media_selector) || 
+    ( Ubiquo::Settings.context(:ubiquo_media).get(:advanced_edit_allow_restore_from_media_selector) || 
     params[:target].blank? )
   allow_save_as = ( style.to_s == "original" ||
-    Ubiquo::Config.context(:ubiquo_media).get(:advanced_edit_allow_save_as_for_all_styles) )
+    Ubiquo::Settings.context(:ubiquo_media).get(:advanced_edit_allow_save_as_for_all_styles) )
   style_scope = "#{style}"
   asset = f.object
   ratio = resize_ratio_for( asset )

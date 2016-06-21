@@ -3,7 +3,7 @@ require 'ubiquo_media'
 config.after_initialize do
   UbiquoMedia::Connectors.load!
   Ubiquo::Helpers::UbiquoFormBuilder.initialize_method("media_selector",
-  Ubiquo::Config.context(:ubiquo_media).get(:ubiquo_form_builder_media_selector_tag_options).dup)
+  Ubiquo::Settings.context(:ubiquo_media).get(:ubiquo_form_builder_media_selector_tag_options).dup)
 end
 
 Ubiquo::Plugin.register(:ubiquo_media, directory, config) do |config|

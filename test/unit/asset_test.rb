@@ -86,14 +86,14 @@ class AssetTest < ActiveSupport::TestCase
 
   def test_should_be_stored_in_public_path
      asset = create_asset(:name => "FAKE")
-    assert asset.resource.path =~ /#{File.join(Rails.root, Ubiquo::Config.get(:attachments)[:public_path])}/
+    assert asset.resource.path =~ /#{File.join(Rails.root, Ubiquo::Settings.get(:attachments)[:public_path])}/
   end
 
   def test_should_be_stored_in_protected_path
     asset = AssetPrivate.create(:name => "FAKE2",
                                 :resource => test_file,
                                 :asset_type_id => AssetType.find(:first).id)
-    assert asset.resource.path =~ /#{File.join(Rails.root, Ubiquo::Config.get(:attachments)[:private_path])}/
+    assert asset.resource.path =~ /#{File.join(Rails.root, Ubiquo::Settings.get(:attachments)[:private_path])}/
   end
 
   def test_should_destroy_relations_on_destroy

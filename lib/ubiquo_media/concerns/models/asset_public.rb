@@ -4,9 +4,9 @@ module UbiquoMedia::Concerns::Models::AssetPublic
   included do
     file_attachment :resource,
                     :visibility => "public",
-                    :styles     => self.correct_styles(Ubiquo::Config.context(:ubiquo_media).get(:media_styles_list)),
-                    :processors => Ubiquo::Config.context(:ubiquo_media).get(:media_processors_list),
-                    :storage    => Ubiquo::Config.context(:ubiquo_media).get(:media_storage)
+                    :styles     => self.correct_styles(Ubiquo::Settings.context(:ubiquo_media).get(:media_styles_list)),
+                    :processors => Ubiquo::Settings.context(:ubiquo_media).get(:media_processors_list),
+                    :storage    => Ubiquo::Settings.context(:ubiquo_media).get(:media_storage)
 
     validates_attachment_presence :resource
 

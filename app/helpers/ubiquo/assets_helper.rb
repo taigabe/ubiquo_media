@@ -1,10 +1,10 @@
 module Ubiquo::AssetsHelper
 
   def asset_filters
-    string_filter_enabled = Ubiquo::Config.context(:ubiquo_media).get(:assets_string_filter_enabled)
-    type_filter_enabled = Ubiquo::Config.context(:ubiquo_media).get(:assets_asset_types_filter_enabled)
-    visibility_filter_enabled = (Ubiquo::Config.context(:ubiquo_media).get(:assets_asset_visibility_filter_enabled) && !Ubiquo::Config.context(:ubiquo_media).get(:force_visibility))
-    date_filter_enabled = Ubiquo::Config.context(:ubiquo_media).get(:assets_date_filter_enabled)
+    string_filter_enabled = Ubiquo::Settings.context(:ubiquo_media).get(:assets_string_filter_enabled)
+    type_filter_enabled = Ubiquo::Settings.context(:ubiquo_media).get(:assets_asset_types_filter_enabled)
+    visibility_filter_enabled = (Ubiquo::Settings.context(:ubiquo_media).get(:assets_asset_visibility_filter_enabled) && !Ubiquo::Settings.context(:ubiquo_media).get(:force_visibility))
+    date_filter_enabled = Ubiquo::Settings.context(:ubiquo_media).get(:assets_date_filter_enabled)
 
     asset_types =  @asset_types.map{|lk| OpenStruct.new(:key => lk.id, :name => I18n.t("ubiquo.asset_type.names.#{lk.key}"))}
 
@@ -29,9 +29,9 @@ module Ubiquo::AssetsHelper
 
   # Styles that can be cropped
   def media_styles_croppable_list
-    list = Ubiquo::Config.context(:ubiquo_media).get(:media_styles_list)
+    list = Ubiquo::Settings.context(:ubiquo_media).get(:media_styles_list)
     # The main styles are not croppable as they belong to the core
-    Ubiquo::Config.context(:ubiquo_media).get(:media_core_styles).each do |s|
+    Ubiquo::Settings.context(:ubiquo_media).get(:media_core_styles).each do |s|
       list.delete(s)
     end
     # Filter the formats that are not strings like "300x200#"
@@ -53,7 +53,7 @@ module Ubiquo::AssetsHelper
   def shared_asset_warning_message_for asset, params
     count = asset.asset_relations.count
     if count > 0 &&
-        Ubiquo::Config.context(:ubiquo_media).get(:advanced_edit_warn_user_when_changing_asset_in_use)
+        Ubiquo::Settings.context(:ubiquo_media).get(:advanced_edit_warn_user_when_changing_asset_in_use)
       
       # Alert when we are editing an asset which is used elsewhere, in other models.
       do_warn = if count == 1 && params[:current_id].to_i > 0
@@ -66,7 +66,7 @@ module Ubiquo::AssetsHelper
         # Notice: when we are advanced_editing an element which is related to a 
         # translatable model we'll warn even if it's :translation_shared
         # TODO: manage when it's a relation in a translation_shared relation
-        threshold = (Ubiquo::Config.context(:ubiquo_media).get(:advanced_edit_warn_user_when_changing_asset_in_use_threshold) rescue 1)
+        threshold = (Ubiquo::Settings.context(:ubiquo_media).get(:advanced_edit_warn_user_when_changing_asset_in_use_threshold) rescue 1)
         threshold <= count # More than the limit so warn!
       end 
       t("ubiquo.media.affects_all_related_elements", :count => asset.asset_relations.count) if do_warn

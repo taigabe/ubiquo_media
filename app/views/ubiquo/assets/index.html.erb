@@ -5,14 +5,14 @@
 <%= show_filter_info %>
 <%= render(:partial => "shared/ubiquo/lists/standard", :locals => {
   :name => 'asset',
-  :headers => [:name, :asset_type_id, Ubiquo::Config.context(:ubiquo_media).get(:force_visibility) ? nil : "Visibilitat"].compact,
+  :headers => [:name, :asset_type_id, Ubiquo::Settings.context(:ubiquo_media).get(:force_visibility) ? nil : "Visibilitat"].compact,
   :rows => @assets.collect do |asset|
     {
       :id => asset.id,
       :columns => [
         link_to(asset.name, url_for_media_attachment(asset)),
         I18n.t("ubiquo.asset_type.names.#{asset.asset_type.key}"),
-        Ubiquo::Config.context(:ubiquo_media).get(:force_visibility) ?
+        Ubiquo::Settings.context(:ubiquo_media).get(:force_visibility) ?
               nil : (asset.resource_is_public? ? t("ubiquo.media.public") : t("ubiquo.media.private")),
       ].compact,
       :actions => uhook_asset_index_actions(asset)

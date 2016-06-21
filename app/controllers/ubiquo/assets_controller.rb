@@ -6,9 +6,9 @@ class Ubiquo::AssetsController < UbiquoController
   # GET /assets
   # GET /assets.xml
   def index
-    order_by = params[:order_by] || Ubiquo::Config.context(:ubiquo_media).get(:assets_default_order_field)
-    sort_order = params[:sort_order] || Ubiquo::Config.context(:ubiquo_media).get(:assets_default_sort_order)
-    per_page = params[:per_page] || Ubiquo::Config.context(:ubiquo_media).get(:assets_elements_per_page)
+    order_by = params[:order_by] || Ubiquo::Settings.context(:ubiquo_media).get(:assets_default_order_field)
+    sort_order = params[:sort_order] || Ubiquo::Settings.context(:ubiquo_media).get(:assets_default_sort_order)
+    per_page = params[:per_page] || Ubiquo::Settings.context(:ubiquo_media).get(:assets_elements_per_page)
 
     filters = {
       "filter_created_start" => params[:filter_created_start],
@@ -159,7 +159,7 @@ class Ubiquo::AssetsController < UbiquoController
     @counter = params[:counter]
     @search_text = params[:text]
     @page = params[:page] || 1
-    per_page = params[:per_page] || Ubiquo::Config.context(:ubiquo_media).get(:media_selector_list_size)
+    per_page = params[:per_page] || Ubiquo::Settings.context(:ubiquo_media).get(:media_selector_list_size)
 
     filters = {
       "filter_asset_type" => params[:asset_type_id],
@@ -167,7 +167,7 @@ class Ubiquo::AssetsController < UbiquoController
       "filter_visibility" => params[:visibility],
       :per_page => per_page,
       :page => @page,
-      "order_by" => order_by = params[:order_by] || Ubiquo::Config.context(:ubiquo_media).get(:assets_default_order_field),
+      "order_by" => order_by = params[:order_by] || Ubiquo::Settings.context(:ubiquo_media).get(:assets_default_order_field),
       "sort_order" => "desc"
     }.merge(uhook_index_filters)
     @assets_pages, @assets = uhook_index_search_subject.paginated_filtered_search(filters)
@@ -196,7 +196,7 @@ class Ubiquo::AssetsController < UbiquoController
       @asset.save!
     end
 
-    @asset.keep_backup = ( params[:asset][:keep_backup] rescue Ubiquo::Config.context(:ubiquo_media).get(:assets_default_keep_backup))
+    @asset.keep_backup = ( params[:asset][:keep_backup] rescue Ubiquo::Settings.context(:ubiquo_media).get(:assets_default_keep_backup))
     errors ||= !@asset.save
 
     asset_area = nil
@@ -306,7 +306,7 @@ class Ubiquo::AssetsController < UbiquoController
   end
 
   def get_visibility(params)
-    if (forced_vis = Ubiquo::Config.context(:ubiquo_media).get(:force_visibility))
+    if (forced_vis = Ubiquo::Settings.context(:ubiquo_media).get(:force_visibility))
       return forced_vis
     end
     if %w{private 1 true}.include?(params[:asset][:is_protected])

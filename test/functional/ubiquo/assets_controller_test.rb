@@ -130,8 +130,8 @@ class Ubiquo::AssetsControllerTest < ActionController::TestCase
 
   def test_should_filter_by_text_and_ubiquo_user_paginated
     Asset.destroy_all
-    Ubiquo::Config.context(:ubiquo_media).set(:media_selector_list_size, 1)
-    list_size = Ubiquo::Config.context(:ubiquo_media).get(:media_selector_list_size)
+    Ubiquo::Settings.context(:ubiquo_media).set(:media_selector_list_size, 1)
+    list_size = Ubiquo::Settings.context(:ubiquo_media).get(:media_selector_list_size)
     ((list_size * 2) ).times do
       create_asset(
                    :asset_type_id => asset_types(:image).id,
@@ -147,11 +147,11 @@ class Ubiquo::AssetsControllerTest < ActionController::TestCase
     assert_equal assigns(:assets).size, list_size
     assert_equal assigns(:assets_pages), {:previous => 1, :next => nil}
   ensure
-    Ubiquo::Config.context(:ubiquo_media).set(:media_selector_list_size, 3)
+    Ubiquo::Settings.context(:ubiquo_media).set(:media_selector_list_size, 3)
   end
 
   def test_should_filter_by_text_and_ubiquo_user_paginated_view
-    (Ubiquo::Config.context(:ubiquo_media).get(:assets_elements_per_page) * 2).times do
+    (Ubiquo::Settings.context(:ubiquo_media).get(:assets_elements_per_page) * 2).times do
       create_asset(
                    :asset_type_id => asset_types(:image).id,
                    :name => "MyName"
@@ -220,7 +220,7 @@ class Ubiquo::AssetsControllerTest < ActionController::TestCase
 
   def test_advanced_edit_hides_tabs_when_formats
     preserve_configuration do
-      Ubiquo::Config.context(:ubiquo_media).set(:media_styles_list,{})
+      Ubiquo::Settings.context(:ubiquo_media).set(:media_styles_list,{})
 
       asset = create_image_asset
 
@@ -234,7 +234,7 @@ class Ubiquo::AssetsControllerTest < ActionController::TestCase
   def test_should_advanced_update_asset_original
     asset = create_image_asset
 
-    Ubiquo::Config.context(:ubiquo_media).get(:media_styles_list).merge!(
+    Ubiquo::Settings.context(:ubiquo_media).get(:media_styles_list).merge!(
       {:thumb => "100x100>",:base_to_crop => "320x200>"})
     original_params = {
       "left"=>"1",
@@ -263,7 +263,7 @@ class Ubiquo::AssetsControllerTest < ActionController::TestCase
   def test_should_advanced_update_support_styles_without_areas_defined_and_no_width_or_height
     asset = create_image_asset
 
-    Ubiquo::Config.context(:ubiquo_media).get(:media_styles_list).merge!(
+    Ubiquo::Settings.context(:ubiquo_media).get(:media_styles_list).merge!(
       {:thumb => "100x100>",:no_height => "500x",:no_width => "x500"})
     thumb_parameters = {
       "left"=>"0",
@@ -363,7 +363,7 @@ class Ubiquo::AssetsControllerTest < ActionController::TestCase
   
   def update_asset_formats_test( options = {} )
     preserve_configuration do
-      Ubiquo::Config.context(:ubiquo_media).get(:media_styles_list).merge!({
+      Ubiquo::Settings.context(:ubiquo_media).get(:media_styles_list).merge!({
           :thumb => "100x100>",
           :base_to_crop => "320x200>",
           :long => "30x180#" #Very vertical image
@@ -462,9 +462,9 @@ class Ubiquo::AssetsControllerTest < ActionController::TestCase
 
   # To recover the configuration after the changes.
   def preserve_configuration
-    @old_media_styles_list = Ubiquo::Config.context(:ubiquo_media).get(:media_styles_list).dup
+    @old_media_styles_list = Ubiquo::Settings.context(:ubiquo_media).get(:media_styles_list).dup
     yield
   ensure
-    Ubiquo::Config.context(:ubiquo_media).set(:media_styles_list, @old_media_styles_list)
+    Ubiquo::Settings.context(:ubiquo_media).set(:media_styles_list, @old_media_styles_list)
   end
 end
