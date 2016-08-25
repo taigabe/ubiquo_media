@@ -10,10 +10,10 @@ Ubiquo::Plugin.register(:ubiquo_media, directory, config) do |config|
   config.add :assets_elements_per_page
   config.add_inheritance :assets_elements_per_page, :elements_per_page
   config.add :media_selector_list_size, 6
-  config.add :assets_access_control, lambda{
+  config.add :assets_access_control, lambda{ |_|
     access_control :DEFAULT => 'media_management'
   }
-  config.add :assets_permit, lambda{
+  config.add :assets_permit, lambda{ |_|
     permit?('media_management')
   }
   config.add :assets_string_filter_enabled, true

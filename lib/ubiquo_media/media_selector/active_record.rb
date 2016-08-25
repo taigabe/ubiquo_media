@@ -116,7 +116,7 @@ module UbiquoMedia
 
             # Automatically set the required attr_name when creating through the through
             define_method 'construct_owner_attributes' do |reflection|
-              super.merge(:field_name => field.to_s).merge(AssetRelation.default_values(proxy_owner, reflection))
+              super(reflection).merge(:field_name => field.to_s).merge(AssetRelation.default_values(proxy_owner, reflection))
             end
           end
 
