@@ -6,20 +6,17 @@ class Ubiquo::AssetsController < UbiquoController
   # GET /assets
   # GET /assets.xml
   def index
-    order_by = params[:order_by] || Ubiquo::Config.context(:ubiquo_media).get(:assets_default_order_field)
-    sort_order = params[:sort_order] || Ubiquo::Config.context(:ubiquo_media).get(:assets_default_sort_order)
-    per_page = params[:per_page] || Ubiquo::Config.context(:ubiquo_media).get(:assets_elements_per_page)
-
+    params[:order_by] ||= Ubiquo::Config.context(:ubiquo_media).get(:assets_default_order_field)
+    params[:sort_order] ||= Ubiquo::Config.context(:ubiquo_media).get(:assets_default_sort_order)
+    params[:per_page] ||= Ubiquo::Config.context(:ubiquo_media).get(:assets_elements_per_page)
     filters = {
       "filter_created_start" => params[:filter_created_start],
       "filter_created_end" => params[:filter_created_end], :time_offset => 1.day,
-      "per_page" => per_page,
-      "order_by" => order_by,
-      "sort_order" => sort_order
+      "per_page" => params[:per_page],
+      "order_by" => params[:order_by],
+      "sort_order" => params[:sort_order]
     }.merge(uhook_index_filters)
-
     @assets_pages, @assets = uhook_index_search_subject.paginated_filtered_search(params.merge(filters))
-
     respond_to do |format|
       format.html{ } # index.html.erb
       format.xml{
