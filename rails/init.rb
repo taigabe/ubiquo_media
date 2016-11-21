@@ -46,7 +46,7 @@ Ubiquo::Plugin.register(:ubiquo_media, directory, config) do |config|
   config.add :media_styles_list, { :thumb => "100x100>", :base_to_crop => "590x442>" }
   # a hash or a proc (receives the style name and value) containing options that apply to all styles
   config.add :media_styles_options, {}
-  config.add :media_processors_list, [:resize_and_crop]
+  config.add :media_processors_list, [:resize_and_crop, :paperclip_optimizer]
   #The styles that belong to ubiquo and are part of the core
   config.add :media_core_styles, [:thumb, :base_to_crop]
   # Advanced edit options (aka Crop&resize)
@@ -77,4 +77,3 @@ Ubiquo::Plugin.register(:ubiquo_media, directory, config) do |config|
       :label_as_legend => true
     })
 end
-
