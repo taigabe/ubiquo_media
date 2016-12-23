@@ -3,7 +3,8 @@ class AssetRelation < ActiveRecord::Base
   belongs_to :related_object, :polymorphic => true
 
   validates_presence_of :asset
-  validates_length_of :name, :maximum => 255
+  # Do not add
+  # validates_length_of :name, :maximum => 255
 
   before_create :set_attribute_values
 
@@ -25,6 +26,7 @@ class AssetRelation < ActiveRecord::Base
 
   # Ensures the position and name attributes are filled
   def set_attribute_values
+    self.name = self.name[0..254] if self.name
     result = if related_object
       set_asset_name     unless self.name
       set_lower_position unless self.position
@@ -39,7 +41,7 @@ class AssetRelation < ActiveRecord::Base
 
   # sets the name of the relation to the asset name
   def set_asset_name
-    write_attribute :name, asset.name
+    write_attribute :name, asset.name[0..254]
   end
 
   # sets the max position to this element
