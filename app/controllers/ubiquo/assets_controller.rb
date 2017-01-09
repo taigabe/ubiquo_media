@@ -244,6 +244,8 @@ class Ubiquo::AssetsController < UbiquoController
         flash[:notice] = if params[:crop_resize_save_as_new].present?
           t('ubiquo.media.image_saved_as_new')
         else
+          UbiquoDesign.cache_manager.expire_asset(
+            @template.url_for_media_attachment(@asset))
           t('ubiquo.media.image_updated')
         end
 
