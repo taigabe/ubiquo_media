@@ -293,8 +293,7 @@ class Ubiquo::AssetsController < UbiquoController
 
   def expire_asset
     return unless ActionController::Base.perform_caching
-    UbiquoDesign.cache_manager.expire_asset(
-      @template.url_for_media_attachment(@asset))
+    UbiquoDesign.cache_manager.expire_asset(@asset)
   end
 
   def load_asset_visibilities
